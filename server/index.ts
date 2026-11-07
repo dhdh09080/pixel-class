@@ -42,10 +42,17 @@ import {
 import { canStand, initialDesks, validDesk, spawnPoint, segmentClear } from '../shared/world.js';
 import type { PersonalEvent, PersonalEventInput } from '../shared/events.js';
 const app = express();
+let shuttingDown = false;
 app.disable('x-powered-by');
 app.set('trust proxy', process.env.TRUST_PROXY_HOPS === '1' ? 1 : false);
 app.use(express.json({ limit: '8mb' }));
 app.use((req, res, next) => {
+  if (shuttingDown) {
+    res.setHeader('Connection', 'close');
+    return res
+      .status(503)
+      .json({ error: '서버를 다시 시작하고 있어요. 잠시 후 다시 연결해 주세요.' });
+  }
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'same-origin');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -977,7 +984,7 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });
 server.on('upgrade', (req, socket, head) => {
-  if (req.url !== '/socket') {
+  if (shuttingDown || req.url !== '/socket') {
     socket.destroy();
     return;
   }
@@ -1108,16 +1115,24 @@ const heartbeat = setInterval(() => {
   }
 }, 30000);
 heartbeat.unref();
-let shuttingDown = false;
 function shutdown() {
   if (shuttingDown) return;
   shuttingDown = true;
   clearInterval(heartbeat);
   for (const c of connections) c.ws.close(1001, 'server shutdown');
+  wss.close();
+  // A peer may never acknowledge the close frame. Drain before the container's
+  // stop deadline without waiting for ws's longer default handshake timeout.
+  const drain = setTimeout(() => {
+    for (const ws of wss.clients) ws.terminate();
+    server.closeAllConnections();
+  }, 5000);
+  drain.unref();
   const deadline = setTimeout(() => process.exit(1), 10000);
   deadline.unref();
   server.close(() => {
     db.close();
+    clearTimeout(drain);
     clearTimeout(deadline);
     process.exit(0);
   });

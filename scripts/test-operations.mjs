@@ -64,6 +64,31 @@ function probe(ca, authorization) {
 }
 try {
   writeFileSync(env.MASTER_BOOTSTRAP_FILE, bootstrap, { mode: 0o400 });
+  // CI's runner may be UID 1001. Compose file secrets retain host ownership.
+  // Give only this throwaway file to the non-root application, retaining 0400.
+  docker(
+    [
+      'run',
+      '--rm',
+      '--network',
+      'none',
+      '--read-only',
+      '--cap-drop',
+      'ALL',
+      '--cap-add',
+      'CHOWN',
+      '--user',
+      '0:0',
+      '--mount',
+      `type=bind,src=${env.MASTER_BOOTSTRAP_FILE},dst=/bootstrap`,
+      '--entrypoint',
+      'chown',
+      'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
+      '1000:1000',
+      '/bootstrap',
+    ],
+    { capture: true },
+  );
   writeFileSync(join(dir, 'empty-access'), '', { mode: 0o400 });
   const emptySecretCheck = spawnSync(
     'docker',
