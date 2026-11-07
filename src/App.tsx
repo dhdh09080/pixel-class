@@ -164,6 +164,34 @@ export default function App() {
       setOverlay('profile');
     }
   }, []);
+  useEffect(() => {
+    if (!state || state.me.status !== 'ACTIVE' || page === 'classroom') return;
+    let disposed = false;
+    let socket: WebSocket;
+    let retry: ReturnType<typeof setTimeout>;
+    const connect = () => {
+      if (disposed) return;
+      socket = new WebSocket(
+        `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/socket`,
+      );
+      socket.onmessage = (e) => {
+        const message = JSON.parse(e.data);
+        if (['refresh', 'personal-event', 'online'].includes(message.type)) void load();
+      };
+      socket.onclose = () => {
+        if (!disposed) {
+          void load();
+          retry = setTimeout(connect, 3000);
+        }
+      };
+    };
+    connect();
+    return () => {
+      disposed = true;
+      clearTimeout(retry);
+      socket?.close();
+    };
+  }, [state?.me.id, state?.me.status, page, load]);
   if (loading)
     return (
       <div className="initial-loading">
@@ -210,7 +238,13 @@ export default function App() {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const unread =
     state.messages.filter((m) => m.type === 'NOTICE' && m.createdAt > readAt).length +
-    feedback.filter((f) => f.createdAt > readAt).length;
+    feedback.filter((f) => f.createdAt > readAt).length +
+    (state.events || []).filter(
+      (e) =>
+        ['project.question.answered', 'help.requested'].includes(e.type) &&
+        !e.readAt &&
+        e.createdAt > readAt,
+    ).length;
   const latestNotice = state.messages.filter((m) => m.type === 'NOTICE').at(-1);
   const isActive = me.status === 'ACTIVE';
   const close = () => setOverlay(null);
@@ -218,6 +252,7 @@ export default function App() {
     const value = new Date().toISOString();
     setReadAt(value);
     localStorage.setItem(`pixel-read-${me.id}`, value);
+    void mutate('/events/read-all', 'POST').catch(() => {});
   };
   async function switchRole(role: 'MASTER' | 'STUDENT') {
     try {
@@ -725,7 +760,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.1</span>
+            <span>PIXEL CLASS v0.2</span>
           </div>
         </div>
       </div>
@@ -861,6 +896,53 @@ export default function App() {
           }}
         >
           <div className="notifications">
+            {(state.events || [])
+              .filter((e) => e.type === 'help.requested')
+              .slice()
+              .reverse()
+              .map(
+                (e) =>
+                  e.type === 'help.requested' && (
+                    <button
+                      className="notification-feedback"
+                      key={e.id}
+                      onClick={() => {
+                        markRead();
+                        setPage('master');
+                        close();
+                      }}
+                    >
+                      <span className="notice-type">학생 도움 요청</span>
+                      <p>{e.payload.name}님이 도움이 필요해요.</p>
+                      <small>
+                        {date(e.createdAt)} · 교무실에서 질문과 프로젝트를 확인해 주세요.
+                      </small>
+                    </button>
+                  ),
+              )}
+            {(state.events || [])
+              .filter((e) => e.type === 'project.question.answered')
+              .slice()
+              .reverse()
+              .map(
+                (e) =>
+                  e.type === 'project.question.answered' && (
+                    <button
+                      className="notification-feedback"
+                      key={e.id}
+                      onClick={() => {
+                        markRead();
+                        openProject(e.payload.projectId);
+                      }}
+                    >
+                      <span className="notice-type">질문에 답변이 도착했어요</span>
+                      <p>{e.payload.preview}</p>
+                      <small>
+                        {e.payload.mentorName} · {date(e.createdAt)}
+                      </small>
+                    </button>
+                  ),
+              )}
             {state.messages
               .filter((m) => m.type === 'NOTICE')
               .slice()

@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DEMO_MODE: 'false'
+      DATABASE_PATH: /app/data/school.sqlite
+      COOKIE_SECURE: 'true'
+      PUBLIC_ORIGIN: https://${PIXEL_DOMAIN:?Set PIXEL_DOMAIN to your owned domain}
+      MASTER_BOOTSTRAP_KEY: ${MASTER_BOOTSTRAP_KEY:?Set a random bootstrap key}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+    volumes:
+      - school-data:/app/data
+    expose:
+      - '3001'
+  https:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    environment:
+      PIXEL_DOMAIN: ${PIXEL_DOMAIN:?Set PIXEL_DOMAIN}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+volumes:
+  school-data:
+  caddy-data:
+  caddy-config:

@@ -1,3 +1,9 @@
+import {
+  MentoringSummary,
+  MasterQuestions,
+  StudentMentoring,
+  matchesMentoringFilter,
+} from './Mentoring';
 import { useState } from 'react';
 import {
   Users,
@@ -18,7 +24,7 @@ import type { AppState, Membership, Desk } from '../shared/types';
 import { membershipLabels, progress } from '../shared/types';
 import { Avatar, Status, Progress, Field, date, Empty } from './components';
 import type { Mutate } from './Projects';
-import { initialDesks } from '../shared/world';
+import { nextDeskSlot } from '../shared/world';
 export function MasterPage({
   state,
   mutate,
@@ -40,6 +46,8 @@ export function MasterPage({
     [notice, setNotice] = useState(''),
     [recipient, setRecipient] = useState('');
   const [busy, setBusy] = useState(false);
+  const [projectFilter, setProjectFilter] = useState('ALL'),
+    [mentoring, setMentoring] = useState('');
   const students = state.members.filter((m) => m.role === 'STUDENT');
   const reviews = state.projects.filter((p) => p.status === 'REVIEW');
   const needing = students.filter((m) => m.help);
@@ -75,48 +83,21 @@ export function MasterPage({
         </div>
         <span className="master-badge">♛ MASTER</span>
       </div>
-      <div className="stats-grid">
-        {[
-          {
-            label: '함께하는 학생',
-            value: students.length,
-            icon: Users,
-            sub: `재학 ${students.filter((m) => m.status === 'ACTIVE').length} · 휴학 ${students.filter((m) => m.status === 'ON_LEAVE').length}`,
-          },
-          {
-            label: '진행 중 프로젝트',
-            value: state.projects.filter((p) => !['COMPLETED', 'PAUSED'].includes(p.status)).length,
-            icon: FolderKanban,
-            sub: `완료 ${state.projects.filter((p) => p.status === 'COMPLETED').length}개`,
-          },
-          {
-            label: '검토를 기다려요',
-            value: reviews.length,
-            icon: CheckCircle2,
-            sub: '프로젝트 검토 요청',
-          },
-          {
-            label: '도움이 필요해요',
-            value: needing.length,
-            icon: AlertCircle,
-            sub: `등록된 질문 ${state.projects.reduce((n, p) => n + p.questions.length, 0)}개`,
-          },
-        ].map((s) => (
-          <div className="stat-card" key={s.label}>
-            <s.icon size={19} />
-            <span>{s.label}</span>
-            <strong>
-              {s.value}
-              <small>명 / 개</small>
-            </strong>
-            <p>{s.sub}</p>
-          </div>
-        ))}
-      </div>
+      <MentoringSummary
+        state={state}
+        onFilter={(key) => {
+          if (key === 'QUESTIONS') setTab('questions');
+          else {
+            setTab('projects');
+            setProjectFilter(key);
+          }
+        }}
+      />
       <div className="filter-tabs">
         {[
           ['students', '학생과 학적', Users],
           ['projects', '프로젝트 지도', FolderKanban],
+          ['questions', '질문과 상담', Mail],
           ['invites', '입학 초대', Mail],
           ['classroom', '책상 배치', LayoutGrid],
           ['notices', '공지 보내기', Send],
@@ -126,7 +107,10 @@ export function MasterPage({
             <button
               key={key as string}
               className={tab === key ? 'selected' : ''}
-              onClick={() => setTab(key as string)}
+              onClick={() => {
+                setTab(key as string);
+                setProjectFilter('ALL');
+              }}
             >
               <I size={15} />
               {text as string}
@@ -147,6 +131,10 @@ export function MasterPage({
                     {m.deskId ? '책상 배정됨' : '책상 미배정'}
                   </p>
                 </div>
+                <button className="button small secondary" onClick={() => setMentoring(m.id)}>
+                  학생 상담
+                  <ArrowUpRight size={13} />
+                </button>
                 <span className={`membership membership-${m.status}`}>
                   {membershipLabels[m.status]}
                 </span>
@@ -252,38 +240,52 @@ export function MasterPage({
       )}
       {tab === 'projects' && (
         <div className="mentoring-list">
-          {state.projects.map((p) => {
-            const m = state.members.find((m) => m.id === p.ownerId);
-            return (
-              <article key={p.id}>
-                <div className="between">
-                  <div className="mentor-project-owner">
-                    {m && <Avatar appearance={m.appearance} size={38} />}
-                    <span>{m?.name}</span>
-                    <Status status={p.status} />
+          {state.projects
+            .filter((p) => matchesMentoringFilter(p, projectFilter))
+            .map((p) => {
+              const m = state.members.find((m) => m.id === p.ownerId);
+              return (
+                <article key={p.id}>
+                  <div className="between">
+                    <div className="mentor-project-owner">
+                      {m && <Avatar appearance={m.appearance} size={38} />}
+                      <span>{m?.name}</span>
+                      <Status status={p.status} />
+                    </div>
+                    <button className="text-button" onClick={() => onProject(p.id)}>
+                      프로젝트 지도
+                      <ArrowUpRight size={15} />
+                    </button>
                   </div>
-                  <button className="text-button" onClick={() => onProject(p.id)}>
-                    프로젝트 지도
-                    <ArrowUpRight size={15} />
-                  </button>
-                </div>
-                <h3>{p.title}</h3>
-                <p>{p.purpose}</p>
-                <Progress value={progress(p)} />
-                {p.questions.length > 0 && (
-                  <div className="question-preview">
-                    <MessageIcon />
-                    최근 질문: {p.questions.at(-1)?.text}
+                  <h3>{p.title}</h3>
+                  <p>{p.purpose}</p>
+                  <Progress value={progress(p)} />
+                  {p.questions.length > 0 && (
+                    <div className="question-preview">
+                      <MessageIcon />
+                      최근 질문: {p.questions.at(-1)?.text}
+                    </div>
+                  )}
+                  <div className="muted">
+                    마지막 활동 {date(p.updatedAt)} · 진행 기록 {p.updates.length}개 · 피드백{' '}
+                    {p.feedback.length}개
                   </div>
-                )}
-                <div className="muted">
-                  마지막 활동 {date(p.updatedAt)} · 진행 기록 {p.updates.length}개 · 피드백{' '}
-                  {p.feedback.length}개
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })}
         </div>
+      )}
+      {tab === 'questions' && (
+        <MasterQuestions state={state} mutate={mutate} onProject={onProject} />
+      )}
+      {mentoring && state.members.find((m) => m.id === mentoring) && (
+        <StudentMentoring
+          student={state.members.find((m) => m.id === mentoring)!}
+          state={state}
+          mutate={mutate}
+          onProject={onProject}
+          onClose={() => setMentoring('')}
+        />
       )}
       {tab === 'invites' && (
         <div className="invite-layout">
@@ -392,12 +394,9 @@ export function MasterPage({
           <button
             className="button secondary"
             onClick={() => {
-              const empty = initialDesks.find(
-                (d) =>
-                  !state.desks.some((e) => Math.abs(e.x - d.x) < 150 && Math.abs(e.y - d.y) < 120),
-              );
+              const empty = nextDeskSlot(state.desks);
               if (!empty) {
-                onToast('현재 교실에는 최대 6개의 책상을 배치할 수 있어요.');
+                onToast('교실 확장 가능한 영역이 모두 사용 중이에요.');
                 return;
               }
               void mutate('/desks', 'POST', { x: empty.x, y: empty.y }).catch(() => {});
@@ -501,7 +500,7 @@ function DeskEditor({ desk, state, mutate }: { desk: Desk; state: AppState; muta
             aria-label="세로 위치"
             type="number"
             min={285}
-            max={565}
+            max={7350}
             value={y}
             onChange={(e) => setY(Number(e.target.value))}
           />

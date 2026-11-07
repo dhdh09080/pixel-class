@@ -205,7 +205,7 @@ function entry(u: Member, text: string): Entry {
   return { id: id(), author: u.id, name: u.name, text, createdAt: now() };
 }
 const server = createServer(app);
-const wss = new WebSocketServer({ noServer: true, maxPayload: 2048 });
+const wss = new WebSocketServer({ noServer: true, maxPayload: 4096 });
 type Connection = {
   sessionHash: string;
   userId: string;
@@ -220,6 +220,9 @@ type Connection = {
   alive: boolean;
 };
 const connections = new Set<Connection>();
+
+const lastPositions = new Map<string, { x: number; y: number; updatedAt: number }>();
+const positionKey = (schoolId: string, userId: string) => JSON.stringify([schoolId, userId]);
 function closeSessionSockets(hash: string) {
   for (const c of connections) if (c.sessionHash === hash) c.ws.close(1008, 'session ended');
 }
@@ -982,16 +985,23 @@ server.on('upgrade', (req, socket, head) => {
         .map((v) => v.trim())
         .find((v) => v.startsWith('pixel_session='))
         ?.slice(14) || '';
+    const cached = lastPositions.get(positionKey(u.schoolId, u.id));
+    const initial =
+      cached &&
+      Date.now() - cached.updatedAt < 10 * 60000 &&
+      canStand(cached.x, cached.y, list<Desk>('desk', u.schoolId), roomSize(u.schoolId))
+        ? { x: cached.x, y: cached.y }
+        : spawnPoint(roomSize(u.schoolId));
     const c: Connection = {
       sessionHash: digest(sessionToken),
       userId: u.id,
       schoolId: u.schoolId,
       ws,
-      ...spawnPoint(roomSize(u.schoolId)),
+      ...initial,
       direction: 'down',
       moving: false,
       seated: false,
-      last: 0,
+      last: Date.now() - 50,
       alive: true,
     };
     connections.add(c);
@@ -1031,19 +1041,38 @@ server.on('upgrade', (req, socket, head) => {
             direction: z.enum(['up', 'down', 'left', 'right']),
             moving: z.boolean(),
             seated: z.boolean(),
+            trail: z
+              .array(z.object({ x: z.number().finite(), y: z.number().finite() }))
+              .max(32)
+              .optional(),
           })
           .parse(JSON.parse(raw.toString()));
         const t = Date.now();
         if (t - c.last < 45) return;
         const elapsed = Math.min(1000, t - (c.last || t - 1000));
-        if (
-          Math.hypot(v.x - c.x, v.y - c.y) > elapsed * 0.35 + 20 ||
-          !segmentClear({ x: c.x, y: c.y }, v, list<Desk>('desk', u.schoolId), roomSize(u.schoolId))
-        )
-          return;
+        let previous = { x: c.x, y: c.y },
+          distance = 0;
+        let safe = true;
+        const desks = list<Desk>('desk', u.schoolId),
+          room = roomSize(u.schoolId);
+        for (const point of [...(v.trail || []), { x: v.x, y: v.y }]) {
+          distance += Math.hypot(point.x - previous.x, point.y - previous.y);
+          if (distance > elapsed * 0.35 + 20) {
+            safe = false;
+            break;
+          }
+          if (!segmentClear(previous, point, desks, room)) {
+            safe = false;
+            break;
+          }
+          previous = point;
+        }
+        if (!safe || distance > elapsed * 0.35 + 20) return;
         c.last = t;
-        Object.assign(c, v);
-        broadcast(u.schoolId, { type: 'move', userId: u.id, ...v });
+        const { trail: _, ...pose } = v;
+        Object.assign(c, pose);
+        lastPositions.set(positionKey(c.schoolId, c.userId), { x: c.x, y: c.y, updatedAt: t });
+        broadcast(u.schoolId, { type: 'move', userId: u.id, ...pose });
       } catch {
         /* Ignore invalid position payloads. */
       }
@@ -1055,6 +1084,8 @@ server.on('upgrade', (req, socket, head) => {
   });
 });
 const heartbeat = setInterval(() => {
+  for (const [key, position] of lastPositions)
+    if (Date.now() - position.updatedAt > 10 * 60000) lastPositions.delete(key);
   for (const c of connections) {
     if (!c.alive) c.ws.terminate();
     else {

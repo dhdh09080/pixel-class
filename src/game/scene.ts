@@ -1,6 +1,14 @@
 import Phaser from 'phaser';
 import type { AppState, Member } from '../../shared/types';
-import { WORLD, canStand } from '../../shared/world';
+import {
+  WORLD,
+  canStand,
+  worldSize,
+  spawnPoint,
+  findPath,
+  segmentClear,
+  type Point,
+} from '../../shared/world';
 import { characterCanvas, type Direction } from './character';
 import { worldCanvas, deskCanvas, robotCanvas } from './worldArt';
 export type GameAction = {
@@ -27,15 +35,23 @@ export class ClassroomScene extends Phaser.Scene {
   enabled = true;
   seated = false;
   lastSend = 0;
-  target: { x: number; y: number } | null = null;
+  path: Point[] = [];
+  movementTrail: Point[] = [];
+  sentPosition?: Point;
+  worldImage?: Phaser.GameObjects.Image;
+  layoutKey = '';
+  worldHeight = 0;
+  frameCount = 0;
   onAction: (action: GameAction) => void;
   onMove: (v: unknown) => void;
   onPosition: (x: number, y: number) => void;
+  onReady: () => void;
   constructor(
     state: AppState,
     onAction: (action: GameAction) => void,
     onMove: (v: unknown) => void,
     onPosition: (x: number, y: number) => void,
+    onReady: () => void = () => {},
   ) {
     super('Classroom');
     this.dataState = state;
@@ -44,12 +60,20 @@ export class ClassroomScene extends Phaser.Scene {
     };
     this.onMove = onMove;
     this.onPosition = onPosition;
+    this.onReady = onReady;
   }
   create() {
-    this.textures.addCanvas('world', worldCanvas());
+    const room = this.dataState.world || worldSize(this.dataState.desks);
+    this.worldHeight = room.height;
+    this.textures.addCanvas('world', worldCanvas(room.height));
     this.textures.addCanvas('desk', deskCanvas());
     this.textures.addCanvas('robot', robotCanvas());
-    this.add.image(0, 0, 'world').setOrigin(0).setScale(2);
+    this.worldImage = this.add.image(0, 0, 'world').setOrigin(0).setScale(2);
+    this.cameras.main.setBounds(0, 0, room.width, room.height);
+    this.input.on('wheel', (_p: unknown, _o: unknown, _x: number, y: number) => {
+      if (this.enabled)
+        this.cameras.main.setZoom(Phaser.Math.Clamp(this.cameras.main.zoom - y * 0.001, 0.65, 1.8));
+    });
     this.add
       .text(560, 88, 'Learn AI. Build Your Own Service.', {
         fontFamily: 'monospace',
@@ -94,19 +118,27 @@ export class ClassroomScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.inOut',
     });
-    npc.on('pointerdown', () => this.onAction({ type: 'ai' }));
+    npc.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+      this.pointerAction(pointer, { type: 'ai' }),
+    );
     this.add
       .zone(120, 285, 125, 100)
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.onAction({ type: 'materials' }));
+      .on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+        this.pointerAction(pointer, { type: 'materials' }),
+      );
     this.add
       .zone(1015, 270, 110, 130)
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.onAction({ type: 'gallery' }));
+      .on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+        this.pointerAction(pointer, { type: 'gallery' }),
+      );
     this.add
       .zone(555, 100, 365, 115)
       .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.onAction({ type: 'notice' }));
+      .on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+        this.pointerAction(pointer, { type: 'notice' }),
+      );
     this.keys = this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE') as Record<
       string,
       Phaser.Input.Keyboard.Key
@@ -126,47 +158,67 @@ export class ClassroomScene extends Phaser.Scene {
     this.input.on(
       'pointerdown',
       (pointer: Phaser.Input.Pointer, objects: Phaser.GameObjects.GameObject[]) => {
-        if (!objects.length && this.enabled) {
+        if (!objects.length && this.enabled && pointer.event?.target instanceof HTMLCanvasElement) {
           const p = pointer.positionToCamera(this.cameras.main) as Phaser.Math.Vector2;
-          this.target = { x: p.x, y: p.y };
+          this.navigate({ x: p.x, y: p.y });
           this.seated = false;
         }
       },
     );
-    this.sync(this.dataState);
+    this.sync(this.dataState, true);
     this.input.enabled = this.enabled;
-    this.game.events.emit('classroom-ready');
+    const me = this.players.get(this.dataState.me.id);
+    if (me) this.cameras.main.startFollow(me.sprite, true, 0.08, 0.08);
+    this.onReady();
   }
-  sync(state: AppState) {
+  sync(state: AppState, initializing = false) {
     this.dataState = state;
-    if (!this.sys.isActive()) return;
-    this.desks.forEach((d) => d.destroy());
-    this.desks = [];
-    for (const d of state.desks) {
-      const owner = state.members.find((m) => m.deskId === d.id);
-      const image = this.add
-        .image(d.x, d.y + 58, 'desk')
-        .setOrigin(0.5, 1)
-        .setScale(2)
-        .setDepth(d.y + 35)
-        .setInteractive({ useHandCursor: true });
-      image.on('pointerdown', () => this.onAction({ type: 'desk', memberId: owner?.id }));
-      const label = this.add
-        .text(
-          d.x,
-          d.y + 88,
-          owner ? `${owner.id === state.me.id ? '나의 책상' : owner.name}` : '빈 자리',
-          {
-            fontFamily: 'sans-serif',
-            fontSize: '12px',
-            color: owner?.id === state.me.id ? '#426c4a' : '#806e53',
-            backgroundColor: owner?.id === state.me.id ? '#e2ecc9' : '#e6cda1',
-            padding: { x: 8, y: 3 },
-          },
-        )
-        .setOrigin(0.5)
-        .setDepth(1);
-      this.desks.push(image, label);
+    if (!initializing && !this.sys.isActive()) return;
+    const room = state.world || worldSize(state.desks);
+    if (room.height !== this.worldHeight) {
+      const key = `world-${room.height}`;
+      if (!this.textures.exists(key)) this.textures.addCanvas(key, worldCanvas(room.height));
+      this.worldImage?.setTexture(key);
+      this.worldHeight = room.height;
+      this.cameras.main.setBounds(0, 0, room.width, room.height);
+    }
+    const layoutKey = JSON.stringify([
+      state.desks,
+      state.members.map((m) => [m.id, m.name, m.deskId]),
+      state.me.id,
+    ]);
+    if (layoutKey !== this.layoutKey) {
+      this.layoutKey = layoutKey;
+      this.desks.forEach((d) => d.destroy());
+      this.desks = [];
+      for (const d of state.desks) {
+        const owner = state.members.find((m) => m.deskId === d.id);
+        const image = this.add
+          .image(d.x, d.y + 58, 'desk')
+          .setOrigin(0.5, 1)
+          .setScale(2)
+          .setDepth(d.y + 35)
+          .setInteractive({ useHandCursor: true });
+        image.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+          this.pointerAction(pointer, { type: 'desk', memberId: owner?.id }),
+        );
+        const label = this.add
+          .text(
+            d.x,
+            d.y + 88,
+            owner ? `${owner.id === state.me.id ? '나의 책상' : owner.name}` : '빈 자리',
+            {
+              fontFamily: 'sans-serif',
+              fontSize: '12px',
+              color: owner?.id === state.me.id ? '#426c4a' : '#806e53',
+              backgroundColor: owner?.id === state.me.id ? '#e2ecc9' : '#e6cda1',
+              padding: { x: 8, y: 3 },
+            },
+          )
+          .setOrigin(0.5)
+          .setDepth(1);
+        this.desks.push(image, label);
+      }
     }
     for (const [key, p] of this.players)
       if (!state.members.some((m) => m.id === key && m.status === 'ACTIVE')) {
@@ -178,7 +230,7 @@ export class ClassroomScene extends Phaser.Scene {
       }
     for (const member of state.members.filter((m) => m.status === 'ACTIVE')) {
       let p = this.players.get(member.id);
-      const texturePrefix = `char-${member.id}-${JSON.stringify(member.appearance)}`;
+      const texturePrefix = `char-${JSON.stringify(member.appearance)}`;
       for (const direction of ['down', 'up', 'left', 'right'] as Direction[])
         for (let frame = 0; frame < 3; frame++) {
           const key = `${texturePrefix}-${direction}-${frame}`;
@@ -191,14 +243,17 @@ export class ClassroomScene extends Phaser.Scene {
       if (!p) {
         const d = state.desks.find((d) => d.id === member.deskId);
         const isMe = member.id === state.me.id;
-        const x = isMe ? 560 : d?.x || 372,
-          y = isMe ? 625 : d ? d.y + 81 : 245;
+        const spawn = spawnPoint(room);
+        const x = isMe ? spawn.x : d?.x || 372,
+          y = isMe ? spawn.y : d ? d.y + 81 : 245;
         const sprite = this.add
           .sprite(x, y, `${texturePrefix}-down-0`)
           .setOrigin(0.5, 1)
           .setScale(1.15)
           .setInteractive({ useHandCursor: true });
-        sprite.on('pointerdown', () => this.onAction({ type: 'profile', memberId: member.id }));
+        sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+          this.pointerAction(pointer, { type: 'profile', memberId: member.id }),
+        );
         const name = this.add
           .text(x, y - 82, '', {
             fontFamily: 'sans-serif',
@@ -223,6 +278,15 @@ export class ClassroomScene extends Phaser.Scene {
         };
         this.players.set(member.id, p);
       }
+      if (member.id !== state.me.id && !state.online.includes(member.id)) {
+        const assigned = state.desks.find((d) => d.id === member.deskId);
+        if (assigned) {
+          p.tx = assigned.x;
+          p.ty = assigned.y + 81;
+          p.sprite.setPosition(p.tx, p.ty);
+          p.moving = false;
+        }
+      }
       p.member = member;
       p.sprite.setData('prefix', texturePrefix);
       const isMe = member.id === state.me.id;
@@ -241,6 +305,52 @@ export class ClassroomScene extends Phaser.Scene {
       p.dot.setFillStyle(state.online.includes(member.id) ? 0x8cbd73 : 0xa6a998);
     }
   }
+  recordMovement(point: Point) {
+    const anchor =
+      this.movementTrail.length > 1
+        ? this.movementTrail[this.movementTrail.length - 2]
+        : this.sentPosition;
+    if (
+      this.movementTrail.length &&
+      anchor &&
+      segmentClear(anchor, point, this.dataState.desks, this.dataState.world)
+    )
+      this.movementTrail[this.movementTrail.length - 1] = { ...point };
+    else this.movementTrail.push({ ...point });
+  }
+  pointerAction(pointer: Phaser.Input.Pointer, action: GameAction) {
+    if (pointer.event?.target instanceof HTMLCanvasElement) this.onAction(action);
+  }
+  navigate(target: Point) {
+    const me = this.players.get(this.dataState.me.id);
+    if (me)
+      this.path = findPath(
+        { x: me.sprite.x, y: me.sprite.y },
+        target,
+        this.dataState.desks,
+        this.dataState.world,
+      );
+    this.seated = false;
+  }
+  command(action: 'self' | 'desk' | 'master' | 'zoomIn' | 'zoomOut') {
+    const me = this.players.get(this.dataState.me.id);
+    if (!me || !this.enabled) return;
+    if (action === 'zoomIn' || action === 'zoomOut') {
+      this.cameras.main.setZoom(
+        Phaser.Math.Clamp(this.cameras.main.zoom + (action === 'zoomIn' ? 0.15 : -0.15), 0.65, 1.8),
+      );
+      return;
+    }
+    this.cameras.main.startFollow(me.sprite, true, 0.08, 0.08);
+    if (action === 'desk') {
+      const d = this.dataState.desks.find((d) => d.id === this.dataState.me.deskId);
+      if (d) this.navigate({ x: d.x, y: d.y + 80 });
+    }
+    if (action === 'master') {
+      const master = [...this.players.values()].find((p) => p.member.role === 'MASTER');
+      if (master) this.navigate({ x: master.sprite.x, y: master.sprite.y });
+    }
+  }
   receive(value: {
     type: string;
     userId?: string;
@@ -251,8 +361,33 @@ export class ClassroomScene extends Phaser.Scene {
     seated?: boolean;
     players?: unknown[];
   }) {
-    if (value.type === 'positions')
-      for (const p of value.players || []) this.receive({ type: 'move', ...(p as object) });
+    if (value.type === 'relocate') {
+      const me = this.players.get(this.dataState.me.id);
+      if (me) {
+        me.sprite.setPosition(value.x!, value.y!);
+        this.movementTrail = [];
+        this.sentPosition = { x: value.x!, y: value.y! };
+        this.path = [];
+        this.onPosition(value.x!, value.y!);
+      }
+      return;
+    }
+    if (value.type === 'positions') {
+      for (const raw of value.players || []) {
+        const player = raw as { userId: string; x: number; y: number };
+        if (player.userId === this.dataState.me.id) {
+          const me = this.players.get(player.userId);
+          if (me) {
+            me.sprite.setPosition(player.x, player.y);
+            this.movementTrail = [];
+            this.sentPosition = { x: player.x, y: player.y };
+            this.path = [];
+            this.onPosition(player.x, player.y);
+          }
+        } else this.receive({ type: 'move', ...(raw as object) });
+      }
+      return;
+    }
     if (value.type === 'move' && value.userId !== this.dataState.me.id) {
       const p = this.players.get(value.userId!);
       if (p) {
@@ -267,6 +402,7 @@ export class ClassroomScene extends Phaser.Scene {
   update(time: number, delta: number) {
     const me = this.players.get(this.dataState.me.id);
     if (!me) return;
+    if (!this.sentPosition) this.sentPosition = { x: me.sprite.x, y: me.sprite.y };
     let dx = 0,
       dy = 0;
     const el = document.activeElement;
@@ -280,7 +416,7 @@ export class ClassroomScene extends Phaser.Scene {
         (this.keys.S.isDown || this.keys.DOWN.isDown ? 1 : 0) -
         (this.keys.W.isDown || this.keys.UP.isDown ? 1 : 0);
       if (dx || dy) {
-        this.target = null;
+        this.path = [];
         this.seated = false;
       }
       if (Phaser.Input.Keyboard.JustDown(this.keys.E)) {
@@ -304,12 +440,13 @@ export class ClassroomScene extends Phaser.Scene {
           me.direction = 'up';
         }
       }
-      if (this.target && !dx && !dy) {
-        const distance = Math.hypot(this.target.x - me.sprite.x, this.target.y - me.sprite.y);
-        if (distance < 5) this.target = null;
+      if (this.path.length && !dx && !dy) {
+        const target = this.path[0];
+        const distance = Math.hypot(target.x - me.sprite.x, target.y - me.sprite.y);
+        if (distance < 4) this.path.shift();
         else {
-          dx = (this.target.x - me.sprite.x) / distance;
-          dy = (this.target.y - me.sprite.y) / distance;
+          dx = (target.x - me.sprite.x) / distance;
+          dy = (target.y - me.sprite.y) / distance;
         }
       }
     }
@@ -322,9 +459,15 @@ export class ClassroomScene extends Phaser.Scene {
         Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
       const oldX = me.sprite.x,
         oldY = me.sprite.y;
-      if (canStand(oldX + dx * speed, oldY, this.dataState.desks)) me.sprite.x += dx * speed;
-      if (canStand(me.sprite.x, oldY + dy * speed, this.dataState.desks)) me.sprite.y += dy * speed;
-      if (this.target && oldX === me.sprite.x && oldY === me.sprite.y) this.target = null;
+      if (canStand(oldX + dx * speed, oldY, this.dataState.desks, this.dataState.world)) {
+        me.sprite.x += dx * speed;
+        if (me.sprite.x !== oldX) this.recordMovement({ x: me.sprite.x, y: me.sprite.y });
+      }
+      if (canStand(me.sprite.x, oldY + dy * speed, this.dataState.desks, this.dataState.world)) {
+        me.sprite.y += dy * speed;
+        if (me.sprite.y !== oldY) this.recordMovement({ x: me.sprite.x, y: me.sprite.y });
+      }
+      if (this.path.length && oldX === me.sprite.x && oldY === me.sprite.y) this.path = [];
     }
     me.moving = length > 0 && this.enabled && !typing;
     me.seated = this.seated;
@@ -336,10 +479,16 @@ export class ClassroomScene extends Phaser.Scene {
         direction: me.direction,
         moving: me.moving,
         seated: me.seated,
+        trail: this.movementTrail.slice(0, 32),
       });
+      this.movementTrail = [];
+      this.sentPosition = { x: me.sprite.x, y: me.sprite.y };
       this.onPosition(me.sprite.x, me.sprite.y);
     }
-    for (const [key, p] of this.players) {
+    const labels: { x: number; y: number; w: number }[] = [];
+    for (const [key, p] of [...this.players].sort(([a], [b]) =>
+      a === this.dataState.me.id ? -1 : b === this.dataState.me.id ? 1 : 0,
+    )) {
       if (key !== this.dataState.me.id) {
         p.sprite.x = Phaser.Math.Linear(p.sprite.x, p.tx, Math.min(1, delta * 0.012));
         p.sprite.y = Phaser.Math.Linear(p.sprite.y, p.ty, Math.min(1, delta * 0.012));
@@ -348,9 +497,28 @@ export class ClassroomScene extends Phaser.Scene {
       const frame = p.moving ? 1 + (Math.floor(time / 180) % 2) : 0;
       p.sprite.setTexture(p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`);
       p.sprite.setDepth(p.sprite.y);
-      p.name.setPosition(p.sprite.x, p.sprite.y - 84).setDepth(p.sprite.y + 1);
+      const visible = this.cameras.main.worldView.contains(p.sprite.x, p.sprite.y - 35);
+      p.sprite.setVisible(visible);
+      p.shadow.setVisible(visible);
+      p.name.setVisible(visible);
+      p.dot.setVisible(visible);
+      const scale = 1 / Math.max(0.8, this.cameras.main.zoom);
+      p.name.setScale(scale);
+      let labelY = p.sprite.y - 84;
+      const width = p.name.width * scale;
+      for (
+        let level = 0;
+        level < 4 &&
+        labels.some(
+          (l) => Math.abs(l.x - p.sprite.x) < (l.w + width) / 2 && Math.abs(l.y - labelY) < 24,
+        );
+        level++
+      )
+        labelY -= 23;
+      if (visible) labels.push({ x: p.sprite.x, y: labelY, w: width });
+      p.name.setPosition(p.sprite.x, labelY).setDepth(10000 + labelY);
       p.shadow.setPosition(p.sprite.x, p.sprite.y - 2).setDepth(p.sprite.y - 1);
-      p.dot.setPosition(p.sprite.x, p.sprite.y - 91).setDepth(p.sprite.y + 2);
+      p.dot.setPosition(p.sprite.x, labelY - 8).setDepth(10001 + labelY);
     }
   }
 }

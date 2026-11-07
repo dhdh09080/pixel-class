@@ -3852,3 +3852,453 @@ kbd,
     font-size: 10px;
   }
 }
+.game-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  background: #edf2e2;
+  border-top: 1px solid #dce4cd;
+  flex-wrap: wrap;
+}
+.game-toolbar button {
+  font-size: 10px;
+  padding: 6px 9px;
+  border: 1px solid #ccd8be;
+  border-radius: 5px;
+  background: #f8faef;
+  color: #536748;
+}
+.game-toolbar > span {
+  flex: 1;
+}
+.game-container.focus-mode {
+  position: fixed;
+  inset: 20px 25px 40px 105px;
+  z-index: 30;
+  background: #eff3e4;
+  border: 1px solid #9caf8a;
+  box-shadow: 0 15px 80px #233a2860;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.game-container.focus-mode .game-host,
+.game-container:fullscreen .game-host {
+  flex: 1;
+  aspect-ratio: auto;
+  min-height: 0;
+}
+.game-container:fullscreen {
+  display: flex;
+  flex-direction: column;
+  background: #b4c6a6;
+}
+.game-container:fullscreen .game-toolbar {
+  flex-shrink: 0;
+}
+.game-container:fullscreen {
+  height: 100vh;
+}
+.game-container.focus-mode .game-host canvas,
+.game-container:fullscreen .game-host canvas {
+  object-fit: contain;
+}
+@media (max-width: 720px) {
+  .game-toolbar {
+    gap: 4px;
+    padding: 7px;
+  }
+  .game-toolbar button {
+    font-size: 8px;
+    padding: 6px;
+  }
+  .game-container.focus-mode {
+    inset: 8px 8px 35px 70px;
+  }
+  .game-toolbar > span {
+    display: none;
+  }
+}
+.learning-plan > form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.learning-plan .section-heading,
+.submission-panel .section-heading {
+  margin-top: 22px;
+}
+.learning-plan h3,
+.submission-panel h3 {
+  font-size: 15px;
+  color: #4b6540;
+}
+.learning-plan .muted {
+  font-size: 11px;
+  margin-top: 8px;
+}
+.learning-plan form > .button {
+  align-self: flex-end;
+}
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 20px 0;
+}
+.roadmap-step {
+  display: flex;
+  gap: 13px;
+  background: #f0f3e6;
+  border: 1px solid #dbe4ce;
+  padding: 16px;
+  border-radius: 9px;
+}
+.roadmap-number {
+  font: 20px monospace;
+  color: #71865d;
+  padding-top: 14px;
+}
+.roadmap-content {
+  flex: 1;
+  min-width: 0;
+}
+.roadmap-content .inline-form {
+  margin-top: 0;
+}
+.roadmap-content input[type='checkbox'] {
+  flex-shrink: 0;
+}
+.roadmap-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.learning-actions {
+  margin: 15px 0;
+}
+.question-thread {
+  border: 1px solid #dce5cd;
+  border-radius: 9px;
+  padding: 18px;
+  margin: 15px 0;
+  background: #fafbf2;
+}
+.question-thread > p {
+  font-size: 12px;
+  margin: 15px 0;
+  color: #5f744c;
+  white-space: pre-wrap;
+}
+.question-thread time,
+.submission-record time {
+  font-size: 9px;
+  color: #677757;
+}
+.question-status {
+  font-size: 10px;
+  padding: 5px 8px;
+  background: #eee4cd;
+  color: #785b30;
+  border-radius: 5px;
+}
+.question-ANSWERED,
+.question-RESOLVED {
+  background: #e3edd9;
+  color: #536e40;
+}
+.question-thread > .field {
+  margin-top: 15px;
+  max-width: 180px;
+}
+.question-answer {
+  background: #e9efdf;
+  border-left: 3px solid #94ac7a;
+  padding: 15px;
+  margin: 18px 0;
+  font-size: 11px;
+  color: #526a42;
+}
+.question-answer p {
+  white-space: pre-wrap;
+  margin: 9px 0;
+}
+.question-thread .text-button {
+  margin-top: 18px;
+}
+.work-summary {
+  padding: 12px;
+  background: #f0f3e7;
+  border-radius: 6px;
+  margin: 15px 0;
+}
+.work-summary p {
+  font-size: 11px;
+  margin: 4px 0;
+}
+.work-summary strong {
+  color: #536b43;
+}
+.timeline-entry > .field {
+  max-width: 190px;
+  margin-top: 12px;
+}
+.timeline-entry > .membership {
+  margin-top: 10px;
+}
+.prompt-panel textarea {
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.attachments {
+  background: #edf2e3;
+  padding: 18px;
+  border-radius: 9px;
+  margin-bottom: 24px;
+}
+.attachments h4 {
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.attachments .muted {
+  font-size: 9px;
+}
+.attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  font-size: 11px;
+  color: #526c40;
+}
+.attachment-row a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.attachment-row input {
+  flex-shrink: 0;
+}
+.attachment-row small {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.submission-record {
+  border: 1px solid #dae3cd;
+  background: #fafbf2;
+  padding: 22px;
+  border-radius: 10px;
+  margin-top: 23px;
+}
+.submission-record h4 {
+  margin-top: 18px;
+  color: #63764e;
+  font-size: 10px;
+}
+.submission-record > p {
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin-top: 8px;
+  color: #5e714c;
+}
+.submission-record > time {
+  display: block;
+  margin-top: 10px;
+}
+.submission-record .text-link {
+  margin-right: 10px;
+}
+.recommended-materials {
+  margin-top: 30px;
+  border-top: 1px solid #dbe4cd;
+  padding-top: 20px;
+}
+@media (max-width: 720px) {
+  .roadmap-step {
+    padding: 11px;
+    gap: 8px;
+  }
+  .roadmap-number {
+    font-size: 15px;
+  }
+  .roadmap-content .inline-form {
+    gap: 6px;
+  }
+  .roadmap-content input {
+    font-size: 11px;
+  }
+  .roadmap-content textarea {
+    font-size: 10px;
+  }
+  .question-thread {
+    padding: 13px;
+  }
+  .question-thread > .inline-form {
+    flex-wrap: wrap;
+  }
+  .question-thread > .inline-form > .button {
+    margin-left: auto;
+  }
+  .submission-record {
+    padding: 16px;
+  }
+  .learning-plan > .inline-form {
+    flex-wrap: wrap;
+  }
+  .attachments .inline-form {
+    flex-wrap: wrap;
+  }
+  .attachments input[type='file'] {
+    font-size: 9px;
+  }
+  .attachment-row {
+    font-size: 9px;
+  }
+  .learning-actions {
+    flex-wrap: wrap;
+  }
+}
+.mentoring-stats .stat-card {
+  text-align: left;
+}
+.mentoring-stats .stat-card:hover {
+  background: #eff4e5;
+}
+.mentoring-stats .stat-card > strong {
+  font-size: 29px;
+}
+.mentoring-stats {
+  margin-bottom: 12px;
+}
+.mentoring-note {
+  margin-bottom: 24px;
+  font-size: 10px;
+}
+.master-questions > .between {
+  margin: 20px 0;
+  align-items: flex-start;
+}
+.master-questions h3 {
+  font-size: 14px;
+}
+.master-questions > .between > select {
+  max-width: 160px;
+  font-size: 11px;
+}
+.master-questions > section {
+  padding: 18px;
+  background: #f3f5eb;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+.student-mentoring-project {
+  border: 1px solid #dce4d0;
+  background: #fafbf3;
+  padding: 22px;
+  border-radius: 9px;
+  margin-bottom: 22px;
+}
+.student-mentoring-project > p {
+  font-size: 12px;
+  margin: 15px 0;
+  color: #61774f;
+}
+.student-mentoring-project small {
+  font-size: 10px;
+  color: #647650;
+}
+.student-row > .button {
+  white-space: nowrap;
+}
+.roadmap-list ~ .muted {
+  font-size: 10px;
+}
+@media (max-width: 720px) {
+  .mentoring-stats .stat-card {
+    padding: 12px;
+    gap: 7px;
+  }
+  .mentoring-stats .stat-card > span {
+    font-size: 9px;
+  }
+  .master-questions > .between {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .master-questions > section {
+    padding: 12px;
+  }
+  .student-mentoring-project {
+    padding: 16px;
+  }
+  .mentoring-note {
+    font-size: 9px;
+  }
+}
+.material-topics {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.material-topics .membership {
+  font-size: 8px;
+}
+.topic-choices {
+  border: 1px solid #dce5cf;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #5f754d;
+}
+.topic-choices legend {
+  font-size: 11px;
+  padding: 0 6px;
+}
+.topic-choices label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.topic-choices input {
+  flex-shrink: 0;
+}
+.material-actions {
+  flex-wrap: wrap;
+}
+.material-actions .icon-button {
+  width: 26px;
+}
+.detail-tabs > button {
+  color: #637653;
+}
+.detail-tabs > button.selected {
+  color: #4f6e43;
+}
+.learning-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.learning-fieldset > form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.learning-fieldset .section-heading {
+  margin: 22px 0;
+}
+.learning-fieldset .section-heading:first-child {
+  margin-top: 0;
+}
+.learning-fieldset[disabled] {
+  opacity: 0.8;
+}

@@ -27,10 +27,11 @@ export function MaterialsPage({
     [upload, setUpload] = useState(false),
     [replace, setReplace] = useState<Material>(),
     [deleting, setDeleting] = useState('');
+  const [topicEditor, setTopicEditor] = useState<Material>();
   const categories = ['전체', ...new Set(state.materials.map((m) => m.category))];
   const materials = state.materials.filter(
     (m) =>
-      m.title.toLowerCase().includes(query.toLowerCase()) &&
+      `${m.title} ${m.description}`.toLowerCase().includes(query.toLowerCase()) &&
       (category === '전체' || category === m.category),
   );
   return (
@@ -104,6 +105,13 @@ export function MaterialsPage({
             </div>
             <h3>{m.title}</h3>
             <p>{m.description}</p>
+            <div className="material-topics">
+              {(m.topics || []).map((t) => (
+                <span className="membership" key={t}>
+                  {t}
+                </span>
+              ))}
+            </div>
             <div className="material-meta">
               <span>
                 {m.fileName.split('.').pop()?.toUpperCase()} · v{m.version}
@@ -131,6 +139,13 @@ export function MaterialsPage({
               ) : null}
               {state.me.role === 'MASTER' && (
                 <>
+                  <button
+                    className="icon-button"
+                    aria-label={`${m.title} 기술 주제 설정`}
+                    onClick={() => setTopicEditor(m)}
+                  >
+                    <BookOpen size={15} />
+                  </button>
                   <button
                     className="icon-button"
                     title="새 버전 업로드"
@@ -180,6 +195,13 @@ export function MaterialsPage({
           description="다른 검색어나 카테고리를 선택해 보세요."
         />
       )}
+      {topicEditor && (
+        <MaterialTopicEditor
+          material={topicEditor}
+          mutate={mutate}
+          onClose={() => setTopicEditor(undefined)}
+        />
+      )}
       {upload && (
         <UploadForm
           replace={replace}
@@ -209,6 +231,7 @@ function UploadForm({
     [file, setFile] = useState<File>(),
     [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const [topics, setTopics] = useState<string[]>(replace?.topics || []);
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!file) return;
@@ -232,6 +255,7 @@ function UploadForm({
         fileName: file.name,
         content,
         replaceId: replace?.id,
+        topics,
       });
       onToast('교안을 안전하게 저장했어요.');
       onClose();
@@ -283,6 +307,7 @@ function UploadForm({
             </select>
           </Field>
         </div>
+        <TopicChoices topics={topics} onChange={setTopics} />
         <button type="button" className="upload-zone" onClick={() => input.current?.click()}>
           <Upload size={28} />
           <strong>{file?.name || '파일 선택하기'}</strong>
@@ -303,6 +328,72 @@ function UploadForm({
           {busy ? '업로드 중…' : '교안 저장하기'}
           <ArrowUpRight size={16} />
         </button>
+      </form>
+    </Modal>
+  );
+}
+
+const materialTopics = [
+  'API 기초',
+  'DB 기초',
+  'Codex 사용법',
+  '서버와 호스팅',
+  'GitHub 사용법',
+  '웹 개발 기초',
+  'AI 프롬프트 작성',
+];
+function TopicChoices({
+  topics,
+  onChange,
+}: {
+  topics: string[];
+  onChange: (topics: string[]) => void;
+}) {
+  return (
+    <fieldset className="topic-choices">
+      <legend>프로젝트에 연결할 기술 주제</legend>
+      {materialTopics.map((t) => (
+        <label key={t}>
+          <input
+            type="checkbox"
+            checked={topics.includes(t)}
+            onChange={(e) =>
+              onChange(e.target.checked ? [...topics, t] : topics.filter((v) => v !== t))
+            }
+          />
+          {t}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+function MaterialTopicEditor({
+  material,
+  mutate,
+  onClose,
+}: {
+  material: Material;
+  mutate: Mutate;
+  onClose: () => void;
+}) {
+  const [topics, setTopics] = useState(material.topics || []);
+  return (
+    <Modal title="교안에 기술 주제 연결" subtitle={material.title} onClose={onClose}>
+      <form
+        className="project-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void mutate(`/materials/${material.id}`, 'PATCH', { topics })
+            .then(onClose)
+            .catch(() => {});
+        }}
+      >
+        <TopicChoices topics={topics} onChange={setTopics} />
+        <p className="muted">
+          프로젝트의 필요 기술과 주제가 겹치면 기술·로드맵 화면에 이 교안을 추천해요. 규칙 기반
+          연결이며 AI 분석이 아니에요.
+        </p>
+        <button className="button primary">기술 주제 저장</button>
       </form>
     </Modal>
   );
