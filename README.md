@@ -101,22 +101,26 @@ npm run build
 npm test
 npm run test:e2e
 npm run format:check
+# Docker 이미지 빌드 후 비공개 HTTPS/복원 통합 검사
+docker build -t pixel-class:ops-test .
+npm run test:operations
 ```
 
 Playwright는 이 Cloud 환경의 `/usr/bin/chromium`을 사용합니다. 없으면 `npx playwright install chromium`으로 설치한 브라우저를 사용하며 `CHROMIUM_PATH`로 직접 지정할 수도 있습니다. 테스트는 임시 DB와 별도 포트(3011/3014/3015: API, 3012/5174: 브라우저, 3013: 프로덕션)를 사용합니다. PostgreSQL 전환 준비 SQL은 네트워크 연결 없이 PGlite에서 검증합니다. 실제 Supabase 검증과는 다릅니다.
 
-검증 범위와 결과는 [STATUS.md](STATUS.md)를 확인하세요. Playwright HTML 보고서는 `playwright-report/`, 실패 시 추적 파일은 `test-results/`에 저장됩니다.
+검증 범위와 결과는 [STATUS.md](STATUS.md)를 확인하세요. Playwright HTML 보고서는 `playwright-report/`, 실패 시 추적 파일은 `test-results/`에 저장됩니다. 실제 계정 운영 검사의 trace는 비활성화하며 비밀 값은 커밋하지 않습니다.
 
 ## 빌드와 배포
 
 ```sh
 npm run build
-NODE_ENV=production DEMO_MODE=false npm start
+NODE_ENV=production DEMO_MODE=false DATABASE_PATH=/persistent/school.sqlite \
+  PUBLIC_ORIGIN=https://class-test.example.com COOKIE_SECURE=true npm start
 ```
 
-프로덕션 모드는 Express가 `dist/`를 직접 제공합니다. `http://localhost:3001`에서 실행 결과를 확인할 수 있습니다. 최초 MASTER를 만들려면 위 비공개 학교 설정이 먼저 필요합니다. 프로덕션에서는 데모 로그인 API가 비활성화됩니다.
+프로덕션 모드는 Express가 `dist/`를 직접 제공합니다. 정확한 `PUBLIC_ORIGIN`, Secure 쿠키, 명시적인 지속 DB 경로가 없으면 시작을 거부합니다. 최초 MASTER 키는 32자 이상이며 서버 전용 파일 secret으로도 읽습니다. 프로덕션에서는 데모 로그인 API가 비활성화됩니다. HTTP 예외는 `ALLOW_INSECURE_LOCALHOST=true`와 루프백 호스트/출처를 모두 지정한 자동 테스트에만 허용합니다.
 
-[deploy/README.md](deploy/README.md)에 Docker/Compose/Caddy 기반 수동 배포 절차가 있습니다. 이미지를 실제 빌드·실행하거나 외부에 배포하지는 않았습니다.
+[deploy/README.md](deploy/README.md)에 접근 암호로 보호된 Docker/Compose/Caddy 운영 절차와 백업·복원·AI 연결 방법이 있습니다. 실제 로컬 컨테이너 HTTPS에서 MASTER/학생 계정, 데이터 보존과 복원을 검증했습니다. 외부 배포 URL은 아직 없습니다. 기본 외부 포트는 루프백에만 바인딩하며 실제 호스트에서 도메인·접근 제한을 확인해야 합니다.
 
 현재 서버는 **지속적인 디스크와 WebSocket을 지원하는 단일 Node.js 호스트**가 필요합니다. HTTPS 역방향 프록시 뒤에서 `COOKIE_SECURE=true`, `PUBLIC_ORIGIN=https://실제-도메인`을 설정하고 WebSocket 업그레이드를 전달하세요. 단일 프로세스용 메모리 요청 제한과 로컬 디스크 저장이므로 여러 인스턴스로 그대로 복제하지 마세요.
 

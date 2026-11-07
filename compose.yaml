@@ -1,34 +1,70 @@
 services:
   app:
     build: .
+    image: ${PIXEL_IMAGE:-pixel-class:local}
     restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1g
+    tmpfs:
+      - /tmp:size=64m,mode=1777
     environment:
       NODE_ENV: production
       DEMO_MODE: 'false'
       DATABASE_PATH: /app/data/school.sqlite
       COOKIE_SECURE: 'true'
       PUBLIC_ORIGIN: https://${PIXEL_DOMAIN:?Set PIXEL_DOMAIN to your owned domain}
-      MASTER_BOOTSTRAP_KEY: ${MASTER_BOOTSTRAP_KEY:?Set a random bootstrap key}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TRUST_PROXY_HOPS: '1'
+      MASTER_BOOTSTRAP_KEY_FILE: /run/secrets/master_bootstrap
       OPENAI_MODEL: ${OPENAI_MODEL:-}
+    secrets:
+      - master_bootstrap
     volumes:
       - school-data:/app/data
     expose:
       - '3001'
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
   https:
-    image: caddy:2.10.2
+    image: caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9
+    entrypoint: [/bin/sh, /etc/caddy/start.sh]
     restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
     environment:
       PIXEL_DOMAIN: ${PIXEL_DOMAIN:?Set PIXEL_DOMAIN}
+      NO_PROXY: ${NO_PROXY:-},app,localhost,127.0.0.1,::1
+      no_proxy: ${no_proxy:-},app,localhost,127.0.0.1,::1
     ports:
-      - '80:80'
-      - '443:443'
+      - '${PIXEL_BIND:-127.0.0.1}:${PIXEL_HTTP_PORT:-80}:80'
+      - '${PIXEL_BIND:-127.0.0.1}:${PIXEL_HTTPS_PORT:-443}:443'
+    secrets:
+      - staging_access
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./deploy/start-caddy.sh:/etc/caddy/start.sh:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
-      - app
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+secrets:
+  master_bootstrap:
+    file: ${MASTER_BOOTSTRAP_FILE:?Set the path to a private bootstrap secret file}
+  staging_access:
+    file: ${STAGING_ACCESS_FILE:?Set a Caddy basic_auth snippet file}
 volumes:
   school-data:
   caddy-data:

@@ -1,3 +1,5 @@
+import './runtime.js';
+import { allowedOrigin } from './config.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
 import { workLogSchema } from '../shared/validation.js';
 import 'dotenv/config';
@@ -41,15 +43,26 @@ import { canStand, initialDesks, validDesk, spawnPoint, segmentClear } from '../
 import type { PersonalEvent, PersonalEventInput } from '../shared/events.js';
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', process.env.TRUST_PROXY_HOPS === '1' ? 1 : false);
 app.use(express.json({ limit: '8mb' }));
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+    );
+    if (process.env.COOKIE_SECURE === 'true')
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+  }
   if (req.path.startsWith('/api')) res.setHeader('Cache-Control', 'no-store');
   if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers['x-pixel-class'] !== '1')
     return res.status(403).json({ error: '안전하지 않은 요청입니다.' });
   const origin = req.headers.origin;
-  if (origin && new URL(origin).host !== req.headers.host && origin !== process.env.PUBLIC_ORIGIN)
+  if (origin && !allowedOrigin(origin, req.headers.host, process.env.PUBLIC_ORIGIN))
     return res.status(403).json({ error: '다른 출처의 요청은 허용하지 않습니다.' });
   next();
 });
@@ -947,7 +960,10 @@ app.post('/api/events/:id/read', (req, res) => {
   put('personal-event', e!, u.schoolId);
   res.json({ ok: true });
 });
-app.get('/api/health', (_req, res) => res.json({ ok: true, storage: 'sqlite', demo }));
+app.get('/api/health', (_req, res) => {
+  db.prepare('SELECT 1').get();
+  res.json({ ok: true, storage: 'sqlite', demo });
+});
 app.use('/api', (_req, res) => res.status(404).json({ error: '요청한 기능을 찾을 수 없습니다.' }));
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(resolve('dist')));
@@ -966,10 +982,7 @@ server.on('upgrade', (req, socket, head) => {
     return;
   }
   const origin = req.headers.origin;
-  if (
-    !origin ||
-    (new URL(origin).host !== req.headers.host && origin !== process.env.PUBLIC_ORIGIN)
-  ) {
+  if (!origin || !allowedOrigin(origin, req.headers.host, process.env.PUBLIC_ORIGIN)) {
     socket.destroy();
     return;
   }
@@ -1095,6 +1108,22 @@ const heartbeat = setInterval(() => {
   }
 }, 30000);
 heartbeat.unref();
+let shuttingDown = false;
+function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  clearInterval(heartbeat);
+  for (const c of connections) c.ws.close(1001, 'server shutdown');
+  const deadline = setTimeout(() => process.exit(1), 10000);
+  deadline.unref();
+  server.close(() => {
+    db.close();
+    clearTimeout(deadline);
+    process.exit(0);
+  });
+}
+process.once('SIGTERM', shutdown);
+process.once('SIGINT', shutdown);
 server.listen(Number(process.env.PORT || 3001), process.env.HOST || '127.0.0.1', () =>
   console.log(
     `Pixel Class API ready on port ${process.env.PORT || 3001} · ${demo ? 'LOCAL DEMO' : 'PRIVATE SCHOOL'}`,

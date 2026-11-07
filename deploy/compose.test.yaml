@@ -1,0 +1,10 @@
+# Only loopback is published. TLS uses a local CA, never public ACME.
+services:
+  app:
+    environment:
+      PUBLIC_ORIGIN: https://localhost:${PIXEL_HTTPS_PORT:-8443}
+  https:
+    ports: !override
+      - '127.0.0.1:${PIXEL_HTTPS_PORT:-8443}:443'
+    volumes:
+      - ./deploy/Caddyfile.test:/etc/caddy/Caddyfile:ro

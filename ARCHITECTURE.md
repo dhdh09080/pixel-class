@@ -93,3 +93,9 @@ AI는 서버 전용 OpenAI Responses API를 호출하는 코드입니다. 프로
 실제 전환은 Auth UUID 매핑 → 비동기 저장소/세션/요청 제한 → 전용 DB/RLS → 비공개 Storage → 학교별 Realtime → 원본 보존 이관/복구 시험 → 전체 흐름 재검증 순서입니다. 외부 Auth 계정 생성과 DB 입학은 서로 다른 서비스 작업임을 명시하고, 미입학 계정은 학교 데이터에 접근하지 못하도록 해야 합니다.
 
 [배포 안내](deploy/README.md)는 지속 디스크 단일 Node 서버와 Caddy HTTPS/WebSocket 예시입니다. Dockerfile/Compose는 작성했지만 실제 실행/인증서/외부 배포는 하지 않았습니다. 현재 구조를 Vercel 정적 사이트로만 배포하지 않습니다. 이메일 검증·복구·MFA와 실제 운영 보안 보완이 필요합니다.
+
+## 비공개 운영 경계 (후속 검증)
+
+Caddy의 HTTPS와 별도 basic_auth 접근 제한 → 단일 Express 앱 → `/app/data` named volume의 SQLite입니다. 앱 3001 포트는 외부에 게시하지 않습니다. Caddy를 한 홉만 신뢰하고 정확한 PUBLIC_ORIGIN을 HTTP/WS에 공통 적용합니다. 프로덕션은 TLS 출처·Secure 쿠키·명시적 DB 경로·32자 이상의 설정된 부트스트랩 키를 검사하고 누락 시 시작을 거부합니다. 허용된 비밀 파일만 서버에서 읽으며 빌드/프런트엔드에는 포함하지 않습니다. CSP·프레임/권한 정책도 적용합니다.
+
+컨테이너는 UID 1000, 읽기 전용 루트와 별도 tmpfs, capability 제거, 자원/로그 제한, DB를 확인하는 건강 검사와 SIGTERM 종료를 사용합니다. `scripts/database.mjs`는 온라인 SQLite 백업·검사·새 파일 복원을 수행합니다. 복원은 앱 중지 후 새 경로로 진행하고 과거 세션을 지웁니다. `tests/operations.ops.ts`가 실제 로컬 HTTPS 계정 2개, WSS, 권한, 컨테이너 재생성, 복원과 재로그인을 검증합니다. 상세 운영 조건·외부 배포 미실행 상태는 `deploy/README.md`와 `STATUS.md`에 기록합니다.

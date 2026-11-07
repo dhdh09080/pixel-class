@@ -2,6 +2,8 @@
 
 2026-11-07 · 기존 main 커밋 `14925aa`를 기반으로 `feature/pixel-class-v02`에서 개발했습니다. 기존 SQLite와 초록/크림색 픽셀 UI를 유지했습니다.
 
+> 후속 운영 검증: 로컬 Docker HTTPS·실제 계정 2개·지속 볼륨·백업/복원 검증을 추가했습니다. 아래의 미실행 목록은 최초 v0.2 개발 시점 기록이며 현재 상태는 [STATUS.md](STATUS.md)와 [운영 문서](deploy/README.md)를 따릅니다. 외부 배포·실제 Supabase/OpenAI 연결은 여전히 미실행입니다.
+
 ## 실제 구현
 
 ### 교실 확장

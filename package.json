@@ -15,7 +15,11 @@
     "test:e2e": "npm run build && playwright test",
     "setup:private": "node scripts/setup-private.mjs",
     "format:check": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:operations": "node scripts/test-operations.mjs",
+    "db:backup": "node scripts/database.mjs backup",
+    "db:restore": "node scripts/database.mjs restore",
+    "db:verify": "node scripts/database.mjs verify"
   },
   "dependencies": {
     "dotenv": "18.0.9",
