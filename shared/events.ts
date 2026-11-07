@@ -1,6 +1,12 @@
 import type { Appearance } from './types';
 /** Versioned server-origin events shared by web and the future Tauri client. */
 type Payloads = {
+  'project.question.answered': {
+    projectId: string;
+    questionId: string;
+    mentorName: string;
+    preview: string;
+  };
   'character.updated': { name: string; appearance: Appearance };
   'mentor.feedback.created': {
     projectId: string;

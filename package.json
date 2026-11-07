@@ -1,6 +1,6 @@
 {
   "name": "pixel-class",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,7 +11,7 @@
     "build": "tsc -b && vite build",
     "start": "tsx server/index.ts",
     "typecheck": "tsc -b",
-    "test": "tsx --test tests/server.test.ts",
+    "test": "tsx --test tests/*.test.ts",
     "test:e2e": "npm run build && playwright test",
     "setup:private": "node scripts/setup-private.mjs",
     "format:check": "prettier --check .",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
+    "@electric-sql/pglite": "0.5.15",
     "@playwright/test": "1.65.0",
     "@types/express": "5.0.6",
     "@types/node": "26.6.6",
