@@ -104,7 +104,7 @@ export class ClassroomScene extends Phaser.Scene {
       .text(560, 116, '오늘도, 한 걸음 더 나만의 서비스에 가까이!', {
         fontFamily: 'sans-serif',
         fontSize: '13px',
-        color: '#c6d8bc',
+        color: '#e0ead0',
       })
       .setOrigin(0.5);
     const label = (x: number, y: number, text: string, color = '#566b52') =>
@@ -121,7 +121,7 @@ export class ClassroomScene extends Phaser.Scene {
         .setDepth(1);
     label(120, 218, '교안 자료실');
     label(1018, 195, '프로젝트 전시실');
-    label(1002, 355, '✦ AI 조교', '#77728f');
+    label(1002, 355, '✦ AI 조교', '#5c5276');
     label(107, 584, '잠깐, 쉬어가기');
     const npc = this.add
       .sprite(1002, 422, 'robot')
@@ -243,7 +243,7 @@ export class ClassroomScene extends Phaser.Scene {
             {
               fontFamily: 'sans-serif',
               fontSize: '12px',
-              color: owner?.id === state.me.id ? '#426c4a' : '#806e53',
+              color: owner?.id === state.me.id ? '#426c4a' : '#65513a',
               backgroundColor: owner?.id === state.me.id ? '#e2ecc9' : '#e6cda1',
               padding: { x: 8, y: 3 },
             },
