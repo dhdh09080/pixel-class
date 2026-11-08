@@ -802,7 +802,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.3</span>
+            <span>PIXEL CLASS v0.4</span>
           </div>
         </div>
       </div>

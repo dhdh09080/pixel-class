@@ -34,3 +34,7 @@ Pixel Class 전용 프로젝트가 연결되지 않아 기존 Supabase 서비스
 인증된 사용자는 SQL 단계에서 scoped SELECT만 가능하고, INSERT/UPDATE/DELETE는 허용하지 않았습니다. API를 직접 쓰는 완성된 Supabase 앱이 아닌, 기존 서버 권한 검사를 유지하는 전환 기반입니다. 공개 API 스키마에 `pixel_class`를 추가할지, 서버 전용으로 둘지도 실제 어댑터 설계 때 결정해야 합니다.
 
 참고: https://supabase.com/docs/guides/database/postgres/row-level-security · https://supabase.com/docs/guides/database/views · https://supabase.com/docs/guides/storage/schema/design
+
+## v0.4 데이터 보존 추가 조건
+
+v0.4의 `ai_school_usage` 학교별 일일 사용량도 향후 PostgreSQL 어댑터/데이터 이관에 포함해야 합니다. 기존 준비 SQL은 이 새 테이블의 실제 운영 이관까지 완성한 것이 아닙니다. 호출 예약과 프로젝트 질문 저장은 같은 트랜잭션으로 옮기고, 클라이언트가 사용량을 초기화하거나 수정하지 못하게 서버 전용 쓰기 권한을 검증해야 합니다. Realtime은 공식 문서의 private channel과 `realtime.messages` RLS를 적용하고, 학적 회수 시 이미 연결된 JWT/채널의 권한 캐시도 재검증해야 합니다.
