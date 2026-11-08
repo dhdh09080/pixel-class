@@ -28,6 +28,7 @@ import {
   saveMember,
   insertMember,
   transaction,
+  afterCommit,
 } from './db.js';
 import {
   defaultAppearance,
@@ -275,33 +276,38 @@ function personalEvent(user: Member, input: PersonalEventInput) {
     readAt: null,
   };
   put('personal-event', event, user.schoolId);
-  for (const c of connections)
-    if (c.userId === user.id && c.ws.readyState === WebSocket.OPEN)
-      c.ws.send(JSON.stringify({ type: 'personal-event', event }));
+  afterCommit(() => {
+    for (const c of connections)
+      if (c.userId === user.id && c.ws.readyState === WebSocket.OPEN)
+        c.ws.send(JSON.stringify({ type: 'personal-event', event }));
+  });
 }
 function changed(schoolId: string) {
-  const desks = list<Desk>('desk', schoolId),
-    room = roomSize(schoolId);
-  for (const connection of connections) {
-    if (connection.schoolId !== schoolId || canStand(connection.x, connection.y, desks, room))
-      continue;
-    let target = spawnPoint(room);
-    search: for (let radius = 20; radius <= 240; radius += 20)
-      for (let dx = -radius; dx <= radius; dx += 20)
-        for (const dy of [-radius, radius]) {
-          const p = { x: connection.x + dx, y: connection.y + dy };
-          if (canStand(p.x, p.y, desks, room)) {
-            target = p;
-            break search;
+  afterCommit(() => {
+    const desks = list<Desk>('desk', schoolId),
+      room = roomSize(schoolId);
+    for (const connection of connections) {
+      if (connection.schoolId !== schoolId || canStand(connection.x, connection.y, desks, room))
+        continue;
+      let target = spawnPoint(room);
+      search: for (let radius = 20; radius <= 240; radius += 20)
+        for (let dx = -radius; dx <= radius; dx += 20)
+          for (const dy of [-radius, radius]) {
+            const p = { x: connection.x + dx, y: connection.y + dy };
+            if (canStand(p.x, p.y, desks, room)) {
+              target = p;
+              break search;
+            }
           }
-        }
-    connection.x = target.x;
-    connection.y = target.y;
-    connection.moving = false;
-    connection.ws.send(JSON.stringify({ type: 'relocate', ...target }));
-  }
-  broadcast(schoolId, { type: 'refresh' });
+      connection.x = target.x;
+      connection.y = target.y;
+      connection.moving = false;
+      connection.ws.send(JSON.stringify({ type: 'relocate', ...target }));
+    }
+    broadcast(schoolId, { type: 'refresh' });
+  });
 }
+
 function refreshAuth() {
   for (const c of connections) {
     const u = userById(c.userId);
@@ -474,17 +480,19 @@ app.patch('/api/me', (req, res) => {
       workStatus: z.enum(['IDLE', 'BUILDING', 'MENTORING']).optional(),
     })
     .parse(req.body);
-  Object.assign(u, v);
-  if (v.help !== undefined) u.helpSource = 'MANUAL';
-  saveMember(u);
-  if (v.name || v.appearance)
-    personalEvent(u, {
-      type: 'character.updated',
-      payload: { name: u.name, appearance: u.appearance },
-    });
-  if (v.help === true)
-    for (const m of members(u.schoolId).filter((m) => m.role === 'MASTER'))
-      personalEvent(m, { type: 'help.requested', payload: { memberId: u.id, name: u.name } });
+  transaction(() => {
+    Object.assign(u, v);
+    if (v.help !== undefined) u.helpSource = 'MANUAL';
+    saveMember(u);
+    if (v.name || v.appearance)
+      personalEvent(u, {
+        type: 'character.updated',
+        payload: { name: u.name, appearance: u.appearance },
+      });
+    if (v.help === true)
+      for (const m of members(u.schoolId).filter((m) => m.role === 'MASTER'))
+        personalEvent(m, { type: 'help.requested', payload: { memberId: u.id, name: u.name } });
+  });
   changed(u.schoolId);
   res.json(u);
 });
@@ -610,29 +618,33 @@ app.post('/api/projects/:id/entries', (req, res) => {
     ...(v.type === 'questions' ? { status: 'NEW' as const, answers: [] } : {}),
     ...(v.type === 'feedback' ? { feedbackStatus: 'OPEN' as const } : {}),
   };
-  p[v.type].push(record);
-  if (v.type === 'feedback')
-    personalEvent(userById(p.ownerId)!, {
-      type: 'mentor.feedback.created',
-      payload: {
-        projectId: p.id,
-        feedbackId: record.id,
-        mentorName: u.name,
-        preview: v.text.slice(0, 200),
-      },
-    });
-  p.updatedAt = now();
-  saveProject(p);
-  if (v.type === 'questions') {
-    p.helpRequested = true;
+  transaction(() => {
+    p[v.type].push(record);
+    if (v.type === 'feedback')
+      personalEvent(userById(p.ownerId)!, {
+        type: 'mentor.feedback.created',
+        payload: {
+          projectId: p.id,
+          feedbackId: record.id,
+          mentorName: u.name,
+          preview: v.text.slice(0, 200),
+        },
+      });
+    p.updatedAt = now();
+    if (v.type === 'questions') {
+      p.helpRequested = true;
+      for (const teacher of members(u.schoolId).filter((m) => m.role === 'MASTER'))
+        personalEvent(teacher, {
+          type: 'help.requested',
+          payload: { memberId: u.id, name: u.name },
+        });
+      const student = userById(p.ownerId)!;
+      if (!student.help || student.helpSource !== 'MANUAL') student.helpSource = 'QUESTION';
+      student.help = true;
+      saveMember(student);
+    }
     saveProject(p);
-    for (const teacher of members(u.schoolId).filter((m) => m.role === 'MASTER'))
-      personalEvent(teacher, { type: 'help.requested', payload: { memberId: u.id, name: u.name } });
-    const student = userById(p.ownerId)!;
-    if (!student.help || student.helpSource !== 'MANUAL') student.helpSource = 'QUESTION';
-    student.help = true;
-    saveMember(student);
-  }
+  });
   changed(u.schoolId);
   res.json(p);
 });
@@ -640,23 +652,25 @@ app.post('/api/projects/:id/approve', (req, res) => {
   const u = master(req),
     p = project(req, u, true);
   if (p.status !== 'REVIEW') fail(400, '검토 요청된 프로젝트만 승인할 수 있습니다.');
-  const pending = p.submissions?.at(-1);
-  if (pending?.status === 'PENDING') {
-    pending.status = 'APPROVED';
-    pending.review = entry(u, '프로젝트 검토를 승인했어요. 완성을 축하합니다!');
-  }
-  p.approved = true;
-  p.status = 'COMPLETED';
-  personalEvent(userById(p.ownerId)!, {
-    type: 'project.reviewed',
-    payload: { projectId: p.id, title: p.title, approved: true },
+  transaction(() => {
+    const pending = p.submissions?.at(-1);
+    if (pending?.status === 'PENDING') {
+      pending.status = 'APPROVED';
+      pending.review = entry(u, '프로젝트 검토를 승인했어요. 완성을 축하합니다!');
+    }
+    p.approved = true;
+    p.status = 'COMPLETED';
+    personalEvent(userById(p.ownerId)!, {
+      type: 'project.reviewed',
+      payload: { projectId: p.id, title: p.title, approved: true },
+    });
+    p.updatedAt = now();
+    p.feedback.push({
+      ...entry(u, '프로젝트 검토를 승인했어요. 완성을 축하합니다!'),
+      kind: '검토 승인',
+    });
+    saveProject(p);
   });
-  p.updatedAt = now();
-  p.feedback.push({
-    ...entry(u, '프로젝트 검토를 승인했어요. 완성을 축하합니다!'),
-    kind: '검토 승인',
-  });
-  saveProject(p);
   changed(u.schoolId);
   res.json(p);
 });
@@ -895,6 +909,11 @@ app.delete('/api/materials/:id', (req, res) => {
   changed(u.schoolId);
   res.json({ ok: true });
 });
+class AIProviderError extends Error {
+  constructor(public status: number) {
+    super('AI provider request failed');
+  }
+}
 const aiInFlight = new Set<string>();
 app.post('/api/projects/:id/ai', async (req, res) => {
   const u = active(req),
@@ -965,7 +984,7 @@ app.post('/api/projects/:id/ai', async (req, res) => {
         ],
       }),
     });
-    if (!response.ok) throw new Error(`API ${response.status}`);
+    if (!response.ok) throw new AIProviderError(response.status);
     const result = (await response.json()) as { output?: { content?: { text?: string }[] }[] };
     const answer = result.output
       ?.flatMap((o) => o.content || [])
@@ -980,15 +999,23 @@ app.post('/api/projects/:id/ai', async (req, res) => {
   } catch (error) {
     if (error instanceof HttpError || error instanceof ProjectConflict) throw error;
     const latest = currentProject();
+    const message =
+      error instanceof AIProviderError && error.status === 429
+        ? 'AI 제공자의 사용 한도에 도달했어요. MASTER에게 API 잔액과 사용 한도 확인을 요청해 주세요.'
+        : error instanceof AIProviderError && [401, 403].includes(error.status)
+          ? 'AI 연결 인증을 확인해야 해요. MASTER에게 서버 API 키와 모델 접근 권한 확인을 요청해 주세요.'
+          : error instanceof Error && ['AbortError', 'TimeoutError'].includes(error.name)
+            ? 'AI 응답 시간이 길어져 중단했어요. 잠시 뒤에 다시 질문해 주세요.'
+            : 'AI 연결에 실패했어요. 서버 네트워크와 API 설정을 확인해 주세요.';
     latest.aiMessages.push({
       id: id(),
       role: 'error',
-      text: 'AI 응답을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+      text: message,
       createdAt: now(),
     });
     saveProject(latest);
     changed(u.schoolId);
-    fail(502, 'AI 연결에 실패했어요. 서버 네트워크와 API 설정을 확인해 주세요.');
+    fail(502, message);
   } finally {
     aiInFlight.delete(p.id);
   }

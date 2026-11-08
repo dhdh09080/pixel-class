@@ -82,36 +82,39 @@ export function registerLearningRoutes(app: Express, d: Deps) {
     if (!q) d.fail(404, '질문을 찾을 수 없습니다.');
     if (u.role !== 'MASTER' && (v.answer || v.status !== 'RESOLVED'))
       d.fail(403, '답변과 확인 상태는 MASTER만 관리할 수 있어요.');
-    if (v.status) q!.status = v.status;
-    if (v.answer) {
-      q!.answers = [...(q!.answers || []), entry(u, v.answer)];
-      q!.status = 'ANSWERED';
-      d.notify(userById(p.ownerId)!, {
-        type: 'project.question.answered',
-        payload: {
-          projectId: p.id,
-          questionId: q!.id,
-          mentorName: u.name,
-          preview: v.answer.slice(0, 200),
-        },
-      });
-    }
-    p.helpRequested = p.questions.some(
-      (q) => !['ANSWERED', 'RESOLVED'].includes(q.status || 'NEW'),
-    );
-    const student = userById(p.ownerId);
-    if (
-      student?.helpSource === 'QUESTION' &&
-      !list<Project>('project', p.schoolId).some(
-        (other) =>
-          other.ownerId === p.ownerId &&
-          (other.id === p.id ? p.helpRequested : other.helpRequested),
-      )
-    ) {
-      student.help = false;
-      saveMember(student);
-    }
-    res.json(save(p));
+    transaction(() => {
+      if (v.status) q!.status = v.status;
+      if (v.answer) {
+        q!.answers = [...(q!.answers || []), entry(u, v.answer)];
+        q!.status = 'ANSWERED';
+        d.notify(userById(p.ownerId)!, {
+          type: 'project.question.answered',
+          payload: {
+            projectId: p.id,
+            questionId: q!.id,
+            mentorName: u.name,
+            preview: v.answer.slice(0, 200),
+          },
+        });
+      }
+      p.helpRequested = p.questions.some(
+        (q) => !['ANSWERED', 'RESOLVED'].includes(q.status || 'NEW'),
+      );
+      const student = userById(p.ownerId);
+      if (
+        student?.helpSource === 'QUESTION' &&
+        !list<Project>('project', p.schoolId).some(
+          (other) =>
+            other.ownerId === p.ownerId &&
+            (other.id === p.id ? p.helpRequested : other.helpRequested),
+        )
+      ) {
+        student.help = false;
+        saveMember(student);
+      }
+      save(p);
+    });
+    res.json(p);
   });
   app.patch('/api/projects/:id/feedback/:feedbackId', (req, res) => {
     const u = d.active(req),
@@ -149,20 +152,23 @@ export function registerLearningRoutes(app: Express, d: Deps) {
     const s = p.submissions?.find((s) => s.id === req.params.submissionId);
     if (!s) d.fail(404, '제출 기록을 찾을 수 없습니다.');
     if (s!.status !== 'PENDING') d.fail(409, '이미 검토한 제출 기록입니다.');
-    s!.status = v.decision;
-    s!.review = entry(u, v.text);
-    p.feedback.push({
-      ...s!.review,
-      kind: v.decision === 'APPROVED' ? '검토 승인' : '수정 요청',
-      feedbackStatus: 'OPEN',
+    transaction(() => {
+      s!.status = v.decision;
+      s!.review = entry(u, v.text);
+      p.feedback.push({
+        ...s!.review,
+        kind: v.decision === 'APPROVED' ? '검토 승인' : '수정 요청',
+        feedbackStatus: 'OPEN',
+      });
+      p.status = v.decision === 'APPROVED' ? 'COMPLETED' : 'BUILDING';
+      p.approved = v.decision === 'APPROVED';
+      d.notify(userById(p.ownerId)!, {
+        type: 'project.reviewed',
+        payload: { projectId: p.id, title: p.title, approved: p.approved },
+      });
+      save(p);
     });
-    p.status = v.decision === 'APPROVED' ? 'COMPLETED' : 'BUILDING';
-    p.approved = v.decision === 'APPROVED';
-    d.notify(userById(p.ownerId)!, {
-      type: 'project.reviewed',
-      payload: { projectId: p.id, title: p.title, approved: p.approved },
-    });
-    res.json(save(p));
+    res.json(p);
   });
   app.post('/api/projects/:id/attachments', (req, res) => {
     const { p } = own(req);
