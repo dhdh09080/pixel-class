@@ -156,7 +156,7 @@ export default function App() {
         await load();
         return result;
       } catch (e) {
-        if (e instanceof ApiError && e.status === 409) await load();
+        if (e instanceof ApiError && [404, 409].includes(e.status)) await load();
         setToast((e as Error).message);
         throw e;
       }

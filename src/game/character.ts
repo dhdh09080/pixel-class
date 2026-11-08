@@ -15,7 +15,7 @@ export function characterCanvas(
     c.fillStyle = color;
     c.fillRect(x, y, w, h);
   };
-  const bob = frame % 2;
+  const bob = frame === 0 ? 0 : -1;
   const side = direction === 'left' || direction === 'right';
   const back = direction === 'up';
   if (direction === 'left') {

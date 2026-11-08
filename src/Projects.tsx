@@ -1,3 +1,4 @@
+import { projectSaveRevision } from './api';
 import { SegmentedControl, InlineNotice } from './ui';
 import { LearningPlan, QuestionThread, PromptPanel, SubmissionPanel } from './LearningPanels';
 import { emptyWorkLog, technicalTopics } from '../shared/learning';
@@ -183,6 +184,11 @@ export function ProjectForm({
   const [busy, setBusy] = useState(false);
   const [saveError, setSaveError] = useState('');
   const baseRevision = useRef(project?.revision || 0);
+  const editableFields = (value: Project | ReturnType<typeof emptyProject>) =>
+    Object.fromEntries(
+      Object.keys(emptyProject()).map((key) => [key, value[key as keyof typeof value]]),
+    );
+  const baselineFields = useRef(project ? editableFields(project) : {});
   const change = (key: string, value: unknown) => setDraft((p) => ({ ...p, [key]: value }));
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -196,7 +202,9 @@ export function ProjectForm({
         project ? `/projects/${project.id}` : '/projects',
         project ? 'PATCH' : 'POST',
         fields,
-        project ? baseRevision.current : undefined,
+        project
+          ? await projectSaveRevision(project.id, baseRevision.current, baselineFields.current)
+          : undefined,
       )) as Project;
       onSaved(p.id);
     } catch (error) {
@@ -209,173 +217,181 @@ export function ProjectForm({
     <Modal
       title={project ? '프로젝트 다듬기' : '어떤 서비스를 만들고 싶나요?'}
       subtitle="아직 정하지 못한 내용은 비워 두어도 괜찮아요."
-      onClose={onClose}
+      onClose={() => {
+        if (!busy) onClose();
+      }}
       wide
     >
       <form onSubmit={submit} className="project-form">
-        {unavailable && (
-          <InlineNotice kind="error" title="프로젝트가 삭제되었거나 접근할 수 없어요">
-            입력한 초안은 이 화면에 남겨 두었어요. 필요한 내용을 복사한 뒤 취소를 눌러 목록으로
-            돌아가세요. 이 초안을 기존 프로젝트에 저장할 수는 없어요.
-          </InlineNotice>
-        )}
-        {saveError && !unavailable && (
-          <div className="form-message error" role="alert">
-            <strong>저장하지 못했어요</strong>
-            <p>{saveError}</p>
-            {project && (
-              <button
-                type="button"
-                className="button secondary"
-                onClick={() => {
-                  if (window.confirm('현재 입력을 버리고 최신 저장 내용을 불러올까요?')) {
-                    setDraft({ ...project });
-                    baseRevision.current = project.revision || 0;
-                    setSaveError('');
-                  }
-                }}
-              >
-                최신 내용 불러오기
-              </button>
-            )}
+        <fieldset className="project-form-fields" disabled={busy}>
+          {unavailable && (
+            <InlineNotice kind="error" title="프로젝트가 삭제되었거나 접근할 수 없어요">
+              입력한 초안은 이 화면에 남겨 두었어요. 필요한 내용을 복사한 뒤 취소를 눌러 목록으로
+              돌아가세요. 이 초안을 기존 프로젝트에 저장할 수는 없어요.
+            </InlineNotice>
+          )}
+          {saveError && !unavailable && (
+            <div className="form-message error" role="alert">
+              <strong>저장하지 못했어요</strong>
+              <p>{saveError}</p>
+              {project && (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    if (window.confirm('현재 입력을 버리고 최신 저장 내용을 불러올까요?')) {
+                      setDraft({ ...project });
+                      baseRevision.current = project.revision || 0;
+                      baselineFields.current = editableFields(project);
+                      setSaveError('');
+                    }
+                  }}
+                >
+                  최신 내용 불러오기
+                </button>
+              )}
+            </div>
+          )}
+          <Field label="프로젝트 이름 *">
+            <input
+              required
+              maxLength={100}
+              autoFocus
+              value={draft.title}
+              onChange={(e) => change('title', e.target.value)}
+              placeholder="예: 현장 일지 자동 정리"
+            />
+          </Field>
+          <Field label="프로젝트 목적">
+            <textarea
+              value={draft.purpose}
+              onChange={(e) => change('purpose', e.target.value)}
+              placeholder="어떤 서비스를 만들고 싶은지 한 문장으로 적어보세요."
+              rows={2}
+            />
+          </Field>
+          <div className="form-grid">
+            <Field label="해결하고 싶은 문제">
+              <textarea
+                value={draft.problem}
+                onChange={(e) => change('problem', e.target.value)}
+                rows={2}
+                placeholder="평소 어떤 점이 불편했나요?"
+              />
+            </Field>
+            <Field label="예상 사용자">
+              <textarea
+                value={draft.audience}
+                onChange={(e) => change('audience', e.target.value)}
+                rows={2}
+                placeholder="누구를 위한 서비스인가요?"
+              />
+            </Field>
           </div>
-        )}
-        <Field label="프로젝트 이름 *">
-          <input
-            required
-            maxLength={100}
-            autoFocus
-            value={draft.title}
-            onChange={(e) => change('title', e.target.value)}
-            placeholder="예: 현장 일지 자동 정리"
-          />
-        </Field>
-        <Field label="프로젝트 목적">
-          <textarea
-            value={draft.purpose}
-            onChange={(e) => change('purpose', e.target.value)}
-            placeholder="어떤 서비스를 만들고 싶은지 한 문장으로 적어보세요."
-            rows={2}
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="해결하고 싶은 문제">
+          <Field label="주요 기능">
             <textarea
-              value={draft.problem}
-              onChange={(e) => change('problem', e.target.value)}
+              value={draft.features}
+              onChange={(e) => change('features', e.target.value)}
               rows={2}
-              placeholder="평소 어떤 점이 불편했나요?"
+              placeholder="꼭 필요한 기능부터 적어보세요."
             />
           </Field>
-          <Field label="예상 사용자">
+          <div className="form-grid">
+            <Field label="현재 단계">
+              <select value={draft.status} onChange={(e) => change('status', e.target.value)}>
+                {Object.entries(statusLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="개발 경험">
+              <select
+                value={draft.experience}
+                onChange={(e) => change('experience', e.target.value)}
+              >
+                {['처음 시작해요', '조금 만들어 봤어요', '스스로 만들 수 있어요'].map((t) => (
+                  <option key={t}>{t}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="시작일">
+              <input
+                type="date"
+                value={draft.startDate}
+                onChange={(e) => change('startDate', e.target.value)}
+              />
+            </Field>
+            <Field label="목표 완료일">
+              <input
+                type="date"
+                value={draft.targetDate}
+                min={draft.startDate || undefined}
+                onChange={(e) => change('targetDate', e.target.value)}
+              />
+            </Field>
+            <Field label="사용하는 AI 도구">
+              <input
+                value={draft.aiTools}
+                onChange={(e) => change('aiTools', e.target.value)}
+                placeholder="Codex, ChatGPT…"
+              />
+            </Field>
+            <Field label="필요한 기술">
+              <input
+                value={draft.technologies}
+                onChange={(e) => change('technologies', e.target.value)}
+                placeholder="잘 모르겠다면 비워두세요."
+              />
+            </Field>
+            <Field label="GitHub URL">
+              <input
+                type="url"
+                value={draft.githubUrl}
+                onChange={(e) => change('githubUrl', e.target.value)}
+                placeholder="https://github.com/…"
+              />
+            </Field>
+            <Field label="서비스 URL">
+              <input
+                type="url"
+                value={draft.serviceUrl}
+                onChange={(e) => change('serviceUrl', e.target.value)}
+                placeholder="https://…"
+              />
+            </Field>
+          </div>
+          <Field label="참고자료">
             <textarea
-              value={draft.audience}
-              onChange={(e) => change('audience', e.target.value)}
+              value={draft.references}
+              onChange={(e) => change('references', e.target.value)}
               rows={2}
-              placeholder="누구를 위한 서비스인가요?"
+              placeholder="참고할 내용이나 교안 이름, 링크"
             />
           </Field>
-        </div>
-        <Field label="주요 기능">
-          <textarea
-            value={draft.features}
-            onChange={(e) => change('features', e.target.value)}
-            rows={2}
-            placeholder="꼭 필요한 기능부터 적어보세요."
-          />
-        </Field>
-        <div className="form-grid">
-          <Field label="현재 단계">
-            <select value={draft.status} onChange={(e) => change('status', e.target.value)}>
-              {Object.entries(statusLabels).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="개발 경험">
-            <select value={draft.experience} onChange={(e) => change('experience', e.target.value)}>
-              {['처음 시작해요', '조금 만들어 봤어요', '스스로 만들 수 있어요'].map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </Field>
-          <Field label="시작일">
+          <label className="toggle-field">
             <input
-              type="date"
-              value={draft.startDate}
-              onChange={(e) => change('startDate', e.target.value)}
+              type="checkbox"
+              checked={draft.isPublic}
+              onChange={(e) => change('isPublic', e.target.checked)}
             />
-          </Field>
-          <Field label="목표 완료일">
-            <input
-              type="date"
-              value={draft.targetDate}
-              min={draft.startDate || undefined}
-              onChange={(e) => change('targetDate', e.target.value)}
-            />
-          </Field>
-          <Field label="사용하는 AI 도구">
-            <input
-              value={draft.aiTools}
-              onChange={(e) => change('aiTools', e.target.value)}
-              placeholder="Codex, ChatGPT…"
-            />
-          </Field>
-          <Field label="필요한 기술">
-            <input
-              value={draft.technologies}
-              onChange={(e) => change('technologies', e.target.value)}
-              placeholder="잘 모르겠다면 비워두세요."
-            />
-          </Field>
-          <Field label="GitHub URL">
-            <input
-              type="url"
-              value={draft.githubUrl}
-              onChange={(e) => change('githubUrl', e.target.value)}
-              placeholder="https://github.com/…"
-            />
-          </Field>
-          <Field label="서비스 URL">
-            <input
-              type="url"
-              value={draft.serviceUrl}
-              onChange={(e) => change('serviceUrl', e.target.value)}
-              placeholder="https://…"
-            />
-          </Field>
-        </div>
-        <Field label="참고자료">
-          <textarea
-            value={draft.references}
-            onChange={(e) => change('references', e.target.value)}
-            rows={2}
-            placeholder="참고할 내용이나 교안 이름, 링크"
-          />
-        </Field>
-        <label className="toggle-field">
-          <input
-            type="checkbox"
-            checked={draft.isPublic}
-            onChange={(e) => change('isPublic', e.target.checked)}
-          />
-          <Globe size={17} />
-          <span>
-            교실에 프로젝트 소개 공개하기
-            <small>이름·목적·단계·결과 링크만 공개돼요. 질문과 피드백은 비공개예요.</small>
-          </span>
-        </label>
-        <div className="form-actions">
-          <button className="button secondary" type="button" onClick={onClose}>
-            취소
-          </button>
-          <button className="button primary" disabled={busy || unavailable}>
-            {busy ? '저장 중…' : project ? '변경사항 저장' : '프로젝트 시작하기'}
-            <ArrowUpRight size={16} />
-          </button>
-        </div>
+            <Globe size={17} />
+            <span>
+              교실에 프로젝트 소개 공개하기
+              <small>이름·목적·단계·결과 링크만 공개돼요. 질문과 피드백은 비공개예요.</small>
+            </span>
+          </label>
+          <div className="form-actions">
+            <button className="button secondary" type="button" onClick={onClose}>
+              취소
+            </button>
+            <button className="button primary" disabled={busy || unavailable}>
+              {busy ? '저장 중…' : project ? '변경사항 저장' : '프로젝트 시작하기'}
+              <ArrowUpRight size={16} />
+            </button>
+          </div>
+        </fieldset>
       </form>
     </Modal>
   );

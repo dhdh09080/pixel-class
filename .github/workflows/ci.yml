@@ -2,7 +2,7 @@ name: Pixel Class checks
 on:
   pull_request:
   push:
-    branches: [main, feature/pixel-class-v02, feature/pixel-class-v03]
+    branches: [main, feature/pixel-class-v02]
 permissions:
   contents: read
 jobs:

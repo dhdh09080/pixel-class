@@ -1,3 +1,4 @@
+import { projectSaveRevision } from './api';
 import { useEffect, useState, useRef, type FormEvent } from 'react';
 import {
   Plus,
@@ -44,6 +45,8 @@ export function LearningPlan({
   const analysisDirty = useRef(false);
   const analysisRevision = useRef(p.revision || 0),
     roadmapRevision = useRef(p.revision || 0);
+  const analysisBaseline = useRef(p.analysis || defaultAnalysis());
+  const roadmapBaseline = useRef(p.roadmap || []);
   const [saveError, setSaveError] = useState('');
   const editAnalysis = (value: Parameters<typeof setAnalysis>[0]) => {
     analysisDirty.current = true;
@@ -63,17 +66,25 @@ export function LearningPlan({
     setSaving(true);
     try {
       const base = path.endsWith('/learning')
-        ? analysisRevision.current
+        ? await projectSaveRevision(p.id, analysisRevision.current, {
+            analysis: analysisBaseline.current,
+          })
         : path.endsWith('/roadmap')
-          ? roadmapRevision.current
+          ? await projectSaveRevision(p.id, roadmapRevision.current, {
+              roadmap: roadmapBaseline.current,
+            })
           : undefined;
       const result = (await mutate(path, method, body, base)) as Project;
       setSaveError('');
       if (path.endsWith('/learning')) {
         analysisDirty.current = false;
         analysisRevision.current = result.revision || 0;
+        analysisBaseline.current = result.analysis || defaultAnalysis();
       }
-      if (path.endsWith('/roadmap')) roadmapRevision.current = result.revision || 0;
+      if (path.endsWith('/roadmap')) {
+        roadmapRevision.current = result.revision || 0;
+        roadmapBaseline.current = result.roadmap || [];
+      }
       apply?.(result);
     } catch (error) {
       setSaveError((error as Error).message);
@@ -87,12 +98,14 @@ export function LearningPlan({
     if (!analysisDirty.current) {
       setAnalysis(p.analysis || defaultAnalysis());
       analysisRevision.current = p.revision || 0;
+      analysisBaseline.current = p.analysis || defaultAnalysis();
     }
   }, [analysisKey, p.revision]);
   useEffect(() => {
     if (!roadmapDirty.current) {
       setSteps(p.roadmap || []);
       roadmapRevision.current = p.revision || 0;
+      roadmapBaseline.current = p.roadmap || [];
     }
   }, [roadmapKey, p.revision]);
   const edit = (index: number, value: Partial<RoadmapStep>) =>
@@ -119,7 +132,9 @@ export function LearningPlan({
                 setAnalysis(p.analysis || defaultAnalysis());
                 setSteps(p.roadmap || []);
                 analysisRevision.current = p.revision || 0;
+                analysisBaseline.current = p.analysis || defaultAnalysis();
                 roadmapRevision.current = p.revision || 0;
+                roadmapBaseline.current = p.roadmap || [];
                 setSaveError('');
               }
             }}

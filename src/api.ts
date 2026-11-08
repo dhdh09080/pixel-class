@@ -40,3 +40,31 @@ export async function api<T = unknown>(
   return data as T;
 }
 export const fetchState = () => api<AppState>('/state');
+
+/** Advance only across revisions that did not change the fields this editor writes.
+ * The subsequent If-Match still rejects a change racing this preflight read. */
+export async function projectSaveRevision(
+  projectId: string,
+  fallbackRevision: number,
+  baseline: Record<string, unknown>,
+) {
+  const current = (await fetchState()).projects.find((project) => project.id === projectId);
+  if (!current) return fallbackRevision;
+  const same = (a: unknown, b: unknown): boolean => {
+    if (a === b) return true;
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    const first = a as Record<string, unknown>,
+      second = b as Record<string, unknown>;
+    const keys = Object.keys(first);
+    return (
+      keys.length === Object.keys(second).length &&
+      keys.every((key) => Object.hasOwn(second, key) && same(first[key], second[key]))
+    );
+  };
+  return Object.entries(baseline).every(([key, value]) =>
+    same(current[key as keyof typeof current], value),
+  )
+    ? current.revision || 0
+    : fallbackRevision;
+}

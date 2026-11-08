@@ -478,3 +478,90 @@ test('a retained draft never appears for a different account after session loss 
     await other.close();
   }
 });
+
+test('unrelated task and question updates do not conflict with form, analysis or roadmap drafts', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(60000);
+  await open(page);
+  const state = async () => await (await context.request.get('/api/state')).json();
+  const p = await (
+    await context.request.post('/api/projects', {
+      headers,
+      data: { ...emptyProject(), title: '서로 다른 항목의 동시 저장' },
+    })
+  ).json();
+  expect(
+    (
+      await context.request.put(`/api/projects/${p.id}/roadmap`, {
+        headers,
+        data: {
+          steps: [{ id: 'merge-step', text: '작은 기능', description: '첫 화면', done: false }],
+        },
+      })
+    ).status(),
+  ).toBe(200);
+  await page.getByRole('button', { name: '내 프로젝트', exact: true }).click();
+  await page.locator('.project-card').filter({ hasText: p.title }).click();
+  const modal = page.getByRole('dialog');
+  await modal.getByRole('button', { name: '수정', exact: true }).click();
+  await page.getByLabel('프로젝트 이름').fill('동시 저장을 보존한 프로젝트');
+  expect(
+    (
+      await context.request.post(`/api/projects/${p.id}/tasks`, {
+        headers,
+        data: { text: '폼과 별도로 저장한 작업' },
+      })
+    ).status(),
+  ).toBe(201);
+  await page.getByRole('button', { name: '변경사항 저장', exact: true }).click();
+  await expect(
+    modal.getByRole('heading', { name: '동시 저장을 보존한 프로젝트', exact: true }),
+  ).toBeVisible();
+  await modal.getByRole('button', { name: '기술·로드맵', exact: true }).click();
+  await modal.getByLabel('만드는 서비스 형태').selectOption('WEB');
+  expect(
+    (
+      await context.request.post(`/api/projects/${p.id}/tasks`, {
+        headers,
+        data: { text: '분석과 별도로 저장한 작업' },
+      })
+    ).status(),
+  ).toBe(201);
+  await modal.getByRole('button', { name: '기술 구성 저장', exact: true }).click();
+  await expect
+    .poll(async () => (await state()).projects.find((v: any) => v.id === p.id).analysis.productType)
+    .toBe('WEB');
+  await modal.getByLabel('로드맵 1 단계 이름').fill('수정한 작은 기능');
+  expect(
+    (
+      await context.request.post(`/api/projects/${p.id}/entries`, {
+        headers,
+        data: { type: 'questions', text: '로드맵과 별도로 저장한 질문' },
+      })
+    ).status(),
+  ).toBe(200);
+  await modal.getByRole('button', { name: '로드맵 저장', exact: true }).click();
+  await expect
+    .poll(async () => (await state()).projects.find((v: any) => v.id === p.id).roadmap[0].text)
+    .toBe('수정한 작은 기능');
+  const current = (await state()).projects.find((v: any) => v.id === p.id);
+  expect(current.tasks).toHaveLength(2);
+  expect(current.questions).toHaveLength(1);
+  await modal.getByLabel('만드는 서비스 형태').selectOption('DESKTOP');
+  expect(
+    (
+      await context.request.patch(`/api/projects/${p.id}/learning`, {
+        headers,
+        data: { analysis: { ...current.analysis, productType: 'AUTOMATION' } },
+      })
+    ).status(),
+  ).toBe(200);
+  await modal.getByRole('button', { name: '기술 구성 저장', exact: true }).click();
+  await expect(modal.getByRole('alert')).toContainText('다른 화면');
+  await expect(modal.getByLabel('만드는 서비스 형태')).toHaveValue('DESKTOP');
+  expect((await state()).projects.find((v: any) => v.id === p.id).analysis.productType).toBe(
+    'AUTOMATION',
+  );
+});
