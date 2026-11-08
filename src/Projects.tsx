@@ -1,6 +1,6 @@
 import { LearningPlan, QuestionThread, PromptPanel, SubmissionPanel } from './LearningPanels';
 import { emptyWorkLog, technicalTopics } from '../shared/learning';
-import { useState, type FormEvent } from 'react';
+import { useState, useRef, type FormEvent } from 'react';
 import {
   Plus,
   ArrowUpRight,
@@ -39,7 +39,12 @@ import {
   date,
 } from './components';
 import { api } from './api';
-export type Mutate = (path: string, method?: string, body?: unknown) => Promise<unknown>;
+export type Mutate = (
+  path: string,
+  method?: string,
+  body?: unknown,
+  revision?: number,
+) => Promise<unknown>;
 export function ProjectCards({
   state,
   onOpen,
@@ -174,6 +179,8 @@ export function ProjectForm({
 }) {
   const [draft, setDraft] = useState(project ? { ...project } : { ...emptyProject() });
   const [busy, setBusy] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const baseRevision = useRef(project?.revision || 0);
   const change = (key: string, value: unknown) => setDraft((p) => ({ ...p, [key]: value }));
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -186,10 +193,11 @@ export function ProjectForm({
         project ? `/projects/${project.id}` : '/projects',
         project ? 'PATCH' : 'POST',
         fields,
+        project ? baseRevision.current : undefined,
       )) as Project;
       onSaved(p.id);
-    } catch {
-      /* Parent displays the error. */
+    } catch (error) {
+      setSaveError((error as Error).message);
     } finally {
       setBusy(false);
     }
@@ -202,6 +210,27 @@ export function ProjectForm({
       wide
     >
       <form onSubmit={submit} className="project-form">
+        {saveError && (
+          <div className="form-message error" role="alert">
+            <strong>저장하지 못했어요</strong>
+            <p>{saveError}</p>
+            {project && (
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  if (window.confirm('현재 입력을 버리고 최신 저장 내용을 불러올까요?')) {
+                    setDraft({ ...project });
+                    baseRevision.current = project.revision || 0;
+                    setSaveError('');
+                  }
+                }}
+              >
+                최신 내용 불러오기
+              </button>
+            )}
+          </div>
+        )}
         <Field label="프로젝트 이름 *">
           <input
             required
@@ -399,9 +428,7 @@ export function ProjectDetail({
     e.preventDefault();
     if (!task.trim()) return;
     try {
-      await mutate(`/projects/${p.id}`, 'PATCH', {
-        tasks: [...p.tasks, { id: crypto.randomUUID(), text: task.trim(), done: false }],
-      });
+      await mutate(`/projects/${p.id}/tasks`, 'POST', { text: task.trim() });
       setTask('');
     } catch {}
   }
@@ -508,8 +535,8 @@ export function ProjectDetail({
                       text={t.text}
                       disabled={!mine}
                       onChange={() =>
-                        void mutate(`/projects/${p.id}`, 'PATCH', {
-                          tasks: p.tasks.map((v) => (v.id === t.id ? { ...v, done: !v.done } : v)),
+                        void mutate(`/projects/${p.id}/tasks/${t.id}`, 'PATCH', {
+                          done: !t.done,
                         }).catch(() => {})
                       }
                     />
@@ -518,9 +545,7 @@ export function ProjectDetail({
                         className="icon-button"
                         aria-label={`${t.text} 삭제`}
                         onClick={() =>
-                          void mutate(`/projects/${p.id}`, 'PATCH', {
-                            tasks: p.tasks.filter((v) => v.id !== t.id),
-                          }).catch(() => {})
+                          void mutate(`/projects/${p.id}/tasks/${t.id}`, 'DELETE').catch(() => {})
                         }
                       >
                         <Trash2 size={13} />

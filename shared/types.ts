@@ -69,6 +69,7 @@ export type AIMessage = {
   createdAt: string;
 };
 export type Project = {
+  revision?: number;
   id: string;
   schoolId: string;
   ownerId: string;

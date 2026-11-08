@@ -1,4 +1,6 @@
 import type { Express, Request } from 'express';
+import { saveProject } from './projects.js';
+import { validateUpload } from './uploads.js';
 import { z } from 'zod';
 import type { Member, Project, Entry } from '../shared/types.js';
 import {
@@ -13,7 +15,7 @@ import {
   submissionSchema,
   questionStatusSchema,
 } from '../shared/validation.js';
-import { id, now, put, get, list, remove, userById, saveMember } from './db.js';
+import { id, now, put, get, list, remove, userById, saveMember, transaction } from './db.js';
 import type { PersonalEventInput } from '../shared/events.js';
 type Deps = {
   active: (req: Request) => Member;
@@ -26,7 +28,7 @@ type Deps = {
 export function registerLearningRoutes(app: Express, d: Deps) {
   const save = (p: Project) => {
     p.updatedAt = now();
-    put('project', p, p.schoolId);
+    saveProject(p);
     d.changed(p.schoolId);
     return p;
   };
@@ -167,32 +169,22 @@ export function registerLearningRoutes(app: Express, d: Deps) {
     const v = z
       .object({ fileName: z.string().min(1).max(150), content: z.string().max(7 * 1024 * 1024) })
       .parse(req.body);
-    const extension = v.fileName.split('.').pop()?.toLowerCase();
-    const types: Record<string, string> = {
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      webp: 'image/webp',
-      pdf: 'application/pdf',
-      md: 'text/markdown',
-      txt: 'text/plain',
-    };
-    if (!extension || !types[extension]) d.fail(400, '이미지, PDF, TXT, MD 파일을 선택해 주세요.');
-    const content = Buffer.from(v.content, 'base64');
-    if (content.length > 5 * 1024 * 1024) d.fail(400, '파일은 5MB 이하여야 합니다.');
+    const { content, mime } = validateUpload(v.fileName, v.content);
     if ((p.attachments?.length || 0) >= 10)
       d.fail(400, '프로젝트당 최대 10개 파일을 보관할 수 있어요.');
     const attachment: Attachment = {
       id: id(),
       projectId: p.id,
       fileName: v.fileName,
-      mime: types[extension!],
+      mime,
       size: content.length,
       createdAt: now(),
     };
-    put('project-attachment', { ...attachment, content: v.content }, p.schoolId);
-    p.attachments = [...(p.attachments || []), attachment];
-    save(p);
+    transaction(() => {
+      put('project-attachment', { ...attachment, content: v.content }, p.schoolId);
+      p.attachments = [...(p.attachments || []), attachment];
+      save(p);
+    });
     res.status(201).json(attachment);
   });
   app.get('/api/projects/:id/attachments/:attachmentId', (req, res) => {
@@ -218,9 +210,11 @@ export function registerLearningRoutes(app: Express, d: Deps) {
       d.fail(409, '제출 기록에 포함된 파일은 보존해야 해요.');
     const file = get<Attachment>('project-attachment', String(req.params.attachmentId), p.schoolId);
     if (!file || file.projectId !== p.id) d.fail(404, '첨부파일을 찾을 수 없습니다.');
-    p.attachments = (p.attachments || []).filter((a) => a.id !== file!.id);
-    remove('project-attachment', file!.id, p.schoolId);
-    save(p);
+    transaction(() => {
+      p.attachments = (p.attachments || []).filter((a) => a.id !== file!.id);
+      remove('project-attachment', file!.id, p.schoolId);
+      save(p);
+    });
     res.json({ ok: true });
   });
 }

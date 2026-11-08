@@ -41,6 +41,14 @@ export function LearningPlan({
     [saving, setSaving] = useState(false);
   const roadmapDirty = useRef(false),
     revision = useRef(0);
+  const analysisDirty = useRef(false);
+  const analysisRevision = useRef(p.revision || 0),
+    roadmapRevision = useRef(p.revision || 0);
+  const [saveError, setSaveError] = useState('');
+  const editAnalysis = (value: Parameters<typeof setAnalysis>[0]) => {
+    analysisDirty.current = true;
+    setAnalysis(value);
+  };
   const editSteps = (value: RoadmapStep[] | ((old: RoadmapStep[]) => RoadmapStep[])) => {
     roadmapDirty.current = true;
     revision.current++;
@@ -54,19 +62,39 @@ export function LearningPlan({
   ) {
     setSaving(true);
     try {
-      const result = (await mutate(path, method, body)) as Project;
+      const base = path.endsWith('/learning')
+        ? analysisRevision.current
+        : path.endsWith('/roadmap')
+          ? roadmapRevision.current
+          : undefined;
+      const result = (await mutate(path, method, body, base)) as Project;
+      setSaveError('');
+      if (path.endsWith('/learning')) {
+        analysisDirty.current = false;
+        analysisRevision.current = result.revision || 0;
+      }
+      if (path.endsWith('/roadmap')) roadmapRevision.current = result.revision || 0;
       apply?.(result);
-    } catch {
+    } catch (error) {
+      setSaveError((error as Error).message);
     } finally {
       setSaving(false);
     }
   }
   const analysisKey = JSON.stringify(p.analysis),
     roadmapKey = JSON.stringify(p.roadmap);
-  useEffect(() => setAnalysis(p.analysis || defaultAnalysis()), [analysisKey]);
   useEffect(() => {
-    if (!roadmapDirty.current) setSteps(p.roadmap || []);
-  }, [roadmapKey]);
+    if (!analysisDirty.current) {
+      setAnalysis(p.analysis || defaultAnalysis());
+      analysisRevision.current = p.revision || 0;
+    }
+  }, [analysisKey, p.revision]);
+  useEffect(() => {
+    if (!roadmapDirty.current) {
+      setSteps(p.roadmap || []);
+      roadmapRevision.current = p.revision || 0;
+    }
+  }, [roadmapKey, p.revision]);
   const edit = (index: number, value: Partial<RoadmapStep>) =>
     editSteps((s) => s.map((step, i) => (i === index ? { ...step, ...value } : step)));
   const reorder = (index: number, offset: number) =>
@@ -78,6 +106,28 @@ export function LearningPlan({
   const recommendations = recommendedMaterials(p, state.materials);
   return (
     <div className="learning-plan">
+      {saveError && (
+        <div className="form-message error" role="alert">
+          <strong>입력한 초안을 보관했어요</strong>
+          <p>{saveError}</p>
+          <button
+            className="button secondary"
+            onClick={() => {
+              if (window.confirm('입력한 기술 구성과 로드맵을 버리고 최신 내용을 불러올까요?')) {
+                analysisDirty.current = false;
+                roadmapDirty.current = false;
+                setAnalysis(p.analysis || defaultAnalysis());
+                setSteps(p.roadmap || []);
+                analysisRevision.current = p.revision || 0;
+                roadmapRevision.current = p.revision || 0;
+                setSaveError('');
+              }
+            }}
+          >
+            최신 내용 불러오기
+          </button>
+        </div>
+      )}
       <fieldset disabled={saving} className="learning-fieldset">
         <div className="section-heading">
           <h3>이 프로젝트에 필요한 기술</h3>
@@ -99,7 +149,7 @@ export function LearningPlan({
                 value={analysis.productType}
                 disabled={!mine}
                 onChange={(e) =>
-                  setAnalysis((a) => ({
+                  editAnalysis((a) => ({
                     ...a,
                     productType: e.target.value as typeof a.productType,
                   }))
@@ -116,7 +166,7 @@ export function LearningPlan({
                 value={analysis.difficulty}
                 disabled={!mine}
                 onChange={(e) =>
-                  setAnalysis((a) => ({ ...a, difficulty: e.target.value as typeof a.difficulty }))
+                  editAnalysis((a) => ({ ...a, difficulty: e.target.value as typeof a.difficulty }))
                 }
               >
                 <option value="">아직 모름</option>
@@ -131,7 +181,7 @@ export function LearningPlan({
                   value={analysis[key] === null ? '' : String(analysis[key])}
                   disabled={!mine}
                   onChange={(e) =>
-                    setAnalysis((a) => ({
+                    editAnalysis((a) => ({
                       ...a,
                       [key]: e.target.value === '' ? null : e.target.value === 'true',
                     }))

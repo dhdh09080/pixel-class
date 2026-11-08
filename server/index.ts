@@ -1,4 +1,6 @@
 import './runtime.js';
+import { saveProject, ProjectConflict } from './projects.js';
+import { validateUpload, UploadError } from './uploads.js';
 import { allowedOrigin } from './config.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
 import { workLogSchema } from '../shared/validation.js';
@@ -196,7 +198,15 @@ function project(req: Request, u: Member, write = false) {
   if (!p) fail(404, '프로젝트를 찾을 수 없습니다.');
   if (p!.ownerId !== u.id && u.role !== 'MASTER' && (write || !p!.isPublic))
     fail(403, '이 프로젝트에 접근할 수 없습니다.');
-  return normalizeProject(p!);
+  const normalized = normalizeProject(p!);
+  const expected = req.headers['if-match'];
+  if (
+    write &&
+    expected &&
+    ![String(normalized.revision), `"${normalized.revision}"`].includes(String(expected))
+  )
+    throw new ProjectConflict();
+  return normalized;
 }
 function projectView(p: Project, u: Member): Project {
   if (p.ownerId === u.id || u.role === 'MASTER') return normalizeProject(p);
@@ -495,7 +505,7 @@ app.post('/api/projects', (req, res) => {
     createdAt: now(),
     updatedAt: now(),
   };
-  put('project', p, u.schoolId);
+  saveProject(p, true);
   changed(u.schoolId);
   res.status(201).json(p);
 });
@@ -519,7 +529,50 @@ app.patch('/api/projects/:id', (req, res) => {
     })
     .parse(req.body);
   Object.assign(p, v, { approved: false, updatedAt: now() });
-  put('project', p, u.schoolId);
+  saveProject(p);
+  changed(u.schoolId);
+  res.json(p);
+});
+app.post('/api/projects/:id/tasks', (req, res) => {
+  const u = active(req),
+    p = project(req, u, true);
+  if (p.ownerId !== u.id) fail(403, '자신의 할 일만 추가할 수 있어요.');
+  const { text } = z.object({ text: z.string().trim().min(1).max(300) }).parse(req.body);
+  if (p.tasks.length >= 100) fail(400, '할 일은 프로젝트당 100개까지 정리할 수 있어요.');
+  p.tasks.push({ id: id(), text, done: false });
+  p.approved = false;
+  p.updatedAt = now();
+  saveProject(p);
+  changed(u.schoolId);
+  res.status(201).json(p);
+});
+app.patch('/api/projects/:id/tasks/:taskId', (req, res) => {
+  const u = active(req),
+    p = project(req, u, true);
+  if (p.ownerId !== u.id) fail(403, '자신의 할 일만 수정할 수 있어요.');
+  const value = z
+    .object({ text: z.string().trim().min(1).max(300).optional(), done: z.boolean().optional() })
+    .refine((v) => v.text !== undefined || v.done !== undefined)
+    .parse(req.body);
+  const task = p.tasks.find((t) => t.id === req.params.taskId);
+  if (!task) fail(404, '이미 삭제되었거나 없는 할 일이에요.');
+  Object.assign(task!, value);
+  p.approved = false;
+  p.updatedAt = now();
+  saveProject(p);
+  changed(u.schoolId);
+  res.json(p);
+});
+app.delete('/api/projects/:id/tasks/:taskId', (req, res) => {
+  const u = active(req),
+    p = project(req, u, true);
+  if (p.ownerId !== u.id) fail(403, '자신의 할 일만 삭제할 수 있어요.');
+  if (!p.tasks.some((t) => t.id === req.params.taskId))
+    fail(404, '이미 삭제되었거나 없는 할 일이에요.');
+  p.tasks = p.tasks.filter((t) => t.id !== req.params.taskId);
+  p.approved = false;
+  p.updatedAt = now();
+  saveProject(p);
   changed(u.schoolId);
   res.json(p);
 });
@@ -527,8 +580,10 @@ app.delete('/api/projects/:id', (req, res) => {
   const u = active(req),
     p = project(req, u, true);
   if (p.ownerId !== u.id) fail(403, '프로젝트는 작성자만 삭제할 수 있습니다.');
-  for (const file of p.attachments || []) remove('project-attachment', file.id, u.schoolId);
-  remove('project', p.id, u.schoolId);
+  transaction(() => {
+    for (const file of p.attachments || []) remove('project-attachment', file.id, u.schoolId);
+    remove('project', p.id, u.schoolId);
+  });
   changed(u.schoolId);
   res.json({ ok: true });
 });
@@ -567,10 +622,10 @@ app.post('/api/projects/:id/entries', (req, res) => {
       },
     });
   p.updatedAt = now();
-  put('project', p, u.schoolId);
+  saveProject(p);
   if (v.type === 'questions') {
     p.helpRequested = true;
-    put('project', p, u.schoolId);
+    saveProject(p);
     for (const teacher of members(u.schoolId).filter((m) => m.role === 'MASTER'))
       personalEvent(teacher, { type: 'help.requested', payload: { memberId: u.id, name: u.name } });
     const student = userById(p.ownerId)!;
@@ -601,7 +656,7 @@ app.post('/api/projects/:id/approve', (req, res) => {
     ...entry(u, '프로젝트 검토를 승인했어요. 완성을 축하합니다!'),
     kind: '검토 승인',
   });
-  put('project', p, u.schoolId);
+  saveProject(p);
   changed(u.schoolId);
   res.json(p);
 });
@@ -764,18 +819,6 @@ app.post('/api/messages', (req, res) => {
   changed(u.schoolId);
   res.json({ ok: true });
 });
-const fileTypes: Record<string, string> = {
-  pdf: 'application/pdf',
-  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  png: 'image/png',
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  webp: 'image/webp',
-  txt: 'text/plain',
-  md: 'text/markdown',
-};
 app.post('/api/materials', (req, res) => {
   const u = master(req);
   const v = z
@@ -790,10 +833,7 @@ app.post('/api/materials', (req, res) => {
       topics: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
     })
     .parse(req.body);
-  const ext = v.fileName.split('.').pop()!.toLowerCase();
-  if (!fileTypes[ext]) fail(400, '지원하지 않는 파일 형식입니다.');
-  const buffer = Buffer.from(v.content, 'base64');
-  if (buffer.length > 5 * 1024 * 1024) fail(400, '5MB 이하 파일을 올려 주세요.');
+  const { content: buffer, mime } = validateUpload(v.fileName, v.content, true);
   const old = v.replaceId ? get<Material>('material', v.replaceId, u.schoolId) : undefined;
   if (v.replaceId && !old) fail(404, '기존 자료를 찾을 수 없습니다.');
   const { replaceId: _, ...fields } = v;
@@ -801,7 +841,7 @@ app.post('/api/materials', (req, res) => {
     ...fields,
     topics: v.topics || old?.topics || [],
     id: old?.id || id(),
-    mime: fileTypes[ext],
+    mime,
     size: buffer.length,
     version: (old?.version || 0) + 1,
     createdAt: now(),
@@ -855,10 +895,13 @@ app.delete('/api/materials/:id', (req, res) => {
   changed(u.schoolId);
   res.json({ ok: true });
 });
+const aiInFlight = new Set<string>();
 app.post('/api/projects/:id/ai', async (req, res) => {
   const u = active(req),
     p = project(req, u, true);
   const { text } = z.object({ text: z.string().trim().min(1).max(2000) }).parse(req.body);
+  if (aiInFlight.has(p.id))
+    fail(429, '이 프로젝트의 AI 답변을 기다리고 있어요. 답변이 온 뒤 다시 질문해 주세요.');
   rate(`ai:${u.id}`, 5, 60000);
   if (!process.env.OPENAI_API_KEY)
     fail(
@@ -877,7 +920,16 @@ app.post('/api/projects/:id/ai', async (req, res) => {
   ).run(u.id, day);
   const userMessage: AIMessage = { id: id(), role: 'user', text, createdAt: now() };
   p.aiMessages.push(userMessage);
-  put('project', p, u.schoolId);
+  saveProject(p);
+  const currentProject = () => {
+    const currentUser = sessionUser(req);
+    if (!currentUser || currentUser.id !== u.id || currentUser.status !== 'ACTIVE')
+      fail(403, '로그인 또는 학적이 변경되어 AI 응답을 저장하지 않았어요. 다시 로그인해 주세요.');
+    const current = get<Project>('project', p.id, u.schoolId);
+    if (!current) fail(409, '프로젝트가 삭제되어 AI 응답을 저장하지 않았어요.');
+    return current!;
+  };
+  aiInFlight.add(p.id);
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -920,22 +972,25 @@ app.post('/api/projects/:id/ai', async (req, res) => {
       .map((c) => c.text || '')
       .join('\n');
     if (!answer) throw new Error('empty response');
-    const latest = get<Project>('project', p.id, u.schoolId)!;
+    const latest = currentProject();
     latest.aiMessages.push({ id: id(), role: 'assistant', text: answer, createdAt: now() });
-    put('project', latest, u.schoolId);
+    saveProject(latest);
     changed(u.schoolId);
     res.json({ ok: true });
-  } catch {
-    const latest = get<Project>('project', p.id, u.schoolId)!;
+  } catch (error) {
+    if (error instanceof HttpError || error instanceof ProjectConflict) throw error;
+    const latest = currentProject();
     latest.aiMessages.push({
       id: id(),
       role: 'error',
       text: 'AI 응답을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.',
       createdAt: now(),
     });
-    put('project', latest, u.schoolId);
+    saveProject(latest);
     changed(u.schoolId);
     fail(502, 'AI 연결에 실패했어요. 서버 네트워크와 API 설정을 확인해 주세요.');
+  } finally {
+    aiInFlight.delete(p.id);
   }
 });
 registerLearningRoutes(app, { active, master, project, fail, changed, notify: personalEvent });
@@ -980,6 +1035,8 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof z.ZodError)
     return res.status(400).json({ error: err.issues[0]?.message || '입력 내용을 확인해 주세요.' });
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
+  if (err instanceof ProjectConflict) return res.status(409).json({ error: err.message });
+  if (err instanceof UploadError) return res.status(400).json({ error: err.message });
   console.error(err instanceof Error ? err.message : 'Server error');
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });

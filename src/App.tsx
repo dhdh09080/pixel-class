@@ -121,12 +121,13 @@ export default function App() {
     chatEnd.current?.scrollIntoView({ block: 'nearest' });
   }, [state?.messages.length, chatOpen]);
   const mutate: Mutate = useCallback(
-    async (path, method = 'POST', body) => {
+    async (path, method = 'POST', body, revision) => {
       try {
-        const result = await api(path, method, body);
+        const result = await api(path, method, body, revision);
         await load();
         return result;
       } catch (e) {
+        if (e instanceof ApiError && e.status === 409) await load();
         setToast((e as Error).message);
         throw e;
       }
@@ -619,10 +620,8 @@ export default function App() {
                                 done={t.done}
                                 text={t.text}
                                 onChange={() =>
-                                  void mutate(`/projects/${featured.id}`, 'PATCH', {
-                                    tasks: featured.tasks.map((v) =>
-                                      v.id === t.id ? { ...v, done: true } : v,
-                                    ),
+                                  void mutate(`/projects/${featured.id}/tasks/${t.id}`, 'PATCH', {
+                                    done: true,
                                   }).catch(() => {})
                                 }
                               />
@@ -760,7 +759,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.2</span>
+            <span>PIXEL CLASS v0.3</span>
           </div>
         </div>
       </div>
