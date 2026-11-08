@@ -32,6 +32,7 @@ export default function Classroom({
   }, [state, enabled, onAction, onRefresh, onConnection]);
   useEffect(() => {
     let disposed = false;
+    latest.current.onConnection(false);
     let game: import('phaser').Game | undefined;
     let socket: WebSocket | undefined;
     let retry: ReturnType<typeof setTimeout>;
@@ -54,8 +55,8 @@ export default function Classroom({
       socket = new WebSocket(
         `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/socket`,
       );
-      socket.onopen = () => latest.current.onConnection(true);
       socket.onmessage = (e) => {
+        if (disposed) return;
         const value = JSON.parse(e.data);
         if (value.type === 'positions') {
           scene.current?.receive(value);
@@ -64,10 +65,12 @@ export default function Classroom({
             scene.current.enabled = latest.current.enabled;
             scene.current.input.enabled = latest.current.enabled;
           }
+          latest.current.onConnection(true);
         } else if (value.type === 'refresh' || value.type === 'online') latest.current.onRefresh();
         else scene.current?.receive(value);
       };
       socket.onclose = () => {
+        if (disposed) return;
         scene.current?.touchMove(0, 0);
         if (scene.current) {
           scene.current.enabled = false;
@@ -126,6 +129,7 @@ export default function Classroom({
     document.addEventListener('visibilitychange', stop);
     return () => {
       disposed = true;
+      latest.current.onConnection(false);
       ready.current = false;
       window.removeEventListener('blur', stop);
       document.removeEventListener('visibilitychange', stop);

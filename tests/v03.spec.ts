@@ -386,6 +386,8 @@ test('another tab deleting a project preserves an editing draft and offers a cle
   await other.locator('.project-card').filter({ hasText: p.title }).click();
   await other.getByRole('button', { name: '프로젝트 삭제', exact: true }).click();
   await other.getByRole('button', { name: '삭제 확인', exact: true }).click();
+  await page.bringToFront();
+  await expect.poll(() => page.evaluate(() => document.hasFocus())).toBe(true);
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('alert')).toContainText('삭제');
   await expect(page.getByLabel('프로젝트 이름')).toHaveValue('보존해야 하는 미저장 초안');
