@@ -1,4 +1,4 @@
-import { SegmentedControl } from './ui';
+import { SegmentedControl, InlineNotice } from './ui';
 import { LearningPlan, QuestionThread, PromptPanel, SubmissionPanel } from './LearningPanels';
 import { emptyWorkLog, technicalTopics } from '../shared/learning';
 import { useState, useRef, type FormEvent } from 'react';
@@ -171,8 +171,10 @@ export function ProjectForm({
   onClose,
   onSaved,
   mutate,
+  unavailable = false,
 }: {
   project?: Project;
+  unavailable?: boolean;
   onClose: () => void;
   onSaved: (id: string) => void;
   mutate: Mutate;
@@ -184,6 +186,7 @@ export function ProjectForm({
   const change = (key: string, value: unknown) => setDraft((p) => ({ ...p, [key]: value }));
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (busy || unavailable) return;
     setBusy(true);
     const fields = Object.fromEntries(
       Object.keys(emptyProject()).map((k) => [k, draft[k as keyof typeof draft]]),
@@ -210,7 +213,13 @@ export function ProjectForm({
       wide
     >
       <form onSubmit={submit} className="project-form">
-        {saveError && (
+        {unavailable && (
+          <InlineNotice kind="error" title="프로젝트가 삭제되었거나 접근할 수 없어요">
+            입력한 초안은 이 화면에 남겨 두었어요. 필요한 내용을 복사한 뒤 취소를 눌러 목록으로
+            돌아가세요. 이 초안을 기존 프로젝트에 저장할 수는 없어요.
+          </InlineNotice>
+        )}
+        {saveError && !unavailable && (
           <div className="form-message error" role="alert">
             <strong>저장하지 못했어요</strong>
             <p>{saveError}</p>
@@ -362,7 +371,7 @@ export function ProjectForm({
           <button className="button secondary" type="button" onClick={onClose}>
             취소
           </button>
-          <button className="button primary" disabled={busy}>
+          <button className="button primary" disabled={busy || unavailable}>
             {busy ? '저장 중…' : project ? '변경사항 저장' : '프로젝트 시작하기'}
             <ArrowUpRight size={16} />
           </button>

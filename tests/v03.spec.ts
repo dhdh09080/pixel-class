@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { emptyProject } from '../shared/types';
+import { emptyProject, defaultAppearance } from '../shared/types';
 const headers = { 'X-Pixel-Class': '1' };
 const open = async (page: Page) => {
   await page.goto('/');
@@ -362,5 +362,119 @@ test('form boundaries have 3:1 non-text contrast and mobile fields avoid small-t
       ).toBeGreaterThanOrEqual(3);
       if (width === 390) expect(control.size).toBeGreaterThanOrEqual(16);
     }
+  }
+});
+
+test('another tab deleting a project preserves an editing draft and offers a clear way back', async ({
+  page,
+  context,
+}) => {
+  await open(page);
+  const p = await (
+    await context.request.post('/api/projects', {
+      headers,
+      data: { ...emptyProject(), title: '다른 탭 삭제 검증' },
+    })
+  ).json();
+  await page.getByRole('button', { name: '내 프로젝트', exact: true }).click();
+  await page.locator('.project-card').filter({ hasText: p.title }).click();
+  await page.getByRole('dialog').getByRole('button', { name: '수정', exact: true }).click();
+  await page.getByLabel('프로젝트 이름').fill('보존해야 하는 미저장 초안');
+  const other = await context.newPage();
+  await open(other);
+  await other.getByRole('button', { name: '내 프로젝트', exact: true }).click();
+  await other.locator('.project-card').filter({ hasText: p.title }).click();
+  await other.getByRole('button', { name: '프로젝트 삭제', exact: true }).click();
+  await other.getByRole('button', { name: '삭제 확인', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('alert')).toContainText('삭제');
+  await expect(page.getByLabel('프로젝트 이름')).toHaveValue('보존해야 하는 미저장 초안');
+  await expect(page.getByRole('button', { name: '변경사항 저장', exact: true })).toBeDisabled();
+  await dialog.screenshot({ path: 'docs/v03/qa/deleted-project-draft.png' });
+  await page.keyboard.press('Escape');
+  await expect(
+    page.getByRole('dialog', { name: '프로젝트를 열 수 없어요', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '프로젝트 목록으로', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: '교실', exact: true }).click();
+  await expect(page.locator('.map-online')).toContainText('접속 중');
+  const world = page.locator('.game-host'),
+    x = Number(await world.getAttribute('data-x'));
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(250);
+  await page.keyboard.up('ArrowRight');
+  await expect.poll(async () => Number(await world.getAttribute('data-x'))).toBeGreaterThan(x + 15);
+  await other.close();
+});
+
+test('a retained draft never appears for a different account after session loss and login', async ({
+  page,
+  context,
+  browser,
+}) => {
+  await open(page);
+  await page.getByRole('button', { name: /교실 이야기/ }).click();
+  await page
+    .getByRole('textbox', { name: '교실 채팅 메시지' })
+    .fill('계정 전환 시 지울 미전송 대화');
+  const p = await (
+    await context.request.post('/api/projects', {
+      headers,
+      data: {
+        ...emptyProject(),
+        title: '이전 계정의 비공개 프로젝트',
+        purpose: '다른 계정에 보이면 안 되는 내용',
+      },
+    })
+  ).json();
+  await page.getByRole('button', { name: '내 프로젝트', exact: true }).click();
+  await page.locator('.project-card').filter({ hasText: p.title }).click();
+  await page.getByRole('dialog').getByRole('button', { name: '수정', exact: true }).click();
+  await page.getByLabel('프로젝트 이름').fill('내 계정에만 남을 초안');
+  const other = await browser.newContext();
+  try {
+    await other.request.post('/api/demo', { headers, data: { role: 'MASTER' } });
+    const invite = await (
+      await other.request.post('/api/invitations', { headers, data: { label: '초안 격리 계정' } })
+    ).json();
+    const email = `draft-switch-${Date.now()}@example.com`,
+      password = 'draft-isolation-test-password';
+    expect(
+      (
+        await other.request.post('/api/register', {
+          headers,
+          data: {
+            key: invite.key,
+            email,
+            password,
+            name: '다른 실제 계정',
+            appearance: defaultAppearance,
+          },
+        })
+      ).status(),
+    ).toBe(201);
+    expect((await context.request.post('/api/logout', { headers })).status()).toBe(200);
+    await expect(
+      page.getByRole('heading', { name: '다시 만나 반가워요', exact: true }),
+    ).toBeVisible();
+    await page.getByLabel('이메일').fill(email);
+    await page.getByLabel('비밀번호', { exact: true }).fill(password);
+    await page.getByRole('button', { name: '교실 입장하기', exact: true }).click();
+    await expect(page.locator('.header-profile strong')).toHaveText('다른 실제 계정');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.locator('canvas')).toBeVisible();
+    await expect(page.locator('body')).not.toContainText('이전 계정의 비공개 프로젝트');
+    await expect(page.locator('body')).not.toContainText('다른 계정에 보이면 안 되는 내용');
+    await expect(page.locator('.chat-card')).not.toHaveClass(/expanded/);
+    await page.getByRole('button', { name: /교실 이야기/ }).click();
+    await expect(page.getByRole('textbox', { name: '교실 채팅 메시지' })).toHaveValue('');
+    const current = await (await context.request.get('/api/state')).json();
+    expect(
+      current.projects.filter((project: any) => project.ownerId === current.me.id),
+    ).toHaveLength(0);
+    expect(current.projects.some((project: any) => project.id === p.id)).toBe(false);
+  } finally {
+    await other.close();
   }
 });
