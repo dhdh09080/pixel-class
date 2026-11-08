@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowRight, ArrowLeft, KeyRound, GraduationCap, ShieldCheck } from 'lucide-react';
 import { defaultAppearance, type Appearance } from '../shared/types';
 import { api } from './api';
+import { InlineNotice } from './ui';
 import { Field, Avatar } from './components';
 import { CharacterEditor } from './CharacterEditor';
 export type Config = { demo: boolean; bootstrap: boolean; aiConfigured: boolean };
@@ -27,7 +28,10 @@ export function Auth({
     [appearance, setAppearance] = useState<Appearance>(defaultAppearance),
     [customize, setCustomize] = useState(false),
     [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   async function submit() {
+    if (busy) return;
+    setError('');
     setBusy(true);
     try {
       await api(`/${mode}`, 'POST', { email, password, key, name, appearance });
@@ -35,6 +39,7 @@ export function Auth({
       sessionStorage.removeItem('pixel-signed-out');
       onSuccess();
     } catch (e) {
+      setError((e as Error).message);
       onToast((e as Error).message);
     } finally {
       setBusy(false);
@@ -107,25 +112,52 @@ export function Auth({
             <div className="filter-tabs">
               <button
                 className={mode === 'login' ? 'selected' : ''}
-                onClick={() => setMode('login')}
+                onClick={() => {
+                  setMode('login');
+                  setError('');
+                }}
               >
                 로그인
               </button>
               <button
                 className={mode === 'register' ? 'selected' : ''}
-                onClick={() => setMode('register')}
+                onClick={() => {
+                  setMode('register');
+                  setError('');
+                }}
               >
                 초대받아 입학
               </button>
               {config.bootstrap && (
                 <button
                   className={mode === 'bootstrap' ? 'selected' : ''}
-                  onClick={() => setMode('bootstrap')}
+                  onClick={() => {
+                    setMode('bootstrap');
+                    setError('');
+                  }}
                 >
                   MASTER 등록
                 </button>
               )}
             </div>
+            {mode === 'register' && (
+              <ol className="admission-steps" aria-label="입학 순서">
+                <li>
+                  <b>1</b>초대 KEY 확인
+                </li>
+                <li>
+                  <b>2</b>계정과 내 모습
+                </li>
+                <li>
+                  <b>3</b>교실 입장
+                </li>
+              </ol>
+            )}
+            {error && (
+              <InlineNotice kind="error" title="입장 정보를 확인해 주세요">
+                {error}
+              </InlineNotice>
+            )}
             <form
               className="project-form"
               onSubmit={(e) => {
@@ -166,7 +198,10 @@ export function Auth({
                   placeholder="name@example.com"
                 />
               </Field>
-              <Field label="비밀번호" hint="10자 이상으로 입력해 주세요.">
+              <Field
+                label="비밀번호"
+                hint={mode === 'login' ? undefined : '10자 이상으로 입력해 주세요.'}
+              >
                 <input
                   required
                   type="password"

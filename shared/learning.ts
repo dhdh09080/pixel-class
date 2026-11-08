@@ -84,6 +84,7 @@ export type Submission = {
 };
 export const normalizeProject = (p: Project): Project => ({
   ...p,
+  revision: p.revision || 0,
   helpRequested:
     p.helpRequested ?? p.questions.some((q) => ['NEW', 'ACKNOWLEDGED'].includes(q.status || 'NEW')),
   analysis: { ...defaultAnalysis(), ...p.analysis },

@@ -1,0 +1,632 @@
+{
+  "phase": "before",
+  "capturedAt": "2026-11-08T06:51:47.397Z",
+  "base": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "view": "classroom",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1512
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "projects",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "project-detail",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [
+        {
+          "x": 535,
+          "y": 54,
+          "width": 850,
+          "height": 972,
+          "scroll": 1056,
+          "client": 970,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "character",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [
+        {
+          "x": 535,
+          "y": 169.609375,
+          "width": 850,
+          "height": 740.78125,
+          "scroll": 739,
+          "client": 739,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "materials",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "master",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1204
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "admission",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "classroom",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 1282
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "projects",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "project-detail",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [
+        {
+          "x": 295,
+          "y": 45,
+          "width": 850,
+          "height": 810,
+          "scroll": 1056,
+          "client": 808,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "character",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [
+        {
+          "x": 295,
+          "y": 79.609375,
+          "width": 850,
+          "height": 740.78125,
+          "scroll": 739,
+          "client": 739,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "materials",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 903
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "master",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 1187
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "admission",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 983
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "classroom",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 1235
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "projects",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 787
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "project-detail",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 787
+      },
+      "dialog": [
+        {
+          "x": 258,
+          "y": 38.40625,
+          "width": 850,
+          "height": 691.1875,
+          "scroll": 1056,
+          "client": 689,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "character",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 787
+      },
+      "dialog": [
+        {
+          "x": 258,
+          "y": 38.40625,
+          "width": 850,
+          "height": 691.1875,
+          "scroll": 739,
+          "client": 689,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "materials",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 903
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "master",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 1187
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "admission",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 983
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "classroom",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 1183
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "projects",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 787
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "project-detail",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 787
+      },
+      "dialog": [
+        {
+          "x": 215,
+          "y": 36,
+          "width": 850,
+          "height": 648,
+          "scroll": 1056,
+          "client": 646,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "character",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 787
+      },
+      "dialog": [
+        {
+          "x": 215,
+          "y": 36,
+          "width": 850,
+          "height": 648,
+          "scroll": 739,
+          "client": 646,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "materials",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 903
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "master",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 1187
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "admission",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 983
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "classroom",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1590
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "projects",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1084
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "project-detail",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1084
+      },
+      "dialog": [
+        {
+          "x": 19,
+          "y": 29.546875,
+          "width": 352,
+          "height": 784.90625,
+          "scroll": 1175,
+          "client": 783,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "character",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1084
+      },
+      "dialog": [
+        {
+          "x": 19,
+          "y": 29.546875,
+          "width": 352,
+          "height": 784.90625,
+          "scroll": 1050,
+          "client": 783,
+          "label": null
+        }
+      ],
+      "errors": []
+    },
+    {
+      "view": "materials",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 844
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "master",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1794
+      },
+      "dialog": [],
+      "errors": []
+    },
+    {
+      "view": "admission",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 998
+      },
+      "dialog": [],
+      "errors": []
+    }
+  ]
+}

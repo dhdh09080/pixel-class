@@ -67,22 +67,51 @@ export default function App() {
     [chatOpen, setChatOpen] = useState(false),
     [readAt, setReadAt] = useState('');
   const chatEnd = useRef<HTMLDivElement>(null);
+  const [projectStartTab, setProjectStartTab] = useState('overview');
+  const [characterSaving, setCharacterSaving] = useState(false);
+  const [editingSnapshot, setEditingSnapshot] = useState<Project>();
   const loadSequence = useRef(0);
+  const currentAccount = useRef<string | undefined>(undefined);
+  const resetUi = useCallback(() => {
+    setOverlay(null);
+    setSelected('');
+    setEditingSnapshot(undefined);
+  }, []);
+  const resetAccountUi = useCallback(() => {
+    resetUi();
+    setPage('classroom');
+    setChat('');
+    setChatOpen(false);
+    setProfile('');
+    setToast('');
+    setConnected(false);
+  }, [resetUi]);
+  const applyState = useCallback(
+    (next: AppState) => {
+      if (currentAccount.current !== next.me.id) resetAccountUi();
+      currentAccount.current = next.me.id;
+      setState(next);
+    },
+    [resetAccountUi],
+  );
   const onToast = useCallback((s: string) => setToast(s), []);
   const load = useCallback(async () => {
     const sequence = ++loadSequence.current;
     try {
       const next = await fetchState();
       if (sequence === loadSequence.current) {
-        setState(next);
+        applyState(next);
         setConfig({ demo: next.demo, bootstrap: false, aiConfigured: next.aiConfigured });
       }
     } catch (e) {
       if (sequence !== loadSequence.current) return;
-      if (e instanceof ApiError && [401, 403].includes(e.status)) setState(null);
-      else setToast((e as Error).message);
+      if (e instanceof ApiError && [401, 403].includes(e.status)) {
+        resetAccountUi();
+        currentAccount.current = undefined;
+        setState(null);
+      } else setToast((e as Error).message);
     }
-  }, []);
+  }, [applyState, resetAccountUi]);
   useEffect(() => {
     void (async () => {
       try {
@@ -90,7 +119,7 @@ export default function App() {
         setConfig(c);
         if (new URLSearchParams(location.search).has('invite')) return;
         try {
-          setState(await fetchState());
+          applyState(await fetchState());
         } catch (e) {
           if (
             c.demo &&
@@ -108,7 +137,7 @@ export default function App() {
         setLoading(false);
       }
     })();
-  }, [load]);
+  }, [load, applyState]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(''), 5500);
@@ -121,19 +150,21 @@ export default function App() {
     chatEnd.current?.scrollIntoView({ block: 'nearest' });
   }, [state?.messages.length, chatOpen]);
   const mutate: Mutate = useCallback(
-    async (path, method = 'POST', body) => {
+    async (path, method = 'POST', body, revision) => {
       try {
-        const result = await api(path, method, body);
+        const result = await api(path, method, body, revision);
         await load();
         return result;
       } catch (e) {
+        if (e instanceof ApiError && [404, 409].includes(e.status)) await load();
         setToast((e as Error).message);
         throw e;
       }
     },
     [load],
   );
-  const openProject = useCallback((id: string) => {
+  const openProject = useCallback((id: string, initialTab = 'overview') => {
+    setProjectStartTab(initialTab);
     setSelected(id);
     setOverlay('project');
   }, []);
@@ -215,7 +246,14 @@ export default function App() {
     return (
       <>
         {config ? (
-          <Auth config={config} onSuccess={() => void load()} onToast={onToast} />
+          <Auth
+            config={config}
+            onSuccess={() => {
+              resetAccountUi();
+              void load();
+            }}
+            onToast={onToast}
+          />
         ) : (
           <div className="initial-loading">
             <h2>서버에 연결하지 못했어요.</h2>
@@ -232,6 +270,12 @@ export default function App() {
   const own = projects.filter((p) => p.ownerId === me.id);
   const featured = own.find((p) => !['COMPLETED', 'PAUSED'].includes(p.status)) || own[0];
   const selectedProject = projects.find((p) => p.id === selected);
+  const editingProject =
+    selectedProject?.ownerId === me.id
+      ? selectedProject
+      : editingSnapshot?.ownerId === me.id && editingSnapshot.id === selected
+        ? editingSnapshot
+        : undefined;
   const profileMember = members.find((m) => m.id === profile);
   const feedback = own
     .flatMap((p) => p.feedback.map((f) => ({ ...f, projectId: p.id })))
@@ -247,7 +291,7 @@ export default function App() {
     ).length;
   const latestNotice = state.messages.filter((m) => m.type === 'NOTICE').at(-1);
   const isActive = me.status === 'ACTIVE';
-  const close = () => setOverlay(null);
+  const close = resetUi;
   const markRead = () => {
     const value = new Date().toISOString();
     setReadAt(value);
@@ -257,14 +301,14 @@ export default function App() {
   async function switchRole(role: 'MASTER' | 'STUDENT') {
     try {
       await mutate('/demo', 'POST', { role });
-      setPage('classroom');
-      setOverlay(null);
+      resetAccountUi();
     } catch {}
   }
   async function logout() {
     try {
       await api('/logout', 'POST');
       sessionStorage.setItem('pixel-signed-out', '1');
+      resetAccountUi();
       setState(null);
     } catch (e) {
       onToast((e as Error).message);
@@ -619,10 +663,8 @@ export default function App() {
                                 done={t.done}
                                 text={t.text}
                                 onChange={() =>
-                                  void mutate(`/projects/${featured.id}`, 'PATCH', {
-                                    tasks: featured.tasks.map((v) =>
-                                      v.id === t.id ? { ...v, done: true } : v,
-                                    ),
+                                  void mutate(`/projects/${featured.id}/tasks/${t.id}`, 'PATCH', {
+                                    done: true,
                                   }).catch(() => {})
                                 }
                               />
@@ -760,7 +802,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.2</span>
+            <span>PIXEL CLASS v0.3</span>
           </div>
         </div>
       </div>
@@ -774,9 +816,10 @@ export default function App() {
           }}
         />
       )}
-      {overlay === 'editProject' && selectedProject && (
+      {overlay === 'editProject' && editingProject && (
         <ProjectForm
-          project={selectedProject}
+          project={editingProject}
+          unavailable={!selectedProject || !isActive}
           onClose={() => setOverlay('project')}
           mutate={mutate}
           onSaved={() => {
@@ -787,10 +830,15 @@ export default function App() {
       )}
       {overlay === 'project' && selectedProject && (
         <ProjectDetail
+          key={`${selectedProject.id}-${projectStartTab}`}
+          initialTab={projectStartTab}
           project={selectedProject}
           state={state}
           onClose={close}
-          onEdit={() => setOverlay('editProject')}
+          onEdit={() => {
+            setEditingSnapshot(selectedProject);
+            setOverlay('editProject');
+          }}
           onDeleted={() => {
             close();
             onToast('프로젝트를 삭제했어요.');
@@ -799,23 +847,49 @@ export default function App() {
           onToast={onToast}
         />
       )}
+      {((overlay === 'project' && !selectedProject) ||
+        (overlay === 'editProject' && !editingProject)) && (
+        <Modal title="프로젝트를 열 수 없어요" onClose={close}>
+          <Empty
+            icon={<FolderKanban />}
+            title="삭제되었거나 접근 권한이 바뀌었어요"
+            description="최신 프로젝트 목록에서 다시 확인해 주세요."
+          >
+            <button
+              className="button primary"
+              onClick={() => {
+                setPage('projects');
+                close();
+              }}
+            >
+              프로젝트 목록으로
+            </button>
+          </Empty>
+        </Modal>
+      )}
       {overlay === 'character' && (
         <Modal
           title="교실 속 나의 모습"
           subtitle="나의 캐릭터는 계정에 연결되어 계속 함께해요."
-          onClose={close}
+          onClose={() => {
+            if (!characterSaving) close();
+          }}
           wide
         >
           <CharacterEditor
             member={me}
-            onSave={(name, appearance) =>
+            busy={characterSaving}
+            onCancel={close}
+            onSave={(name, appearance) => {
+              setCharacterSaving(true);
               void mutate('/me', 'PATCH', { name, appearance })
                 .then(() => {
                   close();
                   onToast('나의 모습을 저장했어요.');
                 })
                 .catch(() => {})
-            }
+                .finally(() => setCharacterSaving(false));
+            }}
           />
         </Modal>
       )}
@@ -1082,7 +1156,7 @@ export default function App() {
             config={config}
             embedded
             onSuccess={() => {
-              close();
+              resetAccountUi();
               void load();
             }}
             onToast={onToast}

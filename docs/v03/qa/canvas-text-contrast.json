@@ -1,0 +1,30 @@
+{
+  "kind": "WCAG sRGB palette calculations; not rendered Canvas pixel sampling or full AA certification",
+  "source": "src/game/scene.ts, src/game/worldArt.ts",
+  "measurements": [
+    {
+      "target": "다른 책상 이름",
+      "before": "#806e53",
+      "after": "#65513a",
+      "background": "#e6cda1",
+      "beforeRatio": 3.19,
+      "afterRatio": 4.88
+    },
+    {
+      "target": "AI 조교 표식",
+      "before": "#77728f",
+      "after": "#5c5276",
+      "background": "#edf1d9",
+      "beforeRatio": 3.96,
+      "afterRatio": 6.22
+    },
+    {
+      "target": "칠판 보조 문구",
+      "before": "#c6d8bc",
+      "after": "#e0ead0",
+      "background": "#3c6c55",
+      "beforeRatio": 4.02,
+      "afterRatio": 4.86
+    }
+  ]
+}

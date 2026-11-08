@@ -1,8 +1,10 @@
+import { SegmentedControl } from './ui';
 import {
   MentoringSummary,
   MasterQuestions,
   StudentMentoring,
   matchesMentoringFilter,
+  MentorPriority,
 } from './Mentoring';
 import { useState } from 'react';
 import {
@@ -33,7 +35,7 @@ export function MasterPage({
 }: {
   state: AppState;
   mutate: Mutate;
-  onProject: (id: string) => void;
+  onProject: (id: string, initialTab?: string) => void;
   onToast: (text: string) => void;
 }) {
   const [tab, setTab] = useState('students'),
@@ -48,6 +50,8 @@ export function MasterPage({
   const [busy, setBusy] = useState(false);
   const [projectFilter, setProjectFilter] = useState('ALL'),
     [mentoring, setMentoring] = useState('');
+  const [studentFilter, setStudentFilter] = useState('ALL'),
+    [studentQuery, setStudentQuery] = useState('');
   const students = state.members.filter((m) => m.role === 'STUDENT');
   const reviews = state.projects.filter((p) => p.status === 'REVIEW');
   const needing = students.filter((m) => m.help);
@@ -86,15 +90,25 @@ export function MasterPage({
       <MentoringSummary
         state={state}
         onFilter={(key) => {
-          if (key === 'QUESTIONS') setTab('questions');
+          if (key.startsWith('MEMBER_')) {
+            setTab('students');
+            setStudentFilter(key === 'MEMBER_LEAVE' ? 'ON_LEAVE' : 'ACTIVE');
+          } else if (key === 'QUESTIONS') setTab('questions');
           else {
             setTab('projects');
             setProjectFilter(key);
           }
         }}
       />
-      <div className="filter-tabs">
-        {[
+      <MentorPriority state={state} onProject={onProject} />
+      <SegmentedControl
+        label="교무실 메뉴"
+        value={tab}
+        onChange={(value) => {
+          setTab(value);
+          setProjectFilter('ALL');
+        }}
+        options={[
           ['students', '학생과 학적', Users],
           ['projects', '프로젝트 지도', FolderKanban],
           ['questions', '질문과 상담', Mail],
@@ -103,117 +117,151 @@ export function MasterPage({
           ['notices', '공지 보내기', Send],
         ].map(([key, text, Icon]) => {
           const I = Icon as typeof Users;
-          return (
-            <button
-              key={key as string}
-              className={tab === key ? 'selected' : ''}
-              onClick={() => {
-                setTab(key as string);
-                setProjectFilter('ALL');
-              }}
-            >
-              <I size={15} />
-              {text as string}
-            </button>
-          );
+          return {
+            value: key as string,
+            label: (
+              <>
+                <I size={15} />
+                {text as string}
+              </>
+            ),
+          };
         })}
-      </div>
+      />
       {tab === 'students' && (
         <>
+          <div className="student-controls">
+            <Field label="학생 이름 검색">
+              <input
+                type="search"
+                value={studentQuery}
+                onChange={(e) => setStudentQuery(e.target.value)}
+                placeholder="학생 이름으로 찾기"
+              />
+            </Field>
+            <Field label="학생 학적 필터">
+              <select value={studentFilter} onChange={(e) => setStudentFilter(e.target.value)}>
+                <option value="ALL">모든 학생</option>
+                {(['ACTIVE', 'ON_LEAVE', 'GRADUATED', 'REVOKED'] as Membership[]).map((v) => (
+                  <option key={v} value={v}>
+                    {membershipLabels[v]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
           <div className="student-list">
-            {students.map((m) => (
-              <article className="student-row" key={m.id}>
-                <Avatar appearance={m.appearance} size={58} />
-                <div>
-                  <strong>{m.name}</strong>
-                  <p className="muted">
-                    프로젝트 {state.projects.filter((p) => p.ownerId === m.id).length}개 ·{' '}
-                    {m.deskId ? '책상 배정됨' : '책상 미배정'}
-                  </p>
-                </div>
-                <button className="button small secondary" onClick={() => setMentoring(m.id)}>
-                  학생 상담
-                  <ArrowUpRight size={13} />
-                </button>
-                <span className={`membership membership-${m.status}`}>
-                  {membershipLabels[m.status]}
-                </span>
-                {m.help && <span className="help-tag">도움 요청</span>}
-                <button
-                  className="button small secondary"
-                  onClick={() => {
-                    setSelected(m.id);
-                    setStatus(m.status);
-                    setReason('');
-                  }}
-                >
-                  학적 관리
-                  <ArrowUpRight size={13} />
-                </button>
-                {selected === m.id && (
-                  <form
-                    className="member-form"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      void mutate(`/members/${m.id}`, 'PATCH', {
-                        status,
-                        reason,
-                        releaseDesk: release,
-                      })
-                        .then(() => {
-                          setSelected('');
-                          onToast('학적과 변경 이력을 저장했어요.');
-                        })
-                        .catch(() => {});
+            {students
+              .filter(
+                (m) =>
+                  (studentFilter === 'ALL' || m.status === studentFilter) &&
+                  m.name.includes(studentQuery.trim()),
+              )
+              .sort((a, b) => Number(b.help) - Number(a.help) || a.name.localeCompare(b.name, 'ko'))
+              .map((m) => (
+                <article className="student-row" key={m.id}>
+                  <Avatar appearance={m.appearance} size={58} />
+                  <div>
+                    <strong>{m.name}</strong>
+                    <p className="muted">
+                      프로젝트 {state.projects.filter((p) => p.ownerId === m.id).length}개 ·{' '}
+                      {m.deskId ? '책상 배정됨' : '책상 미배정'}
+                    </p>
+                  </div>
+                  <button className="button small secondary" onClick={() => setMentoring(m.id)}>
+                    학생 상담
+                    <ArrowUpRight size={13} />
+                  </button>
+                  <span className={`membership membership-${m.status}`}>
+                    {membershipLabels[m.status]}
+                  </span>
+                  {m.help && <span className="help-tag">도움 요청</span>}
+                  <button
+                    className="button small secondary"
+                    onClick={() => {
+                      setSelected(m.id);
+                      setStatus(m.status);
+                      setReason('');
                     }}
                   >
-                    <Field label="학적 상태">
-                      <select
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value as Membership)}
-                      >
-                        {(['ACTIVE', 'ON_LEAVE', 'GRADUATED', 'REVOKED'] as Membership[]).map(
-                          (v) => (
-                            <option key={v} value={v}>
-                              {membershipLabels[v]}
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    </Field>
-                    <Field label="변경 사유 *">
-                      <input
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        required
-                        maxLength={300}
-                        placeholder="학적 변경 이유를 남겨 주세요."
-                      />
-                    </Field>
-                    {status === 'ON_LEAVE' && (
-                      <label className="inline-check">
+                    학적 관리
+                    <ArrowUpRight size={13} />
+                  </button>
+                  {selected === m.id && (
+                    <form
+                      className="member-form"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        void mutate(`/members/${m.id}`, 'PATCH', {
+                          status,
+                          reason,
+                          releaseDesk: release,
+                        })
+                          .then(() => {
+                            setSelected('');
+                            onToast('학적과 변경 이력을 저장했어요.');
+                          })
+                          .catch(() => {});
+                      }}
+                    >
+                      <Field label="학적 상태">
+                        <select
+                          value={status}
+                          onChange={(e) => setStatus(e.target.value as Membership)}
+                        >
+                          {(['ACTIVE', 'ON_LEAVE', 'GRADUATED', 'REVOKED'] as Membership[]).map(
+                            (v) => (
+                              <option key={v} value={v}>
+                                {membershipLabels[v]}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                      </Field>
+                      <Field label="변경 사유 *">
                         <input
-                          type="checkbox"
-                          checked={release}
-                          onChange={(e) => setRelease(e.target.checked)}
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                          required
+                          maxLength={300}
+                          placeholder="학적 변경 이유를 남겨 주세요."
                         />
-                        휴학 중 책상 회수
-                      </label>
-                    )}
-                    <div className="form-actions">
-                      <button
-                        className="button small secondary"
-                        type="button"
-                        onClick={() => setSelected('')}
-                      >
-                        취소
-                      </button>
-                      <button className="button small primary">학적 변경 저장</button>
-                    </div>
-                  </form>
-                )}
-              </article>
-            ))}
+                      </Field>
+                      {status === 'ON_LEAVE' && (
+                        <label className="inline-check">
+                          <input
+                            type="checkbox"
+                            checked={release}
+                            onChange={(e) => setRelease(e.target.checked)}
+                          />
+                          휴학 중 책상 회수
+                        </label>
+                      )}
+                      <div className="form-actions">
+                        <button
+                          className="button small secondary"
+                          type="button"
+                          onClick={() => setSelected('')}
+                        >
+                          취소
+                        </button>
+                        <button className="button small primary">학적 변경 저장</button>
+                      </div>
+                    </form>
+                  )}
+                </article>
+              ))}
+            {!students.some(
+              (m) =>
+                (studentFilter === 'ALL' || m.status === studentFilter) &&
+                m.name.includes(studentQuery.trim()),
+            ) && (
+              <Empty
+                icon={<Users />}
+                title="조건에 맞는 학생이 없어요"
+                description="다른 이름이나 학적을 선택해 보세요."
+              />
+            )}
           </div>
           <h3 className="section-heading">최근 학적 변경 이력</h3>
           {!state.history.length ? (

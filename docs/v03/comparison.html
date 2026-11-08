@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pixel Class v0.3 전후 비교</title>
+    <style>
+      :root {
+        font-family: system-ui, sans-serif;
+        color: #293d32;
+        background: #f5f4ed;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+      }
+      header {
+        max-width: 1200px;
+        margin: 0 auto 24px;
+      }
+      h1 {
+        font-size: 26px;
+      }
+      p {
+        line-height: 1.6;
+      }
+      label {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        margin: 8px 16px 8px 0;
+      }
+      select,
+      a {
+        font: inherit;
+        color: inherit;
+        padding: 10px;
+      }
+      select {
+        border: 1px solid #b5c0aa;
+        border-radius: 8px;
+        background: #fffef9;
+      }
+      select:focus-visible,
+      a:focus-visible {
+        outline: 3px solid #5d7b38;
+        outline-offset: 3px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        max-width: 1800px;
+        margin: auto;
+      }
+      figure {
+        margin: 0;
+        min-width: 0;
+        background: #fffef9;
+        border: 1px solid #d9dfd0;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      figcaption {
+        padding: 16px;
+        font-weight: 700;
+        border-bottom: 1px solid #d9dfd0;
+      }
+      img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      small {
+        display: block;
+        font-weight: 400;
+        margin-top: 6px;
+      }
+      @media (max-width: 720px) {
+        body {
+          padding: 12px;
+        }
+        main {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Pixel Class v0.3 · 실제 화면 전후 비교</h1>
+      <p>
+        같은 데모 데이터와 해상도에서 촬영한 Chromium 전체 페이지입니다. 세로 길이는 문서 높이를
+        포함합니다. 디자인 평가와 검증 범위는 저장소의 V03_DESIGN_COMPARISON.md를 확인하세요.
+      </p>
+      <label
+        >화면<select id="view">
+          <option value="classroom">교실</option>
+          <option value="projects">프로젝트 목록</option>
+          <option value="project-detail">프로젝트 상세</option>
+          <option value="master">MASTER</option>
+          <option value="character">캐릭터</option>
+          <option value="materials">자료실</option>
+          <option value="admission">입학</option>
+        </select></label
+      ><label
+        >해상도<select id="size">
+          <option>1366x768</option>
+          <option>1920x1080</option>
+          <option>1440x900</option>
+          <option>1280x720</option>
+          <option>390x844</option>
+        </select></label
+      >
+    </header>
+    <main>
+      <figure>
+        <figcaption>변경 전 <small>v0.2 기준</small></figcaption>
+        <a id="before-link"><img id="before" alt="변경 전 실제 앱 화면" /></a>
+      </figure>
+      <figure>
+        <figcaption>변경 후 <small>v0.3 최종 캡처</small></figcaption>
+        <a id="after-link"><img id="after" alt="변경 후 실제 앱 화면" /></a>
+      </figure>
+    </main>
+    <script>
+      const view = document.getElementById('view'),
+        size = document.getElementById('size');
+      function update() {
+        for (const phase of ['before', 'after']) {
+          const path = `${phase}/${view.value}-${size.value}.png`;
+          document.getElementById(phase).src = path;
+          document.getElementById(`${phase}-link`).href = path;
+        }
+      }
+      view.addEventListener('change', update);
+      size.addEventListener('change', update);
+      update();
+    </script>
+  </body>
+</html>

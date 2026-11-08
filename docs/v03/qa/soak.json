@@ -1,0 +1,135 @@
+{
+  "startedAt": "2026-11-08T08:44:02.938Z",
+  "sourceCommit": "0e17ad98490d3c6c26300e5a2bd02833fa467863",
+  "requestedSeconds": 60,
+  "kind": "6 real Chromium contexts; private local server; not 30-browser or multi-hour production certification",
+  "checkpoints": [
+    {
+      "label": "warm",
+      "elapsedSeconds": 0,
+      "serverPid": 48175,
+      "online": 6,
+      "serverRssMiB": 114.15,
+      "browserHeapMiB": [7.81, 7.85, 7.77, 7.74, 7.63, 7.48],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 6,
+        "closed": 0,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 6,
+      "rounds": 0
+    },
+    {
+      "label": "round-3",
+      "elapsedSeconds": 19,
+      "serverPid": 48175,
+      "online": 6,
+      "serverRssMiB": 114.33,
+      "browserHeapMiB": [8.01, 8.24, 7.28, 7.88, 7.85, 7.81],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 9,
+        "closed": 3,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 7,
+      "rounds": 3
+    },
+    {
+      "label": "before-server-restart",
+      "elapsedSeconds": 35,
+      "serverPid": 48175,
+      "online": 6,
+      "serverRssMiB": 115.86,
+      "browserHeapMiB": [7.99, 8.28, 7.54, 7.95, 8.1, 7.83],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 11,
+        "closed": 5,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 7,
+      "rounds": 4
+    },
+    {
+      "label": "after-server-restart",
+      "elapsedSeconds": 39,
+      "serverPid": 48975,
+      "online": 6,
+      "serverRssMiB": 77.28,
+      "browserHeapMiB": [8.15, 8.35, 7.67, 7.99, 8.23, 7.9],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 6,
+        "closed": 0,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 7,
+      "rounds": 4
+    },
+    {
+      "label": "round-6",
+      "elapsedSeconds": 50,
+      "serverPid": 48975,
+      "online": 6,
+      "serverRssMiB": 80.32,
+      "browserHeapMiB": [8.15, 8.36, 7.67, 8.02, 8.25, 7.56],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 7,
+        "closed": 1,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 8,
+      "rounds": 6
+    },
+    {
+      "label": "final",
+      "elapsedSeconds": 66,
+      "serverPid": 48975,
+      "online": 6,
+      "serverRssMiB": 80.61,
+      "browserHeapMiB": [8.18, 8.43, 8.06, 8.08, 8.25, 7.63],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 9,
+        "closed": 3,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 8,
+      "rounds": 7
+    }
+  ],
+  "errors": [],
+  "socketOpened": 20,
+  "socketClosed": 12,
+  "movementFrames": 23,
+  "rounds": 7,
+  "restartVerified": true,
+  "passed": true,
+  "privateProjectAndFileIsolationVerified": true,
+  "warmupCompletedAt": "2026-11-08T08:44:13.974Z",
+  "finishedAt": "2026-11-08T08:45:20.263Z",
+  "serverSocketsBeforeCleanup": {
+    "type": "qa-socket-count",
+    "active": 6,
+    "opened": 9,
+    "closed": 3,
+    "peak": 6
+  },
+  "actualSeconds": 66,
+  "serverSocketsAfterContextCleanup": {
+    "type": "qa-socket-count",
+    "active": 0,
+    "opened": 9,
+    "closed": 9,
+    "peak": 6
+  }
+}

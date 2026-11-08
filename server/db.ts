@@ -53,16 +53,35 @@ export const put = <T extends { id: string }>(kind: string, record: T, schoolId 
   records.put(kind, record, schoolId);
 export const remove = (kind: string, recordId: string, schoolId: string) =>
   records.remove(kind, recordId, schoolId);
+let commitEffects: (() => void)[] | undefined;
+/** Realtime effects become observable only after the associated write commits. */
+export function afterCommit(effect: () => void) {
+  if (commitEffects) commitEffects.push(effect);
+  else effect();
+}
 export function transaction<T>(fn: () => T): T {
+  if (commitEffects) throw new Error('Nested transactions are not supported.');
   db.exec('BEGIN IMMEDIATE');
+  const effects: (() => void)[] = [];
+  commitEffects = effects;
+  let value: T;
   try {
-    const value = fn();
+    value = fn();
     db.exec('COMMIT');
-    return value;
   } catch (e) {
     db.exec('ROLLBACK');
     throw e;
+  } finally {
+    commitEffects = undefined;
   }
+  for (const effect of effects) {
+    try {
+      effect();
+    } catch {
+      console.error('Committed realtime delivery failed; clients may refresh.');
+    }
+  }
+  return value;
 }
 if (!demo && userById('demo-master')) {
   throw new Error(
