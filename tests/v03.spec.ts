@@ -97,6 +97,18 @@ test('mobile classroom keeps readable native pixels and touch movement stops on 
   await page.waitForTimeout(200);
   await right.dispatchEvent('pointerup', { pointerId: 2 });
   expect(await world.getAttribute('data-x')).toBe(stopped);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(150);
+  await page.getByRole('button', { name: '교실 조작 안내', exact: true }).click();
+  await page.keyboard.up('ArrowRight');
+  await page.waitForTimeout(120);
+  const heldStopped = await world.getAttribute('data-x');
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.waitForTimeout(250);
+  expect(await world.getAttribute('data-x')).toBe(heldStopped);
 });
 test('MASTER student counters filter students and prioritize unanswered questions', async ({
   page,

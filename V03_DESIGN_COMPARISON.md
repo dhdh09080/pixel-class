@@ -47,3 +47,7 @@
 최종 [측정값](docs/v03/after/measurements.json)에는 35개 화면의 문서 폭·모달 경계·JavaScript 오류·axe 위반과 수동 확인이 필요한 incomplete 규칙을 기록합니다. axe의 incomplete 항목을 통과로 계산하지 않습니다. [앉은 캐릭터 실제 Canvas](docs/v03/qa/seated-classroom.png)도 별도로 저장합니다. 자동 검사는 픽셀 Canvas 내부의 글자 대비/이름표를 인증하지 않습니다.
 
 디자인 평점과 제품 평가 근거는 [V03_SCORECARD.md](V03_SCORECARD.md)를 확인하세요.
+
+[다른 탭 삭제 후 초안 유지 안내](docs/v03/qa/deleted-project-draft.png)는 정상 화면 외의 오류 상태 추가 캡처입니다. 초안은 해당 계정/현재 페이지에만 남고 서버 삭제를 되돌리지 않습니다.
+
+걷기 경계 보정은 정지 화면에 거의 나타나지 않아 [참조 렌더 이전](docs/v03/qa/sprite-bounds-before.json)과 [이후](docs/v03/qa/sprite-bounds-after.json)를 별도로 남겼습니다. 기본 48×64 크기는 동일합니다.

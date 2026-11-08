@@ -1,0 +1,70 @@
+{
+  "normalSize": {
+    "width": 48,
+    "height": 64
+  },
+  "method": "Render the unchanged drawing commands into a 48x66 reference to detect pixels that a 48x64 sprite would clip",
+  "checks": [
+    {
+      "direction": "down",
+      "frame": 0,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "down",
+      "frame": 1,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "down",
+      "frame": 2,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "up",
+      "frame": 0,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "up",
+      "frame": 1,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "up",
+      "frame": 2,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "left",
+      "frame": 0,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "left",
+      "frame": 1,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "left",
+      "frame": 2,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "right",
+      "frame": 0,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "right",
+      "frame": 1,
+      "clippedPixels": 0
+    },
+    {
+      "direction": "right",
+      "frame": 2,
+      "clippedPixels": 0
+    }
+  ],
+  "capturedAt": "2026-11-08T08:36:16.504Z"
+}

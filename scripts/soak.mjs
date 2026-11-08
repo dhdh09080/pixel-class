@@ -1,5 +1,5 @@
 import { chromium, expect } from '@playwright/test';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { mkdtempSync, rmSync, readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -17,6 +17,7 @@ const password = randomBytes(24).toString('hex');
 const headers = { 'X-Pixel-Class': '1' };
 const report = {
   startedAt: new Date().toISOString(),
+  sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   requestedSeconds: duration,
   kind: '6 real Chromium contexts; private local server; not 30-browser or multi-hour production certification',
   checkpoints: [],
