@@ -1782,3 +1782,31 @@ textarea:focus {
     min-height: 44px;
   }
 }
+
+/* WCAG non-text contrast for controls; structural dividers stay quiet. */
+.field input,
+.field select,
+.field textarea,
+.search-input,
+.check-row .checkbox {
+  border-color: var(--color-input-border);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.search-input:focus-within {
+  border-color: var(--color-focus);
+}
+.field.field-error input,
+.field.field-error select,
+.field.field-error textarea {
+  border-color: var(--color-danger);
+}
+@media (max-width: 720px) {
+  .field input,
+  .field select,
+  .field textarea,
+  .library-controls .search-input input {
+    font-size: 16px;
+  }
+}

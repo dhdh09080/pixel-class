@@ -320,3 +320,46 @@ test('sitting follows a safe route to the assigned chair and movement exits the 
   await expect(world).toHaveAttribute('data-seated', 'false');
   expect(Number(await world.getAttribute('data-y'))).toBeGreaterThan(y);
 });
+
+test('form boundaries have 3:1 non-text contrast and mobile fields avoid small-text zoom', async ({
+  page,
+}) => {
+  const luminance = (color: string) => {
+    const channels = (color.match(/[\d.]+/g) || [])
+      .slice(0, 3)
+      .map(Number)
+      .map((v) => {
+        const n = v / 255;
+        return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+      });
+    return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+  };
+  for (const width of [1366, 390]) {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 768 });
+    await open(page);
+    await page.getByRole('button', { name: '프로젝트 추가', exact: true }).click();
+    const controls = await page
+      .getByRole('dialog')
+      .locator('.field input, .field textarea, .field select')
+      .evaluateAll((elements) =>
+        elements.map((element) => {
+          const s = getComputedStyle(element);
+          return {
+            border: s.borderTopColor,
+            background: s.backgroundColor,
+            size: parseFloat(s.fontSize),
+          };
+        }),
+      );
+    expect(controls.length).toBeGreaterThan(5);
+    for (const control of controls) {
+      const a = luminance(control.border),
+        b = luminance(control.background);
+      expect(
+        (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05),
+        JSON.stringify(control),
+      ).toBeGreaterThanOrEqual(3);
+      if (width === 390) expect(control.size).toBeGreaterThanOrEqual(16);
+    }
+  }
+});
