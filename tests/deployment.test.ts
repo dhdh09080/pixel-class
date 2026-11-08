@@ -94,6 +94,13 @@ test('active secret mounts must match their configured paths; existing schools c
   assert.ok(deploymentIssues(c).some((x) => x.startsWith('SECRET_MOUNT')));
   c.services.app.secrets = ['master_bootstrap'];
   assert.deepEqual(deploymentIssues(c), []);
+  c.services.app.secrets = [
+    { source: 'master_bootstrap', target: '/run/secrets/master_bootstrap' },
+  ];
+  c.services.https.secrets = [{ source: 'staging_access', target: '/run/secrets/staging_access' }];
+  assert.deepEqual(deploymentIssues(c), []);
+  c.services.app.secrets = [{ source: 'master_bootstrap', target: '/tmp/wrong' }];
+  assert.ok(deploymentIssues(c).some((x) => x.startsWith('SECRET_MOUNT')));
   delete c.services.app.environment!.MASTER_BOOTSTRAP_KEY_FILE;
   c.services.app.secrets = [];
   assert.deepEqual(deploymentIssues(c), []); // Database bootstrap readiness remains a separate acceptance check.

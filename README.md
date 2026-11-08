@@ -1,4 +1,4 @@
-# Pixel Class v0.3
+# Pixel Class v0.4
 
 **Learn AI. Build Your Own Service.**
 
@@ -32,6 +32,8 @@ npm run dev
 v0.2는 **30명 이상 수용하는 확장 교실**, 기술 구성·맞춤 로드맵, 질문 답변·최종 제출 검토를 추가했습니다. [V02_REPORT.md](V02_REPORT.md)에 변경사항과 검증 범위를 정리했습니다.
 
 v0.3은 동시 편집 보호·파일/피드백/알림의 원자적 저장, 모바일 터치 교실, 상담 우선순위와 프로젝트 다음 행동, 디자인 토큰·모달·접근성을 보완했습니다. [최종 보고서](V03_FINAL_REPORT.md), [디자인 전후 비교](V03_DESIGN_COMPARISON.md), [검증 기록](V03_TEST_REPORT.md)을 확인하세요. 외부 공개 서비스나 Supabase 전환 완료 버전은 아닙니다.
+
+v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. **외부 배포 URL은 아직 없습니다.**
 
 ## 할 수 있는 일
 
@@ -104,6 +106,8 @@ npm run build
 npm test
 npm run test:e2e
 npm run format:check
+# 실제 배포 호스트의 비공개 설정 사전 점검(읽기 전용)
+npm run deploy:check -- --env-file /srv/pixel-private/compose.env
 # 격리된 실제 계정 6개, 기본 10분 반복 검사 (로컬 3020 포트)
 npm run test:soak
 # 별도 루프백 서버 3021에서 30개 인증 소켓·60초 이동 부하

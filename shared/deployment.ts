@@ -35,7 +35,8 @@ export function deploymentIssues(config: DeploymentConfig, local = false) {
     service.secrets?.some((secret) =>
       typeof secret === 'string'
         ? secret === source && source === target
-        : secret.source === source && (secret.target || secret.source) === target,
+        : secret.source === source &&
+          [target, `/run/secrets/${target}`].includes(secret.target || secret.source),
     );
   if (!mounted(gateway, 'staging_access'))
     issues.push('GATE_MOUNT: the gateway must mount its staging access secret.');
