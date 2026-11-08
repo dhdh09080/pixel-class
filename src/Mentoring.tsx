@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import {
   Users,
   FolderKanban,
@@ -13,6 +13,7 @@ import { isStale, lastWorkDate, questionLabels } from '../shared/learning';
 import { Avatar, Modal, Status, date, Empty } from './components';
 import { QuestionThread } from './LearningPanels';
 import type { Mutate } from './Projects';
+import { Badge, Button, Surface } from './ui';
 export function MentoringSummary({
   state,
   onFilter,
@@ -20,6 +21,8 @@ export function MentoringSummary({
   state: AppState;
   onFilter: (key: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const statsId = useId();
   const projects = state.projects;
   const awaiting = projects.reduce(
     (n, p) =>
@@ -31,13 +34,13 @@ export function MentoringSummary({
       label: '재학생',
       value: state.members.filter((m) => m.role === 'STUDENT' && m.status === 'ACTIVE').length,
       icon: Users,
-      key: 'ALL',
+      key: 'MEMBER_ACTIVE',
     },
     {
       label: '휴학생',
       value: state.members.filter((m) => m.role === 'STUDENT' && m.status === 'ON_LEAVE').length,
       icon: Users,
-      key: 'ALL',
+      key: 'MEMBER_LEAVE',
     },
     {
       label: '진행 중 프로젝트',
@@ -71,11 +74,29 @@ export function MentoringSummary({
       key: 'HELP',
     },
   ];
+  const order = [
+    '답변 대기 질문',
+    '도움 요청 프로젝트',
+    '검토 대기',
+    '재학생',
+    '진행 중 프로젝트',
+    '완료 프로젝트',
+    '휴학생',
+    '7일간 작업 기록 없음',
+  ];
+  stats.sort((a, b) => order.indexOf(a.label) - order.indexOf(b.label));
   return (
     <>
-      <div className="stats-grid mentoring-stats">
-        {stats.map((s) => (
-          <button className="stat-card" key={s.label} onClick={() => onFilter(s.key)}>
+      <div
+        id={statsId}
+        className={`stats-grid mentoring-stats ${expanded ? 'stats-expanded' : ''}`}
+      >
+        {stats.map((s, index) => (
+          <button
+            className={`stat-card ${index > 3 ? 'stat-supplementary' : ''} ${['QUESTIONS', 'HELP', 'REVIEW'].includes(s.key) && s.value ? 'stat-attention' : ''}`}
+            key={s.label}
+            onClick={() => onFilter(s.key)}
+          >
             <s.icon size={18} />
             <span>{s.label}</span>
             <strong>{s.value}</strong>
@@ -83,6 +104,14 @@ export function MentoringSummary({
           </button>
         ))}
       </div>
+      <button
+        className="text-button stats-toggle"
+        aria-expanded={expanded}
+        aria-controls={statsId}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? '핵심 현황만 보기' : '학생·프로젝트 현황 4개 더 보기'}
+      </button>
       <p className="muted mentoring-note">
         작업 기록과 직접 선택한 상태를 기준으로 안내합니다. 접속 시간이나 PC 사용량으로 학생을
         평가하지 않아요.
@@ -107,7 +136,11 @@ export function MasterQuestions({
         ? filter === 'ALL' || ['NEW', 'ACKNOWLEDGED'].includes(q.status || 'NEW')
         : q.status === filter,
     )
-    .sort((a, b) => b.q.createdAt.localeCompare(a.q.createdAt));
+    .sort((a, b) =>
+      filter === 'WAITING'
+        ? a.q.createdAt.localeCompare(b.q.createdAt)
+        : b.q.createdAt.localeCompare(a.q.createdAt),
+    );
   return (
     <section className="master-questions">
       <div className="between">
@@ -237,6 +270,65 @@ export function StudentMentoring({
       ))}
       {!projects.length && <Empty icon={<FolderKanban />} title="아직 등록된 프로젝트가 없어요" />}
     </Modal>
+  );
+}
+export function MentorPriority({
+  state,
+  onProject,
+}: {
+  state: AppState;
+  onProject: (id: string, tab?: string) => void;
+}) {
+  const waiting = (p: Project) =>
+    p.questions.filter((q) => ['NEW', 'ACKNOWLEDGED'].includes(q.status || 'NEW'));
+  const rows = state.projects
+    .filter((p) => p.status === 'REVIEW' || p.helpRequested || waiting(p).length)
+    .sort((a, b) => {
+      const score = (p: Project) => (waiting(p).length ? 0 : p.status === 'REVIEW' ? 1 : 2);
+      return (
+        score(a) - score(b) ||
+        (waiting(a)[0]?.createdAt || a.updatedAt).localeCompare(
+          waiting(b)[0]?.createdAt || b.updatedAt,
+        )
+      );
+    });
+  if (!rows.length) return null;
+  return (
+    <Surface className="mentor-priority">
+      <div className="between">
+        <div>
+          <p className="eyebrow">TODAY'S MENTORING</p>
+          <h3>오늘 먼저 살펴볼 프로젝트</h3>
+        </div>
+        <Badge tone="warning">{rows.length}개 대기</Badge>
+      </div>
+      <p className="muted">오래 기다린 질문부터 살펴보고, 학생의 다음 한 걸음을 안내해 주세요.</p>
+      <div className="priority-list">
+        {rows.slice(0, 3).map((p) => {
+          const owner = state.members.find((m) => m.id === p.ownerId),
+            review = p.status === 'REVIEW' && !waiting(p).length;
+          return (
+            <article className="priority-row" key={p.id}>
+              {owner && <Avatar appearance={owner.appearance} size={46} />}
+              <div>
+                <strong>{p.title}</strong>
+                <p>
+                  {owner?.name} ·{' '}
+                  {review ? '결과물 검토를 기다려요' : waiting(p)[0]?.text || '도움을 요청했어요'}
+                </p>
+              </div>
+              <Button
+                variant={review ? 'secondary' : 'primary'}
+                onClick={() => onProject(p.id, review ? 'submissions' : 'questions')}
+              >
+                {review ? '검토하기' : '답변하기'}
+                <ArrowUpRight size={15} />
+              </Button>
+            </article>
+          );
+        })}
+      </div>
+    </Surface>
   );
 }
 export const matchesMentoringFilter = (p: Project, filter: string) =>

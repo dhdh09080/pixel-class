@@ -15,14 +15,23 @@ export function worldCanvas(height = 700) {
   r(12, 95, 536, 5, '#637e6b');
   // Walnut floorboards, seams and a restrained deterministic grain.
   r(12, 100, 536, h - 112, '#d6b98c');
+  const boards = ['#d6b98c', '#d8bc91', '#d2b489', '#d9bd91'];
   for (let row = 0; row < Math.ceil((h - 112) / 20); row++) {
-    let y = 100 + row * 20;
-    r(12, y, 536, 1, '#c3a477');
-    for (let col = 0; col < 9; col++) {
-      let x = 12 + col * 70 + (row % 2 ? 35 : 0);
-      r(x, y, 1, 20, '#c3a477');
-      r(x + 5, y + 5, 25, 1, '#dcbf93');
-      r(x + 30, y + 14, 18, 1, '#cfae7f');
+    const y = 100 + row * 20;
+    for (let col = -1; col < 9; col++) {
+      const x = 12 + col * 70 + (row % 2 ? 35 : 0);
+      const left = Math.max(12, x),
+        right = Math.min(548, x + 70);
+      const seed = (row * 17 + col * 13 + 997) % 19;
+      if (right <= left) continue;
+      r(left, y + 1, right - left, Math.min(19, h - 17 - y), boards[seed % boards.length]);
+      r(left, y, right - left, 1, '#c3a477');
+      if (x >= 12) r(x, y, 1, 20, '#bea071');
+      if (x + 9 > 12 && x + 47 < 548) {
+        r(x + 9 + seed, y + 5 + (seed % 4), 16 + (seed % 9), 1, '#dfc398');
+        r(x + 21, y + 15, 10 + (seed % 12), 1, '#ccad7d');
+        if (seed % 7 === 0) r(x + 35, y + 10, 6, 1, '#bfa173');
+      }
     }
   }
   r(12, 100, 536, 6, '#bd9e76');
@@ -41,6 +50,8 @@ export function worldCanvas(height = 700) {
     r(x + 35, 23, 4, 48, '#f5f4dd');
     r(x - 4, 75, 82, 5, '#f3f1d6');
     r(x + 4, 80, 66, 3, '#9cae8f');
+    r(x + 11, 28, 2, 12, '#e8f4e6');
+    r(x + 43, 52, 2, 12, '#d8eee3');
   }
   c.globalAlpha = 0.12;
   r(54, 106, 66, 57, '#fffce0');
@@ -168,12 +179,18 @@ export function deskCanvas() {
     c.fillStyle = col;
     c.fillRect(x, y, w, h);
   };
+  // Shared light from the upper left: contact shadow falls down and right.
+  c.globalAlpha = 0.16;
+  r(12, 35, 51, 9, '#705c44');
+  r(26, 50, 25, 7, '#705c44');
+  c.globalAlpha = 1;
   r(10, 40, 48, 6, '#b39872');
   r(8, 27, 5, 20, '#886a49');
   r(51, 27, 5, 20, '#886a49');
   r(4, 13, 58, 21, '#8f6947');
   r(4, 10, 58, 19, '#d5aa71');
   r(6, 11, 54, 2, '#edc68e');
+  r(9, 28, 48, 1, '#bb905e');
   r(21, 0, 25, 18, '#2e4245');
   r(23, 2, 21, 13, '#8cb3ab');
   r(25, 4, 17, 9, '#b4d3bf');

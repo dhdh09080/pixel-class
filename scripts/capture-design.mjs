@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const phase = process.argv[2];
@@ -51,7 +52,29 @@ try {
           };
         }),
       }));
-      results.push({ view, width, height, ...dimensions, errors: [...errors] });
+      const audit =
+        phase === 'before'
+          ? undefined
+          : await new AxeBuilder({ page })
+              .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+              .analyze();
+      results.push({
+        view,
+        width,
+        height,
+        ...dimensions,
+        errors: [...errors],
+        accessibility: audit
+          ? {
+              violations: audit.violations.map((v) => ({
+                id: v.id,
+                impact: v.impact,
+                nodes: v.nodes.map((n) => ({ target: n.target, summary: n.failureSummary })),
+              })),
+              incompleteRules: audit.incomplete.map((v) => v.id),
+            }
+          : undefined,
+      });
     }
     await page.goto('/');
     await page.locator('canvas').waitFor({ state: 'visible' });
@@ -89,8 +112,18 @@ console.log(
       screenshots: results.length,
       overflow: results.filter((r) => r.document.width > r.width),
       errors: results.flatMap((r) => r.errors),
+      accessibilityViolations: results
+        .filter((r) => r.accessibility?.violations.length)
+        .map((r) => ({ view: r.view, width: r.width, count: r.accessibility.violations.length })),
     },
     null,
     2,
   ),
 );
+
+if (
+  results.some(
+    (r) => r.errors.length || r.document.width > r.width || r.accessibility?.violations.length,
+  )
+)
+  process.exitCode = 1;

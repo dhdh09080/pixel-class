@@ -5,6 +5,9 @@ import {
   useId,
   cloneElement,
   isValidElement,
+  Children,
+  Fragment,
+  useState,
   type ReactNode,
   type ReactElement,
 } from 'react';
@@ -12,6 +15,18 @@ import { X, ArrowUpRight, Check, ExternalLink } from 'lucide-react';
 import type { Appearance, ProjectStatus } from '../shared/types';
 import { statusLabels } from '../shared/types';
 import { characterCanvas } from './game/character';
+// Bounded value-keyed cache avoids rerendering identical sprites after every state refresh.
+const avatarImages = new Map<string, string>();
+function avatarImage(appearance: Appearance) {
+  const key = JSON.stringify(appearance);
+  let source = avatarImages.get(key);
+  if (!source) {
+    source = characterCanvas(appearance).toDataURL();
+    if (avatarImages.size >= 128) avatarImages.delete(avatarImages.keys().next().value!);
+    avatarImages.set(key, source);
+  }
+  return source;
+}
 export function Avatar({
   appearance,
   size = 60,
@@ -21,7 +36,7 @@ export function Avatar({
   size?: number;
   className?: string;
 }) {
-  const image = useMemo(() => characterCanvas(appearance).toDataURL(), [appearance]);
+  const image = useMemo(() => avatarImage(appearance), [appearance]);
   return (
     <img
       className={`avatar ${className}`}
@@ -46,27 +61,68 @@ export function Modal({
   wide?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const headingId = useId();
+  const [closing, setClosing] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const latestClose = useRef(onClose);
+  latestClose.current = onClose;
+  const requestClose = () => {
+    if (closing) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return latestClose.current();
+    setClosing(true);
+    closeTimer.current = setTimeout(() => {
+      setClosing(false);
+      latestClose.current();
+    }, 180);
+  };
   useEffect(() => {
     const el = dialog.current;
+    const opener = document.activeElement;
     el?.showModal();
-    return () => el?.close();
+    return () => {
+      clearTimeout(closeTimer.current);
+      el?.close();
+      if (
+        opener instanceof HTMLElement &&
+        opener.isConnected &&
+        !document.querySelector('dialog[open]')
+      )
+        opener.focus({ preventScroll: true });
+    };
   }, []);
   return (
     <dialog
       ref={dialog}
-      className={`modal ${wide ? 'wide' : ''}`}
-      onCancel={onClose}
+      className={`modal ${wide ? 'wide' : ''} ${closing ? 'is-closing' : ''}`}
+      aria-labelledby={headingId}
+      aria-describedby={subtitle ? `${headingId}-description` : undefined}
+      onCancel={(event) => {
+        event.preventDefault();
+        requestClose();
+      }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        const bounds = e.currentTarget.getBoundingClientRect();
+        if (
+          e.target === e.currentTarget &&
+          (e.clientX < Math.floor(bounds.left) ||
+            e.clientX > Math.ceil(bounds.right) ||
+            e.clientY < Math.floor(bounds.top) ||
+            e.clientY > Math.ceil(bounds.bottom))
+        )
+          requestClose();
       }}
     >
       <div className="modal-heading">
         <div>
           <p className="eyebrow">PIXEL CLASS</p>
-          <h2>{title}</h2>
-          {subtitle && <p className="muted">{subtitle}</p>}
+          <h2 id={headingId}>{title}</h2>
+          {subtitle && (
+            <p className="muted" id={`${headingId}-description`}>
+              {subtitle}
+            </p>
+          )}
         </div>
-        <button className="icon-button" onClick={onClose} aria-label="닫기">
+        <button className="icon-button" onClick={requestClose} aria-label="닫기">
           <X size={21} />
         </button>
       </div>
@@ -120,23 +176,50 @@ export function Field({
   label,
   children,
   hint,
+  error,
 }: {
   label: string;
   children: ReactNode;
   hint?: string;
+  error?: string;
 }) {
   const id = useId();
+  let attached = false;
+  const attach = (node: ReactNode): ReactNode =>
+    Children.map(node, (child) => {
+      if (!isValidElement(child)) return child;
+      const element = child as ReactElement<Record<string, unknown>>;
+      if (!attached && ['input', 'textarea', 'select'].includes(String(element.type))) {
+        attached = true;
+        return cloneElement(element, {
+          id,
+          'aria-labelledby': `${id}-label`,
+          'aria-describedby':
+            [
+              element.props['aria-describedby'],
+              hint ? `${id}-hint` : '',
+              error ? `${id}-error` : '',
+            ]
+              .filter(Boolean)
+              .join(' ') || undefined,
+          'aria-invalid': error ? true : element.props['aria-invalid'],
+        });
+      }
+      if (element.type === Fragment || element.props.children)
+        return cloneElement(element, {}, attach(element.props.children as ReactNode));
+      return child;
+    });
+  const controls = attach(children);
   return (
-    <label className="field" htmlFor={id}>
+    <label className={`field ${error ? 'field-error' : ''}`} htmlFor={attached ? id : undefined}>
       <span id={`${id}-label`}>{label}</span>
-      {isValidElement(children)
-        ? cloneElement(children as ReactElement<Record<string, unknown>>, {
-            id,
-            'aria-labelledby': `${id}-label`,
-            'aria-describedby': hint ? `${id}-hint` : undefined,
-          })
-        : children}
+      {controls}
       {hint && <small id={`${id}-hint`}>{hint}</small>}
+      {error && (
+        <small id={`${id}-error`} className="field-error-message">
+          {error}
+        </small>
+      )}
     </label>
   );
 }

@@ -27,11 +27,13 @@ export function characterCanvas(
   const left = 24 - bodyWidth / 2;
   // Boots, trouser seams and layered navy site uniform.
   if (!seated) {
-    rect(15, 48, 8, 11, '#253855');
-    rect(25, 48, 8, 11, '#304665');
-    rect(13 + (frame === 1 ? 2 : 0), 58, 11, 5, '#17273c');
-    rect(25 - (frame === 1 ? 2 : 0), 58, 11, 5, '#17273c');
-    rect(16, 50, 2, 8, '#3c5578');
+    const leftStep = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+    const rightStep = -leftStep;
+    rect(15, 48, 8, 10 + leftStep, '#253855');
+    rect(25, 48, 8, 10 + rightStep, '#304665');
+    rect(13, 58 + leftStep, 11, 4, '#17273c');
+    rect(25, 58 + rightStep, 11, 4, '#17273c');
+    rect(16, 50, 2, 7 + leftStep, '#3c5578');
   } else {
     rect(12, 47, 24, 7, '#253855');
     rect(10, 52, 11, 5, '#17273c');
@@ -46,7 +48,7 @@ export function characterCanvas(
   rect(17, 38, 5, 1, '#b8c4cf');
   rect(27, 38, 5, 1, '#b8c4cf');
   rect(22, 32, 4, 3, '#e0ae8f');
-  const arm = frame === 2 ? 2 : 0;
+  const arm = frame === 1 ? -2 : frame === 2 ? 2 : 0;
   rect(left - 4, 33 - arm, 5, 12, '#2c4263');
   rect(left + bodyWidth - 1, 33 + arm, 5, 12, '#3b5274');
   rect(left - 4, 44 - arm, 5, 5, a.skin);

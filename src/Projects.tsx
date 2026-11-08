@@ -1,3 +1,4 @@
+import { SegmentedControl } from './ui';
 import { LearningPlan, QuestionThread, PromptPanel, SubmissionPanel } from './LearningPanels';
 import { emptyWorkLog, technicalTopics } from '../shared/learning';
 import { useState, useRef, type FormEvent } from 'react';
@@ -39,6 +40,7 @@ import {
   date,
 } from './components';
 import { api } from './api';
+import { ProjectActions } from './ProjectActions';
 export type Mutate = (
   path: string,
   method?: string,
@@ -106,9 +108,7 @@ export function ProjectCards({
             <button className="project-card" key={p.id} onClick={() => onOpen(p.id)}>
               <div className={`project-cover cover-${i % 4}`}>
                 <span>{gallery ? <Flag size={35} /> : <FolderOpen size={35} />}</span>
-                <span className="pixel-decoration">
-                  +<br /> ▪
-                </span>
+                <span className="pixel-decoration" aria-hidden="true" />
                 <span className="cover-number">PROJECT {String(i + 1).padStart(2, '0')}</span>
               </div>
               <div className="project-card-body">
@@ -379,6 +379,7 @@ export function ProjectDetail({
   onDeleted,
   mutate,
   onToast,
+  initialTab = 'overview',
 }: {
   project: Project;
   state: AppState;
@@ -387,11 +388,12 @@ export function ProjectDetail({
   onDeleted: () => void;
   mutate: Mutate;
   onToast: (s: string) => void;
+  initialTab?: string;
 }) {
   const mine = p.ownerId === state.me.id,
     master = state.me.role === 'MASTER',
     privateView = mine || master;
-  const [tab, setTab] = useState('overview'),
+  const [tab, setTab] = useState(initialTab),
     [task, setTask] = useState(''),
     [text, setText] = useState(''),
     [kind, setKind] = useState('다음 과제'),
@@ -464,8 +466,15 @@ export function ProjectDetail({
         )}
       </div>
       {privateView && (
-        <div className="detail-tabs">
-          {[
+        <SegmentedControl
+          className="detail-tabs"
+          label="프로젝트 메뉴"
+          value={tab}
+          onChange={(value) => {
+            setTab(value);
+            setText('');
+          }}
+          options={[
             ['overview', '프로젝트', ClipboardList],
             ['planning', '기술·로드맵', ClipboardList],
             ['submissions', '최종 제출', CheckCircle2],
@@ -476,22 +485,26 @@ export function ProjectDetail({
             ['ai', 'AI 조교', Sparkles],
           ].map(([key, label, Icon]) => {
             const I = Icon as typeof BookOpen;
-            return (
-              <button
-                className={tab === key ? 'selected' : ''}
-                key={key as string}
-                onClick={() => {
-                  setTab(key as string);
-                  setText('');
-                }}
-              >
-                <I size={15} />
-                {label as string}
-                {key === 'feedback' && p.feedback.length > 0 && <b>{p.feedback.length}</b>}
-              </button>
-            );
+            return {
+              value: key as string,
+              label: (
+                <>
+                  <I size={15} />
+                  {label as string}
+                  {key === 'feedback' && p.feedback.length > 0 && <b>{p.feedback.length}</b>}
+                </>
+              ),
+            };
           })}
-        </div>
+        />
+      )}
+      {privateView && tab === 'overview' && (
+        <ProjectActions
+          project={p}
+          master={master}
+          aiConfigured={state.aiConfigured}
+          onTab={setTab}
+        />
       )}
       {tab === 'planning' ? (
         <LearningPlan

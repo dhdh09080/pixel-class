@@ -67,6 +67,8 @@ export default function App() {
     [chatOpen, setChatOpen] = useState(false),
     [readAt, setReadAt] = useState('');
   const chatEnd = useRef<HTMLDivElement>(null);
+  const [projectStartTab, setProjectStartTab] = useState('overview');
+  const [characterSaving, setCharacterSaving] = useState(false);
   const loadSequence = useRef(0);
   const onToast = useCallback((s: string) => setToast(s), []);
   const load = useCallback(async () => {
@@ -134,7 +136,8 @@ export default function App() {
     },
     [load],
   );
-  const openProject = useCallback((id: string) => {
+  const openProject = useCallback((id: string, initialTab = 'overview') => {
+    setProjectStartTab(initialTab);
     setSelected(id);
     setOverlay('project');
   }, []);
@@ -786,6 +789,8 @@ export default function App() {
       )}
       {overlay === 'project' && selectedProject && (
         <ProjectDetail
+          key={`${selectedProject.id}-${projectStartTab}`}
+          initialTab={projectStartTab}
           project={selectedProject}
           state={state}
           onClose={close}
@@ -802,19 +807,25 @@ export default function App() {
         <Modal
           title="교실 속 나의 모습"
           subtitle="나의 캐릭터는 계정에 연결되어 계속 함께해요."
-          onClose={close}
+          onClose={() => {
+            if (!characterSaving) close();
+          }}
           wide
         >
           <CharacterEditor
             member={me}
-            onSave={(name, appearance) =>
+            busy={characterSaving}
+            onCancel={close}
+            onSave={(name, appearance) => {
+              setCharacterSaving(true);
               void mutate('/me', 'PATCH', { name, appearance })
                 .then(() => {
                   close();
                   onToast('나의 모습을 저장했어요.');
                 })
                 .catch(() => {})
-            }
+                .finally(() => setCharacterSaving(false));
+            }}
           />
         </Modal>
       )}

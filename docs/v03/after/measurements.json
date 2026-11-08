@@ -1,0 +1,772 @@
+{
+  "phase": "after",
+  "capturedAt": "2026-11-08T07:45:01.346Z",
+  "base": "http://127.0.0.1:5173",
+  "results": [
+    {
+      "view": "classroom",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1538
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["aria-prohibited-attr", "color-contrast"]
+      }
+    },
+    {
+      "view": "projects",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "project-detail",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [
+        {
+          "x": 480,
+          "y": 16,
+          "width": 960,
+          "height": 1048,
+          "scroll": 1046,
+          "client": 1046,
+          "label": "_r_0_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "character",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [
+        {
+          "x": 480,
+          "y": 64.53125,
+          "width": 960,
+          "height": 950.9375,
+          "scroll": 949,
+          "client": 949,
+          "label": "_r_2_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": []
+      }
+    },
+    {
+      "view": "materials",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "master",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1405
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "admission",
+      "width": 1920,
+      "height": 1080,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "document": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "classroom",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 1373
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["aria-prohibited-attr", "color-contrast"]
+      }
+    },
+    {
+      "view": "projects",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "project-detail",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [
+        {
+          "x": 240,
+          "y": 16,
+          "width": 960,
+          "height": 868,
+          "scroll": 866,
+          "client": 866,
+          "label": "_r_0_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "character",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 900
+      },
+      "dialog": [
+        {
+          "x": 240,
+          "y": 16,
+          "width": 960,
+          "height": 868,
+          "scroll": 866,
+          "client": 866,
+          "label": "_r_2_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": []
+      }
+    },
+    {
+      "view": "materials",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 963
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "master",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 1405
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "admission",
+      "width": 1440,
+      "height": 900,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "document": {
+        "width": 1440,
+        "height": 1062
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "classroom",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 1347
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["aria-prohibited-attr", "color-contrast"]
+      }
+    },
+    {
+      "view": "projects",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 792
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "project-detail",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 792
+      },
+      "dialog": [
+        {
+          "x": 203,
+          "y": 16,
+          "width": 960,
+          "height": 736,
+          "scroll": 734,
+          "client": 734,
+          "label": "_r_0_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "character",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 792
+      },
+      "dialog": [
+        {
+          "x": 203,
+          "y": 16,
+          "width": 960,
+          "height": 736,
+          "scroll": 734,
+          "client": 734,
+          "label": "_r_2_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": []
+      }
+    },
+    {
+      "view": "materials",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 947
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "master",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 1389
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "admission",
+      "width": 1366,
+      "height": 768,
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "document": {
+        "width": 1366,
+        "height": 1062
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "classroom",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 1347
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["aria-prohibited-attr", "color-contrast"]
+      }
+    },
+    {
+      "view": "projects",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 789
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "project-detail",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 789
+      },
+      "dialog": [
+        {
+          "x": 160,
+          "y": 16,
+          "width": 960,
+          "height": 688,
+          "scroll": 686,
+          "client": 686,
+          "label": "_r_0_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "character",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 789
+      },
+      "dialog": [
+        {
+          "x": 160,
+          "y": 16,
+          "width": 960,
+          "height": 688,
+          "scroll": 686,
+          "client": 686,
+          "label": "_r_2_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": []
+      }
+    },
+    {
+      "view": "materials",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 947
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "master",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 1389
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "admission",
+      "width": 1280,
+      "height": 720,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "document": {
+        "width": 1280,
+        "height": 1062
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "classroom",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 2161
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["aria-prohibited-attr", "color-contrast"]
+      }
+    },
+    {
+      "view": "projects",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1194
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "project-detail",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1194
+      },
+      "dialog": [
+        {
+          "x": 17,
+          "y": 12,
+          "width": 356,
+          "height": 820,
+          "scroll": 818,
+          "client": 818,
+          "label": "_r_0_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "character",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1194
+      },
+      "dialog": [
+        {
+          "x": 17,
+          "y": 12,
+          "width": 356,
+          "height": 820,
+          "scroll": 818,
+          "client": 818,
+          "label": "_r_2_"
+        }
+      ],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": []
+      }
+    },
+    {
+      "view": "materials",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1034
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "master",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 2335
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    },
+    {
+      "view": "admission",
+      "width": 390,
+      "height": 844,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document": {
+        "width": 390,
+        "height": 1096
+      },
+      "dialog": [],
+      "errors": [],
+      "accessibility": {
+        "violations": [],
+        "incompleteRules": ["color-contrast"]
+      }
+    }
+  ]
+}

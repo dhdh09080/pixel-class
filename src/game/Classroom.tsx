@@ -19,6 +19,7 @@ export default function Classroom({
   const host = useRef<HTMLDivElement>(null),
     scene = useRef<ClassroomScene | null>(null);
   const ready = useRef(false);
+  const stopTouch = () => scene.current?.touchMove(0, 0);
   const latest = useRef({ state, enabled, onAction, onRefresh, onConnection });
   useEffect(() => {
     latest.current = { state, enabled, onAction, onRefresh, onConnection };
@@ -26,6 +27,7 @@ export default function Classroom({
     if (scene.current) {
       scene.current.enabled = enabled && ready.current;
       if (scene.current.input) scene.current.input.enabled = enabled && ready.current;
+      if (!enabled) scene.current.touchMove(0, 0);
     }
   }, [state, enabled, onAction, onRefresh, onConnection]);
   useEffect(() => {
@@ -66,6 +68,12 @@ export default function Classroom({
         else scene.current?.receive(value);
       };
       socket.onclose = () => {
+        scene.current?.touchMove(0, 0);
+        if (scene.current) {
+          scene.current.enabled = false;
+          scene.current.input.enabled = false;
+          scene.current.input.keyboard?.resetKeys();
+        }
         ready.current = false;
         latest.current.onConnection(false);
         if (!disposed) {
@@ -89,6 +97,15 @@ export default function Classroom({
               host.current.dataset.x = String(Math.round(x));
               host.current.dataset.y = String(Math.round(y));
               host.current.dataset.zoom = String(scene.current?.cameras.main.zoom || 1);
+              host.current.dataset.worldHeight = String(scene.current?.worldHeight || 0);
+              host.current.dataset.seated = String(scene.current?.seated || false);
+              const textures = scene.current?.textures.getTextureKeys() || [];
+              host.current.dataset.characterTextures = String(
+                textures.filter((key) => key.startsWith('char-')).length,
+              );
+              host.current.dataset.worldTextures = String(
+                textures.filter((key) => key === 'world' || key.startsWith('world-')).length,
+              );
             }
           },
           () => {
@@ -101,9 +118,17 @@ export default function Classroom({
         game = new Phaser.Game(gameConfig(host.current, scene.current));
       },
     );
+    const stop = () => {
+      scene.current?.touchMove(0, 0);
+      scene.current?.input.keyboard?.resetKeys();
+    };
+    window.addEventListener('blur', stop);
+    document.addEventListener('visibilitychange', stop);
     return () => {
       disposed = true;
       ready.current = false;
+      window.removeEventListener('blur', stop);
+      document.removeEventListener('visibilitychange', stop);
       window.removeEventListener('keydown', preventPageScroll);
       clearTimeout(retry);
       socket?.close();
@@ -119,6 +144,9 @@ export default function Classroom({
           내 책상으로
         </button>
         <button onClick={() => scene.current?.command('master')}>선생님에게</button>
+        <button disabled={!state.me.deskId} onClick={() => scene.current?.command('sit')}>
+          책상에 앉기
+        </button>
         <span />
         <button aria-label="교실 축소" onClick={() => scene.current?.command('zoomOut')}>
           −
@@ -143,6 +171,41 @@ export default function Classroom({
         aria-label="픽셀 교실. WASD 또는 방향키로 이동, E로 책상 열기, 스페이스로 앉기"
       >
         <div className="game-loading">교실 문을 여는 중이에요…</div>
+        <div className="touch-controls" role="group" aria-label="교실 터치 이동">
+          {[
+            { label: '위쪽', x: 0, y: -1, symbol: '↑', position: 'up' },
+            { label: '왼쪽', x: -1, y: 0, symbol: '←', position: 'left' },
+            { label: '멈추기', x: 0, y: 0, symbol: '·', position: 'stop' },
+            { label: '오른쪽', x: 1, y: 0, symbol: '→', position: 'right' },
+            { label: '아래쪽', x: 0, y: 1, symbol: '↓', position: 'down' },
+          ].map((d) => (
+            <button
+              key={d.position}
+              type="button"
+              disabled={!enabled}
+              className={`touch-button touch-${d.position}`}
+              aria-label={d.position === 'stop' ? '터치 이동 멈추기' : `터치로 ${d.label} 이동`}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                if (enabled && ready.current) scene.current?.touchMove(d.x, d.y);
+              }}
+              onPointerUp={stopTouch}
+              onPointerCancel={stopTouch}
+              onLostPointerCapture={stopTouch}
+              onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  scene.current?.touchMove(d.x, d.y);
+                }
+              }}
+              onKeyUp={stopTouch}
+              onBlur={stopTouch}
+            >
+              {d.symbol}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   Search,
   Upload,
@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import type { AppState, Material } from '../shared/types';
+import { InlineNotice, Button } from './ui';
 import { Modal, Field, Empty, date } from './components';
 import type { Mutate } from './Projects';
 export function MaterialsPage({
@@ -28,6 +29,7 @@ export function MaterialsPage({
     [replace, setReplace] = useState<Material>(),
     [deleting, setDeleting] = useState('');
   const [topicEditor, setTopicEditor] = useState<Material>();
+  const [preview, setPreview] = useState<Material>();
   const categories = ['전체', ...new Set(state.materials.map((m) => m.category))];
   const materials = state.materials.filter(
     (m) =>
@@ -136,6 +138,14 @@ export function MaterialsPage({
                 >
                   <Eye size={17} />
                 </a>
+              ) : /\.(txt|md)$/i.test(m.fileName) ? (
+                <button
+                  className="icon-button"
+                  aria-label={`${m.title} 미리보기`}
+                  onClick={() => setPreview(m)}
+                >
+                  <Eye size={17} />
+                </button>
               ) : null}
               {state.me.role === 'MASTER' && (
                 <>
@@ -188,6 +198,17 @@ export function MaterialsPage({
           </article>
         ))}
       </div>
+      {(query || category !== '전체') && (
+        <button
+          className="text-button"
+          onClick={() => {
+            setQuery('');
+            setCategory('전체');
+          }}
+        >
+          검색 조건 초기화
+        </button>
+      )}
       {!materials.length && (
         <Empty
           icon={<BookOpen />}
@@ -195,6 +216,7 @@ export function MaterialsPage({
           description="다른 검색어나 카테고리를 선택해 보세요."
         />
       )}
+      {preview && <TextPreview material={preview} onClose={() => setPreview(undefined)} />}
       {topicEditor && (
         <MaterialTopicEditor
           material={topicEditor}
@@ -231,12 +253,14 @@ function UploadForm({
     [file, setFile] = useState<File>(),
     [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState('');
   const [topics, setTopics] = useState<string[]>(replace?.topics || []);
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      onToast('5MB 이하 파일을 선택해 주세요.');
+    if (!file || busy) return;
+    setError('');
+    if (!file.size || file.size > 5 * 1024 * 1024) {
+      setError('내용이 있는 5MB 이하 파일을 선택해 주세요.');
       return;
     }
     setBusy(true);
@@ -244,7 +268,7 @@ function UploadForm({
       const content = await new Promise<string>((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => resolve(String(r.result).split(',')[1]);
-        r.onerror = reject;
+        r.onerror = () => reject(new Error('파일을 읽지 못했어요. 다시 선택해 주세요.'));
         r.readAsDataURL(file);
       });
       await mutate('/materials', 'POST', {
@@ -259,7 +283,10 @@ function UploadForm({
       });
       onToast('교안을 안전하게 저장했어요.');
       onClose();
-    } catch {
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : '교안을 저장하지 못했어요. 다시 시도해 주세요.',
+      );
     } finally {
       setBusy(false);
     }
@@ -268,66 +295,85 @@ function UploadForm({
     <Modal
       title={replace ? '교안 새 버전 올리기' : '함께 볼 교안을 올려 주세요'}
       subtitle="PDF, 문서, 이미지, TXT, MD · 최대 5MB"
-      onClose={onClose}
+      onClose={() => {
+        if (!busy) onClose();
+      }}
     >
       <form className="project-form" onSubmit={submit}>
-        <Field label="교안 제목 *">
-          <input
-            required
-            maxLength={100}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Field>
-        <Field label="설명">
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
-        </Field>
-        <div className="form-grid">
-          <Field label="카테고리">
+        {error && (
+          <InlineNotice kind="error" title="교안을 저장하지 못했어요">
+            {error}
+          </InlineNotice>
+        )}
+        <fieldset className="upload-fields" disabled={busy}>
+          <Field label="교안 제목 *">
             <input
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
               required
-              maxLength={40}
-              list="categories"
+              maxLength={100}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
-            <datalist id="categories">
-              {['시작하기', 'AI 도구', 'API와 서버', '데이터베이스', '배포하기'].map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
           </Field>
-          <Field label="공개 범위">
-            <select
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value as 'ACTIVE' | 'ALL')}
-            >
-              <option value="ACTIVE">재학생과 MASTER</option>
-              <option value="ALL">학교 구성원 (현재 재학생만 접근)</option>
-            </select>
+          <Field label="설명">
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+            />
           </Field>
+          <div className="form-grid">
+            <Field label="카테고리">
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+                maxLength={40}
+                list="categories"
+              />
+              <datalist id="categories">
+                {['시작하기', 'AI 도구', 'API와 서버', '데이터베이스', '배포하기'].map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
+            </Field>
+            <Field label="공개 범위">
+              <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value as 'ACTIVE' | 'ALL')}
+              >
+                <option value="ACTIVE">재학생과 MASTER</option>
+                <option value="ALL">학교 구성원 (현재 재학생만 접근)</option>
+              </select>
+            </Field>
+          </div>
+          <TopicChoices topics={topics} onChange={setTopics} />
+          <button type="button" className="upload-zone" onClick={() => input.current?.click()}>
+            <Upload size={28} />
+            <strong>{file?.name || '파일 선택하기'}</strong>
+            <span>
+              {replace
+                ? `업로드하면 v${replace.version + 1}로 저장돼요.`
+                : '교안 파일은 학교 구성원에게만 제공돼요.'}
+            </span>
+          </button>
+          <input
+            type="file"
+            aria-label="교안 파일"
+            ref={input}
+            className="visually-hidden"
+            accept=".pdf,.pptx,.docx,.xlsx,.png,.jpg,.jpeg,.webp,.txt,.md"
+            onChange={(e) => setFile(e.target.files?.[0])}
+          />
+        </fieldset>
+        <div className="form-actions">
+          <Button disabled={busy} onClick={onClose} type="button">
+            취소
+          </Button>
+          <Button variant="primary" type="submit" disabled={!file} busy={busy}>
+            {busy ? '업로드 중…' : '교안 저장하기'}
+            <ArrowUpRight size={16} />
+          </Button>
         </div>
-        <TopicChoices topics={topics} onChange={setTopics} />
-        <button type="button" className="upload-zone" onClick={() => input.current?.click()}>
-          <Upload size={28} />
-          <strong>{file?.name || '파일 선택하기'}</strong>
-          <span>
-            {replace
-              ? `업로드하면 v${replace.version + 1}로 저장돼요.`
-              : '교안 파일은 학교 구성원에게만 제공돼요.'}
-          </span>
-        </button>
-        <input
-          type="file"
-          ref={input}
-          className="visually-hidden"
-          accept=".pdf,.pptx,.docx,.xlsx,.png,.jpg,.jpeg,.webp,.txt,.md"
-          onChange={(e) => setFile(e.target.files?.[0])}
-        />
-        <button className="button primary" disabled={!file || busy}>
-          {busy ? '업로드 중…' : '교안 저장하기'}
-          <ArrowUpRight size={16} />
-        </button>
       </form>
     </Modal>
   );
@@ -395,6 +441,52 @@ function MaterialTopicEditor({
         </p>
         <button className="button primary">기술 주제 저장</button>
       </form>
+    </Modal>
+  );
+}
+
+function TextPreview({ material, onClose }: { material: Material; onClose: () => void }) {
+  const [text, setText] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch(`/api/materials/${material.id}/download`, {
+      signal: controller.signal,
+      credentials: 'same-origin',
+    })
+      .then(async (response) => {
+        if (!response.ok)
+          throw new Error('교안을 열 수 없어요. 로그인 상태와 접근 권한을 확인해 주세요.');
+        const content = await response.text();
+        // Render plain text only. Uploaded HTML/Markdown is never executed.
+        setText(content.slice(0, 100000));
+      })
+      .catch((cause) => {
+        if (!controller.signal.aborted) setError(cause.message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [material.id]);
+  return (
+    <Modal title="교안 미리보기" subtitle={material.title} onClose={onClose} wide>
+      {loading ? (
+        <p role="status">교안을 불러오고 있어요…</p>
+      ) : error ? (
+        <InlineNotice kind="error" title="미리보기를 열지 못했어요">
+          {error}
+        </InlineNotice>
+      ) : (
+        <>
+          <p className="muted">TXT·MD 원문 미리보기 · 최대 10만 자까지 표시해요.</p>
+          <pre className="material-text-preview">{text}</pre>
+          <a className="button secondary" href={`/api/materials/${material.id}/download`}>
+            전체 파일 다운로드
+          </a>
+        </>
+      )}
     </Modal>
   );
 }
