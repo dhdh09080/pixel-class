@@ -1,6 +1,6 @@
 {
   "phase": "after",
-  "capturedAt": "2026-11-08T07:45:01.346Z",
+  "capturedAt": "2026-11-08T08:02:41.265Z",
   "base": "http://127.0.0.1:5173",
   "results": [
     {
@@ -721,7 +721,7 @@
       },
       "document": {
         "width": 390,
-        "height": 1034
+        "height": 1035
       },
       "dialog": [],
       "errors": [],
@@ -740,7 +740,7 @@
       },
       "document": {
         "width": 390,
-        "height": 2335
+        "height": 2338
       },
       "dialog": [],
       "errors": [],
@@ -759,7 +759,7 @@
       },
       "document": {
         "width": 390,
-        "height": 1096
+        "height": 1109
       },
       "dialog": [],
       "errors": [],

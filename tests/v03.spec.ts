@@ -286,6 +286,7 @@ test('repeated appearance changes release obsolete game textures', async ({ page
 test('expanded classroom releases replaced floor textures', async ({ page, context }) => {
   await open(page);
   await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+  await expect(page.locator('.header-profile small')).toHaveText('MASTER');
   const world = page.locator('.game-host');
   for (let i = 0; i < 3; i++) {
     const state = await (await context.request.get('/api/state')).json();

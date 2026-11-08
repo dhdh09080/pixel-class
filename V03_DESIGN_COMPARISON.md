@@ -1,6 +1,6 @@
 # v0.3 디자인 변경 전후 비교
 
-실제 Chromium 화면입니다. 기준/최종 각각 35장(5개 해상도×7개 화면)을 보관했습니다. `cycle-1`~`cycle-5`에는 전체 검사 측정값과 회차별 대표 스크린샷 4장을 보관했습니다. 중간 회차의 나머지 PNG는 저장소 크기를 줄이기 위해 제외했습니다. 전체 페이지 캡처는 세로로 스크롤되는 문서를 포함하며, 파일의 높이가 viewport 높이와 같다는 뜻은 아닙니다. 모달의 실제 화면 내 경계는 각 `measurements.json`에서 별도로 확인합니다.
+실제 Chromium 화면입니다. 기준/최종 각각 35장(5개 해상도×7개 화면)을 보관했습니다. `cycle-1`~`cycle-7`에는 전체 검사 측정값과 회차별 대표 스크린샷 4장을 보관했습니다. 중간 회차의 나머지 PNG는 저장소 크기를 줄이기 위해 제외했습니다. 전체 페이지 캡처는 세로로 스크롤되는 문서를 포함하며, 파일의 높이가 viewport 높이와 같다는 뜻은 아닙니다. 모달의 실제 화면 내 경계는 각 `measurements.json`에서 별도로 확인합니다.
 
 [브라우저로 전후 비교 열기](docs/v03/comparison.html)
 
@@ -41,6 +41,8 @@
 | 3    | [측정값](docs/v03/cycle-3/measurements.json) · [교실](docs/v03/cycle-3/classroom-390x844.png) · [MASTER](docs/v03/cycle-3/master-1366x768.png) | 7개 화면 전체 axe 범위 확대, 보조 글자 대비 부족 발견            |
 | 4    | [측정값](docs/v03/cycle-4/measurements.json) · [교실](docs/v03/cycle-4/classroom-390x844.png) · [MASTER](docs/v03/cycle-4/master-1366x768.png) | 대비 재검사, 장식 문자·자료 수 보조 글자 수정                    |
 | 5    | [측정값](docs/v03/cycle-5/measurements.json) · [교실](docs/v03/cycle-5/classroom-390x844.png) · [MASTER](docs/v03/cycle-5/master-1366x768.png) | 전체 화면 0위반 확인 후, 펼친 통계 hover·모바일 검색을 추가 검토 |
+| 6    | [측정값](docs/v03/cycle-6/measurements.json) · [교실](docs/v03/cycle-6/classroom-390x844.png) · [MASTER](docs/v03/cycle-6/master-1366x768.png) | 입력 경계의 비텍스트 대비 1.35:1 재현, 3:1 이상·모바일 16px 보정 |
+| 7    | [측정값](docs/v03/cycle-7/measurements.json) · [교실](docs/v03/cycle-7/classroom-390x844.png) · [MASTER](docs/v03/cycle-7/master-1366x768.png) | Canvas 안 3개 보조 글자 팔레트 대비를 별도 계산해 보정           |
 
 최종 [측정값](docs/v03/after/measurements.json)에는 35개 화면의 문서 폭·모달 경계·JavaScript 오류·axe 위반과 수동 확인이 필요한 incomplete 규칙을 기록합니다. axe의 incomplete 항목을 통과로 계산하지 않습니다. [앉은 캐릭터 실제 Canvas](docs/v03/qa/seated-classroom.png)도 별도로 저장합니다. 자동 검사는 픽셀 Canvas 내부의 글자 대비/이름표를 인증하지 않습니다.
 

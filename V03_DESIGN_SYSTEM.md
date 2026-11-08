@@ -13,6 +13,7 @@
 | Background / Surface       | `#f5f4ed` / `#fffef9`             | 페이지 / 카드·모달                                      |
 | Subtle surface             | `#f0f2e8`                         | 그룹·보조 정보                                          |
 | Text / Muted               | `#293d32` / `#60705e`             | 본문 / 보조 설명. 색이 있는 배경에서는 별도 대비 확인   |
+| Input border               | `#84917b`                         | 입력창 경계의 비텍스트 대비(표면 대비 3:1 이상)         |
 | Border / Divider           | `#d9dfd0` / `#e6e9de`             | 경계 / 구분선                                           |
 | Success / Warning / Danger | `#34644b` / `#805c2e` / `#963f36` | 상태·주의·오류                                          |
 | Focus                      | `#5d7b38`                         | 키보드 포커스                                           |
@@ -21,7 +22,7 @@
 
 ## 타이포그래피·간격
 
-한국어 시스템 글꼴을 사용하며 외부 폰트 요청을 추가하지 않았습니다. 크기 토큰은 12 / 13 / 14 / 16 / 18 / 22 / 28 / 32px(rem 기준), 본문 기본 14px, 폼·버튼 13~14px입니다. 게임 월드 글자는 별도 Canvas 좌표 기준이며 HTML과 픽셀 밀도가 같다고 주장하지 않습니다.
+한국어 시스템 글꼴을 사용하며 외부 폰트 요청을 추가하지 않았습니다. 크기 토큰은 12 / 13 / 14 / 16 / 18 / 22 / 28 / 32px(rem 기준), 본문 기본 14px, 폼·버튼은 데스크톱 13~14px이며 모바일 텍스트 입력/선택은 16px로 확대합니다. 게임 월드 글자는 별도 Canvas 좌표 기준이며 HTML과 픽셀 밀도가 같다고 주장하지 않습니다.
 
 간격은 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48px입니다. 카드 16~24px, 폼 그룹 20px, 모달 본문 24px(모바일 16px)를 기본으로 합니다. 라운드는 8 / 12 / 18px와 pill, 그림자는 얕은 카드·hover·모달의 세 단계입니다. 긴 한국어/URL은 줄바꿈하고 flex/grid 자식은 최소 너비를 풀어 줍니다.
 
@@ -31,7 +32,7 @@
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Button           | `Button`: primary / secondary / ghost / danger. busy 시 spinner·disabled·aria-busy. 폼 내부 비제출 버튼은 type=button 명시           |
 | Surface          | `Surface`: 동일한 surface·border·radius·shadow. 시각적 컨테이너이며 의미 있는 section/heading은 호출자가 제공                        |
-| Input / Dropdown | `Field` + native input/select/textarea. 자동 id/label, hint/error 연결, aria-invalid. 44px 입력 높이, 포커스 링                      |
+| Input / Dropdown | `Field` + native input/select/textarea. 자동 id/label, hint/error 연결, aria-invalid. 44px 입력 높이·3:1 이상 경계 대비·포커스 링    |
 | SegmentedControl | 프로젝트·교무실 메뉴에서 공유. pressed 버튼 그룹, 방향키/Home/End와 roving tabIndex. 실제 탭 역할을 흉내 내지 않음                   |
 | Badge            | `Badge` neutral/success/warning/danger. 기존 Status·membership도 공통 색·크기 규칙을 단계 적용                                       |
 | Notice           | `InlineNotice`: 정보·오류·성공. 오류 alert / 성공 status, 설명을 폼 안에 남김                                                        |

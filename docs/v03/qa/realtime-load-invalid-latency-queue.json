@@ -1,0 +1,111 @@
+{
+  "startedAt": "2026-11-08T07:39:16.163Z",
+  "kind": "30 automated authenticated WebSocket clients, 10Hz movement; not 30 rendered browsers or notebook FPS",
+  "requestedSeconds": 60,
+  "sent": 17760,
+  "receivedByObserver": 17588,
+  "samples": [
+    {
+      "label": "warm",
+      "rssMiB": 113.34,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 0,
+      "receivedByObserver": 0
+    },
+    {
+      "label": "tick-100",
+      "rssMiB": 212.27,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 3000,
+      "receivedByObserver": 2884
+    },
+    {
+      "label": "tick-200",
+      "rssMiB": 257.75,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 6000,
+      "receivedByObserver": 5882
+    },
+    {
+      "label": "tick-300",
+      "rssMiB": 273.24,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 9000,
+      "receivedByObserver": 8812
+    },
+    {
+      "label": "tick-400",
+      "rssMiB": 276.78,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 12000,
+      "receivedByObserver": 11798
+    },
+    {
+      "label": "tick-500",
+      "rssMiB": 277.12,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 15000,
+      "receivedByObserver": 14798
+    },
+    {
+      "label": "end",
+      "rssMiB": 277.12,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 17760,
+      "receivedByObserver": 17588
+    }
+  ],
+  "passed": false,
+  "latencyMs": {
+    "p50": 259.76,
+    "p95": 1436.71,
+    "max": 1714.03,
+    "samples": 17588
+  },
+  "actualSeconds": 61.1,
+  "deliveryRatio": 0.99032,
+  "failure": "AssertionError [ERR_ASSERTION]: Local observed p95 exceeded 500ms\n    at file:///workspace/pixel-class/scripts/load-realtime.mjs:165:10",
+  "finishedAt": "2026-11-08T07:40:19.942Z"
+}
