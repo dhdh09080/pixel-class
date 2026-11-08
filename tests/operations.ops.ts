@@ -2,7 +2,7 @@ import { test, expect, request, type BrowserContext } from '@playwright/test';
 import { randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execFile } from 'node:child_process';
 import { emptyProject, type AppState } from '../shared/types';
 
 const base = process.env.OPS_BASE_URL!;
@@ -271,6 +271,30 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
       ).toBe(503);
       expect((await state(student)).aiConfigured).toBe(false);
 
+      await masterPage.getByRole('button', { name: '자료실', exact: true }).click();
+      await masterPage.getByRole('button', { name: '교안 올리기', exact: true }).click();
+      await masterPage.getByRole('dialog').getByLabel('교안 제목').fill('실제 계정 운영 교안');
+      await masterPage.getByLabel('교안 파일').setInputFiles({
+        name: 'operations-lesson.txt',
+        mimeType: 'text/plain',
+        buffer: Buffer.from('교안 저장 후 학생에게 전달되는 내용'),
+      });
+      await masterPage.getByRole('button', { name: '교안 저장하기', exact: true }).click();
+      await expect(masterPage.getByRole('dialog')).toHaveCount(0);
+      await studentPage.keyboard.press('Escape');
+      await studentPage.getByRole('button', { name: '자료실', exact: true }).click();
+      await studentPage
+        .getByRole('button', { name: '실제 계정 운영 교안 미리보기', exact: true })
+        .click();
+      await expect(studentPage.getByRole('dialog').locator('pre')).toHaveText(
+        '교안 저장 후 학생에게 전달되는 내용',
+      );
+      await studentPage.keyboard.press('Escape');
+      await studentPage.getByRole('button', { name: '내 프로젝트', exact: true }).click();
+      await studentPage
+        .locator('.project-card')
+        .filter({ hasText: '운영 검증 데이터 서비스' })
+        .click();
       await masterPage.getByRole('button', { name: '교무실', exact: true }).click();
       await masterPage.getByRole('button', { name: '프로젝트 지도', exact: true }).click();
       await masterPage
@@ -447,6 +471,85 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
         await revoked.dispose();
       }
       expect(errors).toEqual([]);
+    });
+    await test.step('separate network namespaces exchange WSS, lessons, projects and MASTER feedback', async () => {
+      await masterPage.close();
+      await studentPage.close();
+      const gateway = JSON.parse(docker(['inspect', compose(['ps', '-q', 'https'])]))[0];
+      const network = Object.keys(gateway.NetworkSettings.Networks)[0];
+      const image = JSON.parse(docker(['inspect', compose(['ps', '-q', 'app'])]))[0].Config.Image;
+      const marker = `PEER-${randomBytes(5).toString('hex')}`;
+      const outputs = await Promise.all(
+        (['MASTER', 'STUDENT'] as const).map((role) => {
+          const file = join(config.dir, `peer-${role}.json`);
+          writeFileSync(
+            file,
+            JSON.stringify({
+              role,
+              origin: base,
+              marker,
+              gate,
+              emptyProject: emptyProject(),
+              email: role === 'MASTER' ? 'ops-master@example.com' : 'ops-student@example.com',
+              password: role === 'MASTER' ? credentials.master : credentials.student,
+            }),
+            { mode: 0o600 },
+          );
+          return new Promise<string>((resolve, reject) =>
+            execFile(
+              'docker',
+              [
+                '--host=unix:///var/run/docker.sock',
+                'run',
+                '--rm',
+                '--network',
+                network,
+                '--read-only',
+                '--cap-drop',
+                'ALL',
+                '--security-opt',
+                'no-new-privileges:true',
+                '--user',
+                `${process.getuid?.() || 0}:${process.getgid?.() || 0}`,
+                '--mount',
+                `type=bind,src=${file},dst=/run/peer-config.json,readonly`,
+                '--mount',
+                `type=bind,src=${join(config.dir, 'root.crt')},dst=/run/peer-ca.crt,readonly`,
+                '--mount',
+                `type=bind,src=${join(process.cwd(), 'tests/fixtures/peer-client.mjs')},dst=/run/peer-client.mjs,readonly`,
+                image,
+                'node',
+                '/run/peer-client.mjs',
+              ],
+              { env: dockerEnv, timeout: 30000 },
+              (error, stdout) => {
+                // Do not surface command output or credentials on failure.
+                if (error)
+                  reject(new Error(`Isolated ${role} network client failed (${error.code}).`));
+                else resolve(stdout);
+              },
+            ),
+          );
+        }),
+      );
+      const results = outputs.map((value) => JSON.parse(value.trim()));
+      expect(results.every((value) => value.ok && value.httpsChainVerified && value.wss)).toBe(
+        true,
+      );
+      expect(new Set(results.map((value) => value.clientAddress)).size).toBe(2);
+      mkdirSync('docs/v04', { recursive: true });
+      writeFileSync(
+        'docs/v04/network-peers.json',
+        JSON.stringify(
+          {
+            capturedAt: new Date().toISOString(),
+            kind: 'Two isolated Docker network clients; not physical computers or internet deployment',
+            results,
+          },
+          null,
+          2,
+        ),
+      );
     });
   } finally {
     for (const c of contexts) await c.close();

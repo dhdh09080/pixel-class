@@ -131,6 +131,29 @@ try {
     { capture: true },
   );
   writeFileSync(env.STAGING_ACCESS_FILE, `basic_auth {\n  tester ${hash}\n}\n`, { mode: 0o400 });
+  const preflightEnv = join(dir, 'compose.env');
+  writeFileSync(
+    preflightEnv,
+    '# Isolated QA. Values are supplied in the subprocess environment.\n',
+    { mode: 0o600 },
+  );
+  const preflight = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
+    { env, encoding: 'utf8' },
+  );
+  if (preflight.status !== 0)
+    throw new Error(`Local deployment preflight failed: ${preflight.stderr}`);
+  const externalCheck = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv],
+    { env, encoding: 'utf8' },
+  );
+  if (externalCheck.status === 0)
+    throw new Error('Loopback QA configuration must not pass external deployment readiness.');
+  console.log(
+    'Resolved Compose preflight passed locally and correctly rejects external readiness.',
+  );
   compose(['config', '--quiet']);
   compose(['up', '--detach', '--no-build', '--wait', '--wait-timeout', '90']);
   let certificateReady = false;

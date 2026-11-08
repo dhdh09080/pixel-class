@@ -5,7 +5,7 @@ export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.ops.ts',
   workers: 1,
-  timeout: 90000,
+  timeout: 150000,
   expect: { timeout: 10000 },
   outputDir: 'test-results/operations',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report/operations', open: 'never' }]],
