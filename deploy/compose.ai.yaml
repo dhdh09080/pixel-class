@@ -1,0 +1,10 @@
+# Optional server-only AI secret. Combine after compose.yaml.
+services:
+  app:
+    environment:
+      OPENAI_API_KEY_FILE: /run/secrets/openai_api_key
+    secrets:
+      - openai_api_key
+secrets:
+  openai_api_key:
+    file: ${OPENAI_API_KEY_FILE:?Set path to the server-only OpenAI secret}

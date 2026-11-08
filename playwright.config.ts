@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 const dir = mkdtempSync(join(tmpdir(), 'pixel-browser-'));
@@ -16,7 +16,9 @@ export default defineConfig({
     viewport: { width: 1440, height: 1000 },
     headless: true,
     launchOptions: {
-      executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      executablePath:
+        process.env.CHROMIUM_PATH ||
+        (existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined),
       args: ['--no-sandbox'],
     },
     trace: 'retain-on-failure',

@@ -1,20 +1,21 @@
-export function worldCanvas() {
+export function worldCanvas(height = 700) {
+  const h = height / 2;
   const canvas = document.createElement('canvas');
   canvas.width = 560;
-  canvas.height = 350;
+  canvas.height = h;
   const c = canvas.getContext('2d')!;
   const r = (x: number, y: number, w: number, h: number, color: string) => {
     c.fillStyle = color;
     c.fillRect(x, y, w, h);
   };
-  r(0, 0, 560, 350, '#cbdbbf');
+  r(0, 0, 560, h, '#cbdbbf');
   r(0, 0, 560, 11, '#92aa8f');
   r(12, 11, 536, 89, '#d3e1c7');
   r(12, 90, 536, 5, '#8b9f83');
   r(12, 95, 536, 5, '#637e6b');
   // Walnut floorboards, seams and a restrained deterministic grain.
-  r(12, 100, 536, 238, '#d6b98c');
-  for (let row = 0; row < 12; row++) {
+  r(12, 100, 536, h - 112, '#d6b98c');
+  for (let row = 0; row < Math.ceil((h - 112) / 20); row++) {
     let y = 100 + row * 20;
     r(12, y, 536, 1, '#c3a477');
     for (let col = 0; col < 9; col++) {
@@ -25,10 +26,10 @@ export function worldCanvas() {
     }
   }
   r(12, 100, 536, 6, '#bd9e76');
-  r(0, 0, 12, 350, '#93ad92');
-  r(548, 0, 12, 350, '#93ad92');
-  r(0, 338, 560, 12, '#829b80');
-  r(12, 333, 536, 5, '#a28967');
+  r(0, 0, 12, h, '#93ad92');
+  r(548, 0, 12, h, '#93ad92');
+  r(0, h - 12, 560, 12, '#829b80');
+  r(12, h - 17, 536, 5, '#a28967');
   // Tall sash windows and soft pools of sunlight.
   for (const x of [49, 424]) {
     r(x - 4, 23, 82, 57, '#a2b69a');
@@ -108,11 +109,11 @@ export function worldCanvas() {
   r(85, 247, 18, 17, '#dab888');
   r(91, 249, 6, 5, '#f5eacf');
   r(92, 250, 4, 3, '#997659');
-  r(224, 304, 112, 27, '#9b9575');
-  r(226, 305, 108, 24, '#718d75');
-  for (let x = 231; x < 332; x += 8) r(x, 309, 2, 16, '#819b7d');
-  r(238, 338, 84, 12, '#c3a77d');
-  r(242, 338, 76, 4, '#e3c89c');
+  r(224, h - 46, 112, 27, '#9b9575');
+  r(226, h - 45, 108, 24, '#718d75');
+  for (let x = 231; x < 332; x += 8) r(x, h - 41, 2, 16, '#819b7d');
+  r(238, h - 12, 84, 12, '#c3a77d');
+  r(242, h - 12, 76, 4, '#e3c89c');
   plant(23, 91);
   plant(527, 91);
   plant(528, 296);

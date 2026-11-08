@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AppState } from '../../shared/types';
 import type { ClassroomScene, GameAction } from './scene';
 export default function Classroom({
@@ -14,15 +14,18 @@ export default function Classroom({
   onRefresh: () => void;
   onConnection: (connected: boolean) => void;
 }) {
+  const [focus, setFocus] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null),
     scene = useRef<ClassroomScene | null>(null);
+  const ready = useRef(false);
   const latest = useRef({ state, enabled, onAction, onRefresh, onConnection });
   useEffect(() => {
     latest.current = { state, enabled, onAction, onRefresh, onConnection };
     scene.current?.sync(state);
     if (scene.current) {
-      scene.current.enabled = enabled;
-      if (scene.current.input) scene.current.input.enabled = enabled;
+      scene.current.enabled = enabled && ready.current;
+      if (scene.current.input) scene.current.input.enabled = enabled && ready.current;
     }
   }, [state, enabled, onAction, onRefresh, onConnection]);
   useEffect(() => {
@@ -52,10 +55,18 @@ export default function Classroom({
       socket.onopen = () => latest.current.onConnection(true);
       socket.onmessage = (e) => {
         const value = JSON.parse(e.data);
-        if (value.type === 'refresh' || value.type === 'online') latest.current.onRefresh();
+        if (value.type === 'positions') {
+          scene.current?.receive(value);
+          ready.current = true;
+          if (scene.current) {
+            scene.current.enabled = latest.current.enabled;
+            scene.current.input.enabled = latest.current.enabled;
+          }
+        } else if (value.type === 'refresh' || value.type === 'online') latest.current.onRefresh();
         else scene.current?.receive(value);
       };
       socket.onclose = () => {
+        ready.current = false;
         latest.current.onConnection(false);
         if (!disposed) {
           latest.current.onRefresh();
@@ -70,25 +81,29 @@ export default function Classroom({
           latest.current.state,
           (action) => latest.current.onAction(action),
           (v) => {
-            if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(v));
+            if (ready.current && socket?.readyState === WebSocket.OPEN)
+              socket.send(JSON.stringify(v));
           },
           (x, y) => {
             if (host.current) {
               host.current.dataset.x = String(Math.round(x));
               host.current.dataset.y = String(Math.round(y));
+              host.current.dataset.zoom = String(scene.current?.cameras.main.zoom || 1);
             }
           },
+          () => {
+            if (disposed) return;
+            window.addEventListener('keydown', preventPageScroll, { passive: false });
+            connect();
+          },
         );
-        scene.current.enabled = latest.current.enabled;
+        scene.current.enabled = false;
         game = new Phaser.Game(gameConfig(host.current, scene.current));
-        game.events.once('classroom-ready', () => {
-          window.addEventListener('keydown', preventPageScroll, { passive: false });
-          connect();
-        });
       },
     );
     return () => {
       disposed = true;
+      ready.current = false;
       window.removeEventListener('keydown', preventPageScroll);
       clearTimeout(retry);
       socket?.close();
@@ -97,13 +112,38 @@ export default function Classroom({
     };
   }, []);
   return (
-    <div
-      className="game-host"
-      ref={host}
-      role="application"
-      aria-label="픽셀 교실. WASD 또는 방향키로 이동, E로 책상 열기, 스페이스로 앉기"
-    >
-      <div className="game-loading">교실 문을 여는 중이에요…</div>
+    <div ref={container} className={`game-container ${focus ? 'focus-mode' : ''}`}>
+      <div className="game-toolbar" aria-label="교실 이동과 화면 조절">
+        <button onClick={() => scene.current?.command('self')}>내 위치</button>
+        <button disabled={!state.me.deskId} onClick={() => scene.current?.command('desk')}>
+          내 책상으로
+        </button>
+        <button onClick={() => scene.current?.command('master')}>선생님에게</button>
+        <span />
+        <button aria-label="교실 축소" onClick={() => scene.current?.command('zoomOut')}>
+          −
+        </button>
+        <button aria-label="교실 확대" onClick={() => scene.current?.command('zoomIn')}>
+          ＋
+        </button>
+        <button onClick={() => setFocus(!focus)}>{focus ? '집중 모드 종료' : '집중 모드'}</button>
+        <button
+          onClick={() => {
+            if (document.fullscreenElement) void document.exitFullscreen();
+            else void container.current?.requestFullscreen().catch(() => {});
+          }}
+        >
+          전체 화면
+        </button>
+      </div>
+      <div
+        className="game-host"
+        ref={host}
+        role="application"
+        aria-label="픽셀 교실. WASD 또는 방향키로 이동, E로 책상 열기, 스페이스로 앉기"
+      >
+        <div className="game-loading">교실 문을 여는 중이에요…</div>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { SqliteRecordRepository } from './storage/sqlite.js';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -44,28 +45,14 @@ export function insertMember(user: Member, email: string, password: string) {
     JSON.stringify(user),
   );
 }
-export function list<T>(kind: string, schoolId: string): T[] {
-  return (
-    db
-      .prepare('SELECT body FROM records WHERE kind=? AND school_id=? ORDER BY rowid')
-      .all(kind, schoolId) as { body: string }[]
-  ).map((r) => JSON.parse(r.body));
-}
-export function get<T>(kind: string, recordId: string, schoolId: string): T | undefined {
-  return list<T & { id: string }>(kind, schoolId).find((r) => r.id === recordId);
-}
-export function put<T extends { id: string }>(kind: string, record: T, schoolId = SCHOOL) {
-  db.prepare(
-    'INSERT INTO records VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET body=excluded.body WHERE records.school_id=excluded.school_id AND records.kind=excluded.kind',
-  ).run(record.id, schoolId, kind, JSON.stringify(record));
-}
-export function remove(kind: string, recordId: string, schoolId: string) {
-  db.prepare('DELETE FROM records WHERE id=? AND kind=? AND school_id=?').run(
-    recordId,
-    kind,
-    schoolId,
-  );
-}
+export const records = new SqliteRecordRepository(db);
+export const list = <T>(kind: string, schoolId: string) => records.list<T>(kind, schoolId);
+export const get = <T>(kind: string, recordId: string, schoolId: string) =>
+  records.get<T>(kind, recordId, schoolId);
+export const put = <T extends { id: string }>(kind: string, record: T, schoolId = SCHOOL) =>
+  records.put(kind, record, schoolId);
+export const remove = (kind: string, recordId: string, schoolId: string) =>
+  records.remove(kind, recordId, schoolId);
 export function transaction<T>(fn: () => T): T {
   db.exec('BEGIN IMMEDIATE');
   try {

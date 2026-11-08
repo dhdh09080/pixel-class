@@ -1,3 +1,12 @@
+import type { PersonalEvent } from './events';
+import type {
+  TechnicalAnalysis,
+  RoadmapStep,
+  WorkLog,
+  QuestionStatus,
+  Submission,
+  Attachment,
+} from './learning';
 export type Role = 'MASTER' | 'STUDENT';
 export type Membership = 'INVITED' | 'ACTIVE' | 'ON_LEAVE' | 'GRADUATED' | 'REVOKED';
 export type ProjectStatus =
@@ -34,8 +43,10 @@ export type Member = {
   status: Membership;
   appearance: Appearance;
   help: boolean;
+  helpSource?: 'MANUAL' | 'QUESTION';
   workStatus: 'IDLE' | 'BUILDING' | 'MENTORING';
   deskId: string | null;
+  previousDeskId?: string | null;
 };
 export type Task = { id: string; text: string; done: boolean };
 export type Entry = {
@@ -45,6 +56,11 @@ export type Entry = {
   text: string;
   createdAt: string;
   kind?: string;
+  topic?: string;
+  feedbackStatus?: 'OPEN' | 'ACKNOWLEDGED' | 'DONE';
+  work?: WorkLog;
+  status?: QuestionStatus;
+  answers?: Entry[];
 };
 export type AIMessage = {
   id: string;
@@ -77,6 +93,11 @@ export type Project = {
   feedback: Entry[];
   aiMessages: AIMessage[];
   approved: boolean;
+  analysis?: TechnicalAnalysis;
+  roadmap?: RoadmapStep[];
+  submissions?: Submission[];
+  attachments?: Attachment[];
+  helpRequested?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -92,6 +113,7 @@ export type Material = {
   mime: string;
   size: number;
   createdAt: string;
+  topics?: string[];
 };
 export type Invitation = {
   id: string;
@@ -123,6 +145,8 @@ export type AppState = {
   demo: boolean;
   aiConfigured: boolean;
   online: string[];
+  events?: PersonalEvent[];
+  world?: { width: number; height: number };
 };
 export const statusLabels: Record<ProjectStatus, string> = {
   IDEA: '아이디어',
@@ -140,8 +164,10 @@ export const membershipLabels: Record<Membership, string> = {
   GRADUATED: '졸업',
   REVOKED: '제적',
 };
-export const progress = (p: Project) =>
-  p.tasks.length ? Math.round((p.tasks.filter((t) => t.done).length / p.tasks.length) * 100) : 0;
+export const progress = (p: Project) => {
+  const items = [...p.tasks, ...(p.roadmap || [])];
+  return items.length ? Math.round((items.filter((t) => t.done).length / items.length) * 100) : 0;
+};
 export const emptyProject = () => ({
   title: '',
   purpose: '',

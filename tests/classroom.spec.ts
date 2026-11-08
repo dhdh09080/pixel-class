@@ -78,7 +78,7 @@ test('student creates, updates, records, submits, receives MASTER feedback and p
   await modal
     .getByRole('textbox', { name: '기록 내용' })
     .fill('데이터를 어디에 저장하면 좋을까요?');
-  await modal.getByRole('button', { name: '기록 남기기' }).click();
+  await modal.getByRole('button', { name: '선생님 도움 요청' }).click();
   await expect(modal).toContainText('데이터를 어디에 저장하면 좋을까요?');
   await modal.getByRole('button', { name: '프로젝트', exact: true }).click();
   await modal.getByRole('button', { name: '수정', exact: true }).click();

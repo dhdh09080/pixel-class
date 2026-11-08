@@ -16,7 +16,11 @@ test('production build supports private MASTER bootstrap, login and persistent i
       DEMO_MODE: 'true',
       PORT: '3013',
       DATABASE_PATH: join(dir, 'school.sqlite'),
-      MASTER_BOOTSTRAP_KEY: 'test-private-bootstrap-only',
+      MASTER_BOOTSTRAP_KEY: 'test-private-bootstrap-only-at-least-32',
+      PUBLIC_ORIGIN: base,
+      HOST: '127.0.0.1',
+      COOKIE_SECURE: 'false',
+      ALLOW_INSECURE_LOCALHOST: 'true',
     },
     stdio: 'pipe',
   });
@@ -48,7 +52,7 @@ test('production build supports private MASTER bootstrap, login and persistent i
         })
       ).status(),
     ).toBe(404);
-    await page.getByLabel('부트스트랩 KEY').fill('test-private-bootstrap-only');
+    await page.getByLabel('부트스트랩 KEY').fill('test-private-bootstrap-only-at-least-32');
     await page.getByLabel('이름', { exact: true }).fill('실제 학교 선생님');
     await page.getByLabel('이메일').fill('private-teacher@example.com');
     await page.getByLabel('비밀번호', { exact: true }).fill('private-teacher-password');

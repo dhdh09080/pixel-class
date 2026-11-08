@@ -1,0 +1,5 @@
+{$PIXEL_DOMAIN} {
+  import /run/secrets/staging_access
+  encode zstd gzip
+  reverse_proxy app:3001
+}

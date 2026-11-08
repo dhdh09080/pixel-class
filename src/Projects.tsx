@@ -1,3 +1,5 @@
+import { LearningPlan, QuestionThread, PromptPanel, SubmissionPanel } from './LearningPanels';
+import { emptyWorkLog, technicalTopics } from '../shared/learning';
 import { useState, type FormEvent } from 'react';
 import {
   Plus,
@@ -365,21 +367,29 @@ export function ProjectDetail({
     [text, setText] = useState(''),
     [kind, setKind] = useState('다음 과제'),
     [busy, setBusy] = useState(false),
-    [confirmDelete, setConfirmDelete] = useState(false);
+    [confirmDelete, setConfirmDelete] = useState(false),
+    [work, setWork] = useState(emptyWorkLog()),
+    [topic, setTopic] = useState('기타');
   const owner = state.members.find((m) => m.id === p.ownerId);
   async function addEntry(e: FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    const bodyText =
+      text.trim() ||
+      (tab === 'updates' ? Object.values(work).filter(Boolean).join('\n').slice(0, 4000) : '');
+    if (!bodyText) return;
     setBusy(true);
     try {
       if (tab === 'ai') await mutate(`/projects/${p.id}/ai`, 'POST', { text });
       else
         await mutate(`/projects/${p.id}/entries`, 'POST', {
-          text,
+          text: bodyText,
+          work: tab === 'updates' ? work : undefined,
+          topic: tab === 'feedback' ? topic : undefined,
           type: tab === 'feedback' ? 'feedback' : tab === 'questions' ? 'questions' : 'updates',
           kind,
         });
       setText('');
+      setWork(emptyWorkLog());
     } catch {
     } finally {
       setBusy(false);
@@ -430,6 +440,9 @@ export function ProjectDetail({
         <div className="detail-tabs">
           {[
             ['overview', '프로젝트', ClipboardList],
+            ['planning', '기술·로드맵', ClipboardList],
+            ['submissions', '최종 제출', CheckCircle2],
+            ['prompt', 'Codex 지시문', Sparkles],
             ['updates', '개발 기록', BookOpen],
             ['questions', '질문', MessageCircle],
             ['feedback', 'MASTER 피드백', CheckCircle2],
@@ -453,7 +466,23 @@ export function ProjectDetail({
           })}
         </div>
       )}
-      {tab === 'overview' ? (
+      {tab === 'planning' ? (
+        <LearningPlan
+          p={p}
+          state={state}
+          mutate={mutate}
+          onAskAI={() => {
+            setTab('ai');
+            setText(
+              '이 프로젝트의 기술 구성을 분석하고 가장 단순한 추천 구성과 각 기술이 필요한 이유, 다음 작업을 알려주세요.',
+            );
+          }}
+        />
+      ) : tab === 'submissions' ? (
+        <SubmissionPanel p={p} state={state} mutate={mutate} onToast={onToast} />
+      ) : tab === 'prompt' ? (
+        <PromptPanel p={p} onToast={onToast} />
+      ) : tab === 'overview' ? (
         <div className="project-overview">
           {privateView && (
             <>
@@ -681,18 +710,64 @@ export function ProjectDetail({
                 {entries
                   .slice()
                   .reverse()
-                  .map((e) => (
-                    <article className="timeline-entry" key={e.id}>
-                      <div className="between">
-                        <strong>
-                          {e.name}
-                          {e.kind && <span>{e.kind}</span>}
-                        </strong>
-                        <time>{date(e.createdAt)}</time>
-                      </div>
-                      <p>{e.text}</p>
-                    </article>
-                  ))}
+                  .map((e) =>
+                    tab === 'questions' ? (
+                      <QuestionThread key={e.id} q={e} p={p} state={state} mutate={mutate} />
+                    ) : (
+                      <article className="timeline-entry" key={e.id}>
+                        <div className="between">
+                          <strong>
+                            {e.name}
+                            {e.kind && <span>{e.kind}</span>}
+                          </strong>
+                          <time>{date(e.createdAt)}</time>
+                        </div>
+                        <p>{e.text}</p>
+                        {e.work && (
+                          <div className="work-summary">
+                            {Object.entries(e.work)
+                              .filter(([, v]) => v)
+                              .map(([key, value]) => (
+                                <p key={key}>
+                                  <strong>
+                                    {
+                                      {
+                                        completed: '완료',
+                                        inProgress: '진행 중',
+                                        next: '다음 작업',
+                                        blockers: '막힌 문제',
+                                        references: '참고자료',
+                                      }[key]
+                                    }
+                                    :{' '}
+                                  </strong>
+                                  {value}
+                                </p>
+                              ))}
+                          </div>
+                        )}
+                        {tab === 'feedback' && (
+                          <>
+                            <span className="membership">{e.topic || '기타'}</span>
+                            <Field label="피드백 반영 상태">
+                              <select
+                                value={e.feedbackStatus || 'OPEN'}
+                                onChange={(event) =>
+                                  void mutate(`/projects/${p.id}/feedback/${e.id}`, 'PATCH', {
+                                    status: event.target.value,
+                                  }).catch(() => {})
+                                }
+                              >
+                                <option value="OPEN">새 조언</option>
+                                <option value="ACKNOWLEDGED">확인했어요</option>
+                                <option value="DONE">반영했어요</option>
+                              </select>
+                            </Field>
+                          </>
+                        )}
+                      </article>
+                    ),
+                  )}
               </div>
             </>
           )}
@@ -700,6 +775,37 @@ export function ProjectDetail({
             (tab !== 'feedback' && mine) ||
             (tab === 'ai' && master)) && (
             <form className="entry-form" onSubmit={addEntry}>
+              {tab === 'updates' && (
+                <div className="form-grid">
+                  {(
+                    [
+                      ['completed', '오늘 완료한 작업'],
+                      ['inProgress', '진행 중인 작업'],
+                      ['next', '다음 작업'],
+                      ['blockers', '해결하지 못한 문제'],
+                      ['references', '스크린샷·참고자료 링크'],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                      <textarea
+                        value={work[key]}
+                        rows={2}
+                        maxLength={4000}
+                        onChange={(e) => setWork((v) => ({ ...v, [key]: e.target.value }))}
+                      />
+                    </Field>
+                  ))}
+                </div>
+              )}
+              {tab === 'feedback' && (
+                <Field label="기술 지도 주제">
+                  <select value={topic} onChange={(e) => setTopic(e.target.value)}>
+                    {technicalTopics.map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
+                  </select>
+                </Field>
+              )}
               {tab === 'feedback' && (
                 <Field label="피드백 종류">
                   <select value={kind} onChange={(e) => setKind(e.target.value)}>
@@ -729,7 +835,11 @@ export function ProjectDetail({
               />
               <button
                 className="button primary"
-                disabled={!text.trim() || busy || (tab === 'ai' && !state.aiConfigured)}
+                disabled={
+                  !(text.trim() || (tab === 'updates' && Object.values(work).some(Boolean))) ||
+                  busy ||
+                  (tab === 'ai' && !state.aiConfigured)
+                }
               >
                 {busy
                   ? '처리 중…'
@@ -737,7 +847,9 @@ export function ProjectDetail({
                     ? 'AI에게 물어보기'
                     : tab === 'feedback'
                       ? '피드백 남기기'
-                      : '기록 남기기'}
+                      : tab === 'questions'
+                        ? '선생님 도움 요청'
+                        : '기록 남기기'}
                 <Send size={15} />
               </button>
             </form>
