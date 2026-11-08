@@ -6,7 +6,9 @@ RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/proxy_ca; fi; \
     npm ci --strict-ssl=true
 COPY . .
-RUN npm run build
+RUN npm run build && mkdir -p /release/scripts \
+    && cp -r dist server shared /release/ \
+    && cp scripts/database.mjs /release/scripts/
 
 FROM node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c AS runtime
 ENV NODE_ENV=production DEMO_MODE=false HOST=0.0.0.0 PORT=3001
@@ -15,10 +17,7 @@ COPY --chown=node:node package.json package-lock.json ./
 RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export NODE_EXTRA_CA_CERTS=/run/secrets/proxy_ca; fi; \
     npm ci --omit=dev --strict-ssl=true && mkdir -p data && chown node:node data
-COPY --from=build --chown=node:node /app/dist ./dist
-COPY --from=build --chown=node:node /app/server ./server
-COPY --from=build --chown=node:node /app/shared ./shared
-COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --from=build --chown=node:node /release/ ./
 USER node
 EXPOSE 3001
 VOLUME ["/app/data"]

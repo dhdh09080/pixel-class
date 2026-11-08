@@ -20,6 +20,8 @@ services:
       TRUST_PROXY_HOPS: '1'
       MASTER_BOOTSTRAP_KEY_FILE: /run/secrets/master_bootstrap
       OPENAI_MODEL: ${OPENAI_MODEL:-}
+      AI_SCHOOL_DAILY_CALLS: ${AI_SCHOOL_DAILY_CALLS:-60}
+      AI_MAX_CONCURRENT: ${AI_MAX_CONCURRENT:-2}
     secrets:
       - master_bootstrap
     volumes:

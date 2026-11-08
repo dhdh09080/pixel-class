@@ -16,6 +16,14 @@ CREATE TABLE IF NOT EXISTS records(id TEXT PRIMARY KEY,school_id TEXT NOT NULL,k
 CREATE INDEX IF NOT EXISTS records_school_kind ON records(school_id,kind);
 CREATE TABLE IF NOT EXISTS invitations(id TEXT PRIMARY KEY,school_id TEXT NOT NULL,key_hash TEXT UNIQUE NOT NULL,body TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS ai_usage(user_id TEXT NOT NULL,day TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(user_id,day));`);
+// Preserve pre-v0.4 usage when introducing the school-wide cap. Atomic and idempotent:
+// never reduce reservations or double-count them; include usage written during a v03 rollback.
+db.exec(`BEGIN IMMEDIATE;
+CREATE TABLE IF NOT EXISTS ai_school_usage(school_id TEXT NOT NULL,day TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(school_id,day));
+INSERT INTO ai_school_usage(school_id,day,count)
+SELECT users.school_id,ai_usage.day,SUM(ai_usage.count) FROM ai_usage JOIN users ON users.id=ai_usage.user_id GROUP BY users.school_id,ai_usage.day
+ON CONFLICT(school_id,day) DO UPDATE SET count=MAX(ai_school_usage.count,excluded.count);
+COMMIT;`);
 export const SCHOOL = 'pixel-school';
 export const id = () => randomUUID();
 export const now = () => new Date().toISOString();
