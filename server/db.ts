@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT
 CREATE TABLE IF NOT EXISTS records(id TEXT PRIMARY KEY,school_id TEXT NOT NULL,kind TEXT NOT NULL,body TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS records_school_kind ON records(school_id,kind);
 CREATE TABLE IF NOT EXISTS invitations(id TEXT PRIMARY KEY,school_id TEXT NOT NULL,key_hash TEXT UNIQUE NOT NULL,body TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS ai_usage(user_id TEXT NOT NULL,day TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(user_id,day));`);
+CREATE TABLE IF NOT EXISTS ai_usage(user_id TEXT NOT NULL,day TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(user_id,day));
+CREATE TABLE IF NOT EXISTS ai_school_usage(school_id TEXT NOT NULL,day TEXT NOT NULL,count INTEGER NOT NULL,PRIMARY KEY(school_id,day));`);
 export const SCHOOL = 'pixel-school';
 export const id = () => randomUUID();
 export const now = () => new Date().toISOString();

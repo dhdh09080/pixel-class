@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { aiLimits } from './ai-policy.js';
 
 type Environment = Record<string, string | undefined>;
 
@@ -15,6 +16,7 @@ export function loadSecretFiles(env: Environment) {
 }
 
 export function validateRuntime(env: Environment) {
+  aiLimits(env);
   if (env.TRUST_PROXY_HOPS && !['0', '1'].includes(env.TRUST_PROXY_HOPS))
     throw new Error('TRUST_PROXY_HOPS must be 0 or 1; expose only the configured reverse proxy.');
   if (env.NODE_ENV !== 'production') return;

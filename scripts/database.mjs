@@ -11,6 +11,10 @@ function inspect(db) {
   const counts = {};
   for (const table of ['users', 'sessions', 'records', 'invitations', 'ai_usage'])
     counts[table] = db.prepare(`SELECT count(*) AS count FROM ${table}`).get().count;
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='ai_school_usage'").get())
+    counts.ai_school_usage = db
+      .prepare('SELECT count(*) AS count FROM ai_school_usage')
+      .get().count;
   return counts;
 }
 

@@ -46,3 +46,26 @@ test('backup and restore reject overwrite, same-path targets and invalid databas
     rmSync(dir, { force: true, recursive: true });
   }
 });
+
+test('v04 school-wide AI quota survives snapshot and session-invalidating restore', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pixel-v04-quota-backup-'));
+  const source = join(dir, 'school.sqlite'),
+    destination = join(dir, 'restored.sqlite');
+  const db = new DatabaseSync(source);
+  try {
+    db.exec(
+      `CREATE TABLE users(id TEXT PRIMARY KEY); CREATE TABLE sessions(id TEXT PRIMARY KEY); CREATE TABLE records(id TEXT PRIMARY KEY); CREATE TABLE invitations(id TEXT PRIMARY KEY); CREATE TABLE ai_usage(id TEXT PRIMARY KEY); CREATE TABLE ai_school_usage(school_id TEXT,day TEXT,count INTEGER,PRIMARY KEY(school_id,day)); INSERT INTO ai_school_usage VALUES('school','2026-11-08',2);`,
+    );
+    const result = await copyDatabase(source, destination, { invalidateSessions: true });
+    assert.equal(result.ai_school_usage, 1);
+    const restored = new DatabaseSync(destination, { readOnly: true });
+    try {
+      assert.equal(restored.prepare('SELECT count FROM ai_school_usage').get()!.count, 2);
+    } finally {
+      restored.close();
+    }
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
