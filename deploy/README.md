@@ -13,7 +13,7 @@ Express + SQLite WAL + WebSocket을 유지하는 **단일 지속 서버** 구성
 
 ## v0.4 릴리스 점검
 
-[배포 인수 조건](RELEASE_CHECKLIST.md)과 [비밀이 없는 구성 예제](compose.env.example)를 추가했습니다. `npm run deploy:check -- --env-file /srv/pixel-private/compose.env`는 실제 해석된 Compose 설정의 앱 포트 비노출·단일 인스턴스·지속 볼륨·정확한 HTTPS 출처·이미지 digest·secret 파일을 확인합니다. AI 사용 시 `--ai`를 더하고, 루프백 로컬 QA에만 `--local`을 사용합니다. 검사 성공은 실제 배포/DNS/공인 인증서 성공이 아닙니다.
+[배포 인수 조건](RELEASE_CHECKLIST.md)과 [비밀이 없는 구성 예제](compose.env.example)를 추가했습니다. `npm run deploy:check -- --env-file /srv/pixel-private/compose.env`는 실제 해석된 Compose 설정의 앱 포트 비노출·단일 인스턴스·지속 볼륨·정확한 HTTPS 출처·이미지 digest·secret 파일을 확인하고, 앱 UID의 네트워크 없는 일회성 검증 컨테이너에서 secret을 검사합니다. 학교 DB나 앱 서비스는 열지 않습니다. AI 사용 시 `--ai`를 더하고, 루프백 로컬 QA에만 `--local`을 사용합니다. 검사 성공은 실제 배포/DNS/공인 인증서 성공이 아닙니다.
 
 ## 비공개 호스트 설정
 

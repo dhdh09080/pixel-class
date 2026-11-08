@@ -64,31 +64,34 @@ function probe(ca, authorization) {
 }
 try {
   writeFileSync(env.MASTER_BOOTSTRAP_FILE, bootstrap, { mode: 0o400 });
+  const invalidBootstrap = join(dir, 'whitespace-bootstrap');
+  writeFileSync(invalidBootstrap, ' '.repeat(64), { mode: 0o400 });
   // CI's runner may be UID 1001. Compose file secrets retain host ownership.
-  // Give only this throwaway file to the non-root application, retaining 0400.
-  docker(
-    [
-      'run',
-      '--rm',
-      '--network',
-      'none',
-      '--read-only',
-      '--cap-drop',
-      'ALL',
-      '--cap-add',
-      'CHOWN',
-      '--user',
-      '0:0',
-      '--mount',
-      `type=bind,src=${env.MASTER_BOOTSTRAP_FILE},dst=/bootstrap`,
-      '--entrypoint',
-      'chown',
-      'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
-      '1000:1000',
-      '/bootstrap',
-    ],
-    { capture: true },
-  );
+  // Give only these throwaway files to the non-root app, retaining 0400.
+  for (const bootstrapFile of [env.MASTER_BOOTSTRAP_FILE, invalidBootstrap])
+    docker(
+      [
+        'run',
+        '--rm',
+        '--network',
+        'none',
+        '--read-only',
+        '--cap-drop',
+        'ALL',
+        '--cap-add',
+        'CHOWN',
+        '--user',
+        '0:0',
+        '--mount',
+        `type=bind,src=${bootstrapFile},dst=/bootstrap`,
+        '--entrypoint',
+        'chown',
+        'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
+        '1000:1000',
+        '/bootstrap',
+      ],
+      { capture: true },
+    );
   writeFileSync(join(dir, 'empty-access'), '', { mode: 0o400 });
   const emptySecretCheck = spawnSync(
     'docker',
@@ -137,6 +140,15 @@ try {
     '# Isolated QA. Values are supplied in the subprocess environment.\n',
     { mode: 0o600 },
   );
+  const rejectedSecret = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
+    { env: { ...env, MASTER_BOOTSTRAP_FILE: invalidBootstrap }, encoding: 'utf8' },
+  );
+  if (rejectedSecret.status !== 1 || !rejectedSecret.stderr.includes('RUNTIME_SECRETS'))
+    throw new Error(
+      'Offline app-UID validation must reject a 0400 whitespace-only secret without disclosing it.',
+    );
   const preflight = spawnSync(
     process.execPath,
     ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],

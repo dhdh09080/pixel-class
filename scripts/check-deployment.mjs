@@ -1,10 +1,11 @@
 import { spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { deploymentIssues } from '../shared/deployment.ts';
 import { aiLimits } from '../server/ai-policy.ts';
 
-// Read-only inspection. Never starts, recreates, deletes, or publishes a service.
+// Read-only inspection plus an offline, disposable runtime validator. Never starts or publishes the app service.
 const args = process.argv.slice(2);
 const take = (flag) => {
   const i = args.indexOf(flag);
@@ -62,21 +63,99 @@ try {
     }
     try {
       const stat = statSync(path);
-      const value = readFileSync(path, 'utf8').trim();
-      if (!stat.isFile() || stat.mode & 0o077 || !value) throw Error();
+      if (!stat.isFile() || stat.mode & 0o077 || !stat.size) throw Error();
       if (name !== 'staging_access' && (stat.uid !== 1000 || !(stat.mode & 0o400)))
         issues.push(`SECRET_UID: ${name} must be readable by app UID 1000 only.`);
-      if (name === 'master_bootstrap' && value.length < 32)
+      if (name === 'master_bootstrap' && stat.size < 32)
         issues.push('BOOTSTRAP: use at least 32 random characters.');
       if (
         name === 'staging_access' &&
-        !/^basic_auth\s*\{\s*[A-Za-z0-9_-]+\s+\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}\s*\}$/.test(value)
+        !/^basic_auth\s*\{\s*[A-Za-z0-9_-]+\s+\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}\s*\}$/.test(
+          readFileSync(path, 'utf8').trim(),
+        )
       )
         issues.push('GATE: staging_access needs a bcrypt basic_auth block.');
     } catch {
       issues.push(
         `SECRET_FILE: ${name} must be a nonempty regular file without group/world permissions.`,
       );
+    }
+  }
+  if (!issues.length) {
+    // A CI/operator UID must not need permission to read app-only 0400 secrets.
+    // Validate them as the app UID without mounting the school database, using
+    // a networkless, read-only process that imports config only (no server/db).
+    const validatorName = `pixel-preflight-${randomBytes(8).toString('hex')}`;
+    const validate = [
+      '--host=unix:///var/run/docker.sock',
+      'run',
+      '--rm',
+      '--name',
+      validatorName,
+      '--network',
+      'none',
+      '--read-only',
+      '--cap-drop',
+      'ALL',
+      '--security-opt',
+      'no-new-privileges:true',
+      '--user',
+      '1000:1000',
+      '--pids-limit',
+      '64',
+      '--memory',
+      '256m',
+      '--tmpfs',
+      '/tmp:size=16m,mode=1777',
+      '--tmpfs',
+      '/app/data:size=16k,mode=0700',
+    ];
+    for (const key of [
+      'NODE_ENV',
+      'DEMO_MODE',
+      'HOST',
+      'COOKIE_SECURE',
+      'PUBLIC_ORIGIN',
+      'DATABASE_PATH',
+      'TRUST_PROXY_HOPS',
+      'MASTER_BOOTSTRAP_KEY_FILE',
+      'OPENAI_API_KEY_FILE',
+      'OPENAI_MODEL',
+      'AI_SCHOOL_DAILY_CALLS',
+      'AI_MAX_CONCURRENT',
+    ])
+      if (runtime[key] !== undefined) validate.push('--env', `${key}=${runtime[key]}`);
+    for (const [variable, name] of [
+      ['MASTER_BOOTSTRAP_KEY_FILE', 'master_bootstrap'],
+      ['OPENAI_API_KEY_FILE', 'openai_api_key'],
+    ])
+      if (runtime[variable])
+        validate.push(
+          '--mount',
+          `type=bind,src=${config.secrets[name].file},dst=/run/secrets/${name},readonly`,
+        );
+    validate.push(
+      '--entrypoint',
+      'node',
+      config.services.app.image,
+      '--import',
+      'tsx',
+      '-e',
+      "import('./server/runtime.ts').catch(()=>process.exit(1))",
+    );
+    try {
+      const checked = spawnSync('docker', validate, { env, encoding: 'utf8', timeout: 30000 });
+      if (checked.status !== 0)
+        issues.push(
+          'RUNTIME_SECRETS: offline app-UID validation failed; check file contents, image and app configuration. Values were not printed.',
+        );
+    } finally {
+      // A killed Docker CLI must not leave its validator running. Only our random name is removed.
+      spawnSync('docker', ['--host=unix:///var/run/docker.sock', 'rm', '--force', validatorName], {
+        env,
+        encoding: 'utf8',
+        timeout: 10000,
+      });
     }
   }
   if (issues.length) {
@@ -86,7 +165,10 @@ try {
     console.log(
       JSON.stringify({
         ok: true,
-        scope: local ? 'local configuration only' : 'external host configuration only',
+        scope: local
+          ? 'local configuration and offline runtime validation'
+          : 'external host configuration and offline runtime validation',
+        runtimeSecretsValidated: true,
         ai: Boolean(runtime.OPENAI_API_KEY_FILE && runtime.OPENAI_MODEL),
         deployed: false,
         next: 'DNS/TLS, firewall, external backup and two-computer acceptance checks are still required.',
