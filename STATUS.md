@@ -1,24 +1,25 @@
-# Pixel Class v0.4 현황
+# Pixel Class v0.5 현황
 
-2026-11-08 UTC. **비공개 학교 배포 준비 버전이며 외부 배포 URL은 없습니다.** v0.3 디자인·기능·데이터 계약을 보존했습니다.
+2026-11-09 KST. **Railway 운영 코드는 준비했지만 실제 외부 배포는 미완료이며 URL은 없습니다.** v0.4 기능·디자인·데이터·Compose를 유지합니다.
 
-| 항목          | 실제 상태                                                                                                                                                                                                                                                                                                         |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Git           | 2026-11-08 사용자 승인으로 #1(v0.2)·#2(v0.3)를 main에 순차 병합. v0.4는 최신 main과 동기화한 [#3](https://github.com/dhdh09080/pixel-class/pull/3)으로 반영하며 최종 병합 commit/상태는 PR 기록 참조                                                                                                              |
-| 기존 CI       | #1 main 병합 `6e774e4`의 [CI #24](https://github.com/dhdh09080/pixel-class/actions/runs/42489387389) 성공. #2 main 동기화 `961cfaa`의 [CI #25](https://github.com/dhdh09080/pixel-class/actions/runs/42489405853) 성공 후 `80527fe`로 병합                                                                        |
-| 최신 CI       | v0.4 원래 소스 `109bee5`의 [CI #23](https://github.com/dhdh09080/pixel-class/actions/runs/42472775681) 전체 성공. main 동기화 후 최종 결과는 [PR #3 Checks](https://github.com/dhdh09080/pixel-class/pull/3/checks)와 [main Actions](https://github.com/dhdh09080/pixel-class/actions?query=branch%3Amain)에 연결 |
-| 배포 방식     | Express + SQLite WAL + WebSocket 단일 Docker 서버. 동일 HTTPS 도메인/Caddy 접근 제한, 앱 포트 비게시, `/app/data` 지속 볼륨                                                                                                                                                                                       |
-| 외부 URL      | **없음. VPS·도메인/TLS·방화벽·외부 백업 자격증명/설정 미연결**                                                                                                                                                                                                                                                    |
-| 로컬 검증     | `https://localhost:8443` 임시 Docker 환경. 실제 비밀번호 계정2개·교안 UI 업로드/학생 열람·피드백·WSS·재생성·백업/복원. 검사 후 테스트 컨테이너/볼륨 제거                                                                                                                                                          |
-| 독립 네트워크 | 서로 다른 IP의 Docker 클라이언트2개가 TLS/WSS·교안·프로젝트·채팅·피드백 교환. 실제 물리 컴퓨터/인터넷 배포 검증 아님                                                                                                                                                                                              |
-| 데이터        | v0.3 프로젝트 JSON·첨부·세션 보존 검사. 개인/학교 AI 사용량 예약과 백업/복원·롤백 후 재업그레이드 보존                                                                                                                                                                                                            |
-| 테스트        | 기존72+신규14 = **86/86 로컬·CI #23 통과**(서버51+브라우저34+Docker1). main 기준에서도 같은 전체 회귀 workflow 적용                                                                                                                                                                                               |
-| 기기 조건     | 1366×768/390×844, CPU4배 감속·80ms·1.5Mbps Chromium에서 이동/모달/가로 경계/JS 오류 검사. 실물 노트북/휴대폰/Phaser FPS 인증 아님                                                                                                                                                                                 |
-| 인증          | 초대·비밀번호·서버 세션·학교/역할/학적·파일 권한·접근 제한 검사. 이메일 확인/복구/MFA 미구현, 공개 운영 보류                                                                                                                                                                                                      |
-| Supabase      | 연결된4개는 다른 서비스. 전용 프로젝트 없음, 실제 Auth/Postgres/Storage/Realtime 미연결. 원격 DB 미변경                                                                                                                                                                                                           |
-| OpenAI        | 실제 키/모델 없음, 실제 응답·비용 미검증. 학교60회/일·동시2개 기본 상한 추가, 첫 소액 평가는3회/일·동시1개 권장                                                                                                                                                                                                   |
-| 운영 이미지   | 프런트 빌드 패키지/QA 도구를 운영에서 분리. 로컬 약447MB→261MB, 고정 버전 유지                                                                                                                                                                                                                                    |
+| 항목                    | 실제 상태                                                                                                                                                                   |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Git 기준                | v0.4 PR #3은 `42191e8`로 main 병합 완료. #1→#2→#3과 기존 main CI #28 성공 확인                                                                                              |
+| v0.5                    | `feature/pixel-class-v05`, 구현 `577147f`. PR·최종 CI·main 반영은 V05 보고서와 PR 기록 참조                                                                                 |
+| Railway 프로젝트/서비스 | 현재 대화에 호출 가능한 도구·토큰·로그인 없음. 계정/프로젝트 권한 미확인, 원격 자원 미생성                                                                                  |
+| 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                             |
+| 배포 구조               | Railway HTTPS edge → Express 정적 React/Phaser·API·WSS 한 서비스 → `/app/data` SQLite WAL. scoped TypeScript IaC, replica1, health/restart/drain                            |
+| 실제 Volume             | Railway **미연결**. 로컬 root-owned Volume→UID1000/CapEff0·DB0600, 볼륨/DB 누락 거부·안전 초기화·새 파일 복원 검증                                                          |
+| DB                      | SQLite 유지, 스키마 변경/기존 데이터 삭제 없음. Supabase Auth/Postgres/Storage/Realtime 실제 전환 없음                                                                      |
+| 인증                    | 비공개 HTTP/WSS 접근 암호 + 기존 초대/세션/학교·역할·학적·프로젝트·파일 권한. 로컬 두 계정 검증, **외부 MASTER 미등록**                                                     |
+| 테스트                  | 기존86 유지 + 신규6 = **92개**(서버56+브라우저34+Compose1+Railway 형태1). 최종 실행·CI 증거는 V05 보고서                                                                    |
+| 실제 사용               | 별도 Chromium 두 세션: MASTER 초대→학생 외모/책상→이동/온라인→프로젝트→교안 업로드/다운로드→피드백/알림→재로그인/재생성/복원. 다른 IP 클라이언트2개의 HTTPS/WSS·채팅도 검사 |
+| 화면/성능               | Railway 형태 1366×768/390×844 화면, 기존5해상도/접근성, CPU4배 감속·80ms·1.5Mbps 노트북/모바일 에뮬레이션. 실물 기기/클라우드 용량 인증 아님                                |
+| HTTPS/WSS               | 로컬 CA 체인/호스트명 검증 성공. 익명/틀린 접근 암호·유효 세션만 있는 WSS 차단. **Railway 공인 URL/외부 WSS 미검증**                                                        |
+| OpenAI                  | Railway 기본 AI_ENABLED=false. 키/모델 형태가 있어도 비활성/503. 활성화 시 학교 UTC 하루3회 이하·동시1개 강제. 실제 키·응답·품질·비용 평가 없음                             |
+| 비용/관측               | 유료 자원 생성/플랜 변경 없음. 실제 요금·Usage 알림·지출 제한·원격 메모리/디스크·외부 백업 미설정                                                                           |
+| 공개 운영               | 이메일 검증/복구/MFA·외부 인수 미완료. 초대된 소규모 비공개 테스트로만 준비, 공개 운영 보류                                                                                 |
 
-[최종 릴리스 보고서](V04_RELEASE_REPORT.md) · [배포 비교/결정](deploy/ARCHITECTURE_DECISION.md) · [운영 절차](deploy/README.md) · [두 컴퓨터 인수/AI 평가](deploy/RELEASE_CHECKLIST.md) · [v0.3 보고서](V03_FINAL_REPORT.md) · [디자인 전후 비교](V03_DESIGN_COMPARISON.md).
+[v0.5 Railway 보고서](V05_RAILWAY_REPORT.md) · [변수/배포/복원/비용 절차](deploy/railway/README.md) · [런타임 증거](docs/v05/runtime-check.json) · [기존 v0.4 보고서](V04_RELEASE_REPORT.md) · [기존 Compose 운영](deploy/README.md).
 
-2026-11-08 사용자 승인에 따라 #1→#2→#3을 순차 main 반영하는 절차를 적용합니다. 각 앞선 병합 후 다음 브랜치를 최신 main과 동기화하고 CI를 확인합니다. 최종 v0.4 병합 결과는 PR #3 기록을 기준으로 확인합니다. 외부 배포에는 소유 호스트·지속 디스크·공통 도메인·TLS·접근 제한·외부 백업을 연결해야 하며, secret은 채팅/Git에 입력하지 않습니다.
+다음 단계는 **Railway 앱/공식 인증 연결 → 계정/비용·plan 검토 → 지속 Volume·sealed 비밀·실제 HTTPS 도메인 설정 → 외부 두 컴퓨터 인수**입니다. 토큰/키를 채팅이나 Git에 입력하지 않습니다. 실제 성공 후에만 외부 URL과 배포 완료 상태를 갱신합니다.

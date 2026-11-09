@@ -1,6 +1,12 @@
-# Pixel Class v0.2 아키텍처
+# Pixel Class v0.5 아키텍처
 
 ## 실행 경계
+
+v0.5 Railway 경계는 HTTPS edge → Express 정적 파일/API/인증 WebSocket 한 서비스 → `/app/data` SQLite WAL입니다. 기존 Compose/Caddy 경로는 보존합니다. `.railway/railway.ts`는 SDK 기반 scoped IaC이며 서비스1개·Volume1개·replica1·Health Check·재시작·drain을 선언합니다. **실제 Railway 연결/배포는 아직 미완료**이며 [운영 절차](deploy/railway/README.md)에 필수 변수와 중단 조건을 구분했습니다.
+
+Railway launcher(`scripts/start.mjs`)는 실제 Volume mountinfo를 검사한 뒤 root 소유 디렉터리/선택 DB 파일만 앱 UID1000으로 조정하고, 보조 그룹·root 권한을 버린 뒤 execve로 서버를 실행합니다. `server/runtime.ts`는 DB 모듈이 열리기 전에 다시 비특권 UID·마운트·DB 생성/복원 모드·무결성을 검증합니다. 기본 `existing`은 DB 누락을 거부하며, 새 Volume의 명시적 `create`는 초기화 marker로 반복 초기화를 막습니다. 스키마를 바꾸거나 기존 DB를 삭제하지 않습니다.
+
+Railway HTTP/WS 양쪽에서 별도 비공개 Basic 접근 암호를 검사하고 기존 세션·학교·학적·소유권 검사를 유지합니다. JSON 파싱 전에 gate를 적용하며 health GET만 최소 응답으로 허용합니다. 모든 gated 응답은 private/no-store입니다. 플랫폼 TLS 종단·정확한 HTTPS PUBLIC_ORIGIN·Secure cookie·proxy1 hop이 필수이고, AI는 `AI_ENABLED=false` 기본 차단입니다. 이 gate는 이메일 검증·MFA·계정 복구를 대체하지 않습니다.
 
 React/Vite UI → 같은 출처의 Express API → 로컬 SQLite WAL 저장소입니다. Phaser가 교실을 그리며 인증된 `/socket`으로 이동·변경 이벤트를 전달합니다. 개발은 Vite 프록시, 프로덕션은 Express가 `dist/`를 제공합니다. 기존 v0.1을 다른 프로젝트로 교체하지 않았습니다.
 
