@@ -791,7 +791,7 @@ export default function App() {
         <div className="environment-bar">
           <span>
             {connected ? <Wifi size={12} /> : <Monitor size={12} />}{' '}
-            {state.demo ? '로컬 데모 · 공용 체험 데이터' : '로컬 학교 · SQLite 저장소'}
+            {state.demo ? '로컬 데모 · 공용 체험 데이터' : '비공개 학교 · SQLite 저장소'}
             <i />
             변경사항은 서버에 저장돼요
           </span>
@@ -802,7 +802,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.4</span>
+            <span>PIXEL CLASS v0.5</span>
           </div>
         </div>
       </div>

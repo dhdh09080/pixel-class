@@ -2,6 +2,8 @@ import './runtime.js';
 import { saveProject, ProjectConflict } from './projects.js';
 import { validateUpload, UploadError } from './uploads.js';
 import { allowedOrigin } from './config.js';
+import { privateAccess } from './private-access.js';
+import { isRailway } from './railway-volume.mjs';
 import { aiLimits, mentoringInput } from './ai-policy.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
 import { workLogSchema } from '../shared/validation.js';
@@ -46,10 +48,11 @@ import {
 import { canStand, initialDesks, validDesk, spawnPoint, segmentClear } from '../shared/world.js';
 import type { PersonalEvent, PersonalEventInput } from '../shared/events.js';
 const app = express();
+const railway = isRailway(process.env);
+const aiEnabled = !railway || process.env.AI_ENABLED === 'true';
 let shuttingDown = false;
 app.disable('x-powered-by');
 app.set('trust proxy', process.env.TRUST_PROXY_HOPS === '1' ? 1 : false);
-app.use(express.json({ limit: '8mb' }));
 app.use((req, res, next) => {
   if (shuttingDown) {
     res.setHeader('Connection', 'close');
@@ -70,6 +73,20 @@ app.use((req, res, next) => {
       res.setHeader('Strict-Transport-Security', 'max-age=31536000');
   }
   if (req.path.startsWith('/api')) res.setHeader('Cache-Control', 'no-store');
+  if (railway) {
+    // Never cache gated assets at a shared edge. Only the minimal liveness probe is public.
+    res.setHeader('Cache-Control', 'private, no-store');
+    if (
+      !(req.method === 'GET' && req.url === '/api/health') &&
+      !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)
+    ) {
+      res.setHeader(
+        'WWW-Authenticate',
+        'Basic realm="Pixel Class private school", charset="UTF-8"',
+      );
+      return res.status(401).json({ error: '비공개 테스트 학교의 접근 암호가 필요합니다.' });
+    }
+  }
   if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers['x-pixel-class'] !== '1')
     return res.status(403).json({ error: '안전하지 않은 요청입니다.' });
   const origin = req.headers.origin;
@@ -77,6 +94,7 @@ app.use((req, res, next) => {
     return res.status(403).json({ error: '다른 출처의 요청은 허용하지 않습니다.' });
   next();
 });
+app.use(express.json({ limit: '8mb' }));
 class HttpError extends Error {
   constructor(
     public status: number,
@@ -320,7 +338,7 @@ app.get('/api/config', (_req, res) =>
     demo,
     bootstrap:
       !demo && !db.prepare("SELECT id FROM users WHERE json_extract(body,'$.role')='MASTER'").get(),
-    aiConfigured: !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_MODEL,
+    aiConfigured: aiEnabled && !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_MODEL,
   }),
 );
 app.post('/api/demo', (req, res) => {
@@ -463,7 +481,7 @@ app.get('/api/state', (req, res) => {
         : [],
     history: u.role === 'MASTER' ? list('history', u.schoolId) : [],
     demo,
-    aiConfigured: !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_MODEL,
+    aiConfigured: aiEnabled && !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_MODEL,
     online: online(u.schoolId),
     events: list<PersonalEvent>('personal-event', u.schoolId)
       .filter((e) => e.userId === u.id)
@@ -924,6 +942,8 @@ app.post('/api/projects/:id/ai', async (req, res) => {
   if (aiInFlight.has(p.id))
     fail(429, '이 프로젝트의 AI 답변을 기다리고 있어요. 답변이 온 뒤 다시 질문해 주세요.');
   rate(`ai:${u.id}`, 5, 60000);
+  if (!aiEnabled)
+    fail(503, '비공개 테스트 학교의 AI 조교가 꺼져 있어요. MASTER에게 AI 연결을 요청해 주세요.');
   if (!process.env.OPENAI_API_KEY)
     fail(
       503,
@@ -981,6 +1001,7 @@ app.post('/api/projects/:id/ai', async (req, res) => {
           redactSensitive(value, [
             process.env.OPENAI_API_KEY || '',
             process.env.MASTER_BOOTSTRAP_KEY || '',
+            process.env.STAGING_ACCESS_KEY || '',
           ]),
         ),
       }),
@@ -1052,7 +1073,7 @@ app.post('/api/events/:id/read', (req, res) => {
 });
 app.get('/api/health', (_req, res) => {
   db.prepare('SELECT 1').get();
-  res.json({ ok: true, storage: 'sqlite', demo });
+  res.json(railway ? { ok: true } : { ok: true, storage: 'sqlite', demo });
 });
 app.use('/api', (_req, res) => res.status(404).json({ error: '요청한 기능을 찾을 수 없습니다.' }));
 if (process.env.NODE_ENV === 'production') {
@@ -1060,15 +1081,29 @@ if (process.env.NODE_ENV === 'production') {
   app.get('/{*path}', (_req, res) => res.sendFile(resolve('dist/index.html')));
 }
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const bodyError = err as { type?: string } | null;
+  if (bodyError?.type === 'entity.parse.failed')
+    return res
+      .status(400)
+      .json({ error: '요청 내용을 읽을 수 없어요. 화면을 새로고침하고 다시 시도해 주세요.' });
+  if (bodyError?.type === 'entity.too.large')
+    return res.status(413).json({ error: '요청한 파일이나 내용이 너무 큽니다.' });
   if (err instanceof z.ZodError)
     return res.status(400).json({ error: err.issues[0]?.message || '입력 내용을 확인해 주세요.' });
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
   if (err instanceof ProjectConflict) return res.status(409).json({ error: err.message });
   if (err instanceof UploadError) return res.status(400).json({ error: err.message });
-  console.error(err instanceof Error ? err.message : 'Server error');
+  // Exception messages can include request data or provider secrets. Do not log them.
+  console.error('Pixel Class request failed.');
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });
 server.on('upgrade', (req, socket, head) => {
+  if (railway && !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)) {
+    socket.end(
+      'HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm="Pixel Class private school"\r\n\r\n',
+    );
+    return;
+  }
   if (shuttingDown || req.url !== '/socket') {
     socket.destroy();
     return;

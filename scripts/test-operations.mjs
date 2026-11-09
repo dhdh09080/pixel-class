@@ -5,9 +5,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import https from 'node:https';
 
-const dir = mkdtempSync(join(tmpdir(), 'pixel-operations-'));
+const railway = process.argv.includes('--railway');
+const dir = mkdtempSync(join(tmpdir(), railway ? 'pixel-railway-' : 'pixel-operations-'));
 const project = `pixelops-${randomBytes(5).toString('hex')}`;
-const origin = `https://localhost:${process.env.OPS_HTTPS_PORT || '8443'}`;
+const origin = `https://localhost:${process.env.OPS_HTTPS_PORT || (railway ? '8444' : '8443')}`;
 const password = randomBytes(24).toString('hex'),
   bootstrap = randomBytes(32).toString('hex');
 const dockerEnv = { ...process.env };
@@ -47,11 +48,20 @@ const composeArgs = [
   '-f',
   'deploy/compose.test.yaml',
 ];
+if (railway)
+  composeArgs.splice(
+    3,
+    composeArgs.length - 3,
+    '--project-directory',
+    process.cwd(),
+    '-f',
+    'deploy/railway/compose.test.yaml',
+  );
 const compose = (args, options) => docker([...composeArgs, ...args], options);
-function probe(ca, authorization) {
+function probe(ca, authorization, path = '/api/health') {
   return new Promise((resolve, reject) => {
     const req = https.get(
-      origin + '/api/health',
+      origin + path,
       { ca, headers: authorization ? { Authorization: authorization } : {} },
       (res) => {
         res.resume();
@@ -63,12 +73,45 @@ function probe(ca, authorization) {
   });
 }
 try {
+  if (railway) {
+    const fixture = join(process.cwd(), 'tests/fixtures/railway-volume-check.mjs');
+    const volume = `${project}-guards`;
+    const args = [
+      'run',
+      '--rm',
+      '--network',
+      'none',
+      '--user',
+      '0:0',
+      '--mount',
+      `type=bind,src=${fixture},dst=/run/volume-check.mjs,readonly`,
+    ];
+    docker([...args, env.PIXEL_IMAGE, 'node', '/run/volume-check.mjs', '--no-volume']);
+    docker(['volume', 'create', volume], { capture: true });
+    try {
+      docker([
+        ...args,
+        '--mount',
+        `type=volume,src=${volume},dst=/app/data`,
+        env.PIXEL_IMAGE,
+        'node',
+        '/run/volume-check.mjs',
+      ]);
+    } finally {
+      docker(['volume', 'rm', volume], { capture: true });
+    }
+  }
   writeFileSync(env.MASTER_BOOTSTRAP_FILE, bootstrap, { mode: 0o400 });
   const invalidBootstrap = join(dir, 'whitespace-bootstrap');
   writeFileSync(invalidBootstrap, ' '.repeat(64), { mode: 0o400 });
+  if (railway) writeFileSync(env.STAGING_ACCESS_FILE, password, { mode: 0o400 });
   // CI's runner may be UID 1001. Compose file secrets retain host ownership.
   // Give only these throwaway files to the non-root app, retaining 0400.
-  for (const bootstrapFile of [env.MASTER_BOOTSTRAP_FILE, invalidBootstrap])
+  for (const bootstrapFile of [
+    env.MASTER_BOOTSTRAP_FILE,
+    invalidBootstrap,
+    ...(railway ? [env.STAGING_ACCESS_FILE] : []),
+  ])
     docker(
       [
         'run',
@@ -92,80 +135,82 @@ try {
       ],
       { capture: true },
     );
-  writeFileSync(join(dir, 'empty-access'), '', { mode: 0o400 });
-  const emptySecretCheck = spawnSync(
-    'docker',
-    [
-      ...dockerPrefix,
-      'run',
-      '--rm',
-      '--network',
-      'none',
-      '--entrypoint',
-      '/bin/sh',
-      '--mount',
-      `type=bind,src=${join(process.cwd(), 'deploy/start-caddy.sh')},dst=/etc/caddy/start.sh,readonly`,
-      '--mount',
-      `type=bind,src=${join(dir, 'empty-access')},dst=/run/secrets/staging_access,readonly`,
-      'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
-      '/etc/caddy/start.sh',
-    ],
-    { env, encoding: 'utf8' },
-  );
-  if (
-    emptySecretCheck.status !== 1 ||
-    !emptySecretCheck.stderr.includes('non-empty staging access')
-  )
-    throw new Error('Empty staging secret guard did not reject startup.');
-  // Generated, throwaway test credentials. They are never printed or committed.
-  const hash = docker(
-    [
-      'run',
-      '--rm',
-      '--network',
-      'none',
-      '--entrypoint',
-      'caddy',
-      'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
-      'hash-password',
-      '--plaintext',
-      password,
-    ],
-    { capture: true },
-  );
-  writeFileSync(env.STAGING_ACCESS_FILE, `basic_auth {\n  tester ${hash}\n}\n`, { mode: 0o400 });
-  const preflightEnv = join(dir, 'compose.env');
-  writeFileSync(
-    preflightEnv,
-    '# Isolated QA. Values are supplied in the subprocess environment.\n',
-    { mode: 0o600 },
-  );
-  const rejectedSecret = spawnSync(
-    process.execPath,
-    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
-    { env: { ...env, MASTER_BOOTSTRAP_FILE: invalidBootstrap }, encoding: 'utf8' },
-  );
-  if (rejectedSecret.status !== 1 || !rejectedSecret.stderr.includes('RUNTIME_SECRETS'))
-    throw new Error(
-      'Offline app-UID validation must reject a 0400 whitespace-only secret without disclosing it.',
+  if (!railway) {
+    writeFileSync(join(dir, 'empty-access'), '', { mode: 0o400 });
+    const emptySecretCheck = spawnSync(
+      'docker',
+      [
+        ...dockerPrefix,
+        'run',
+        '--rm',
+        '--network',
+        'none',
+        '--entrypoint',
+        '/bin/sh',
+        '--mount',
+        `type=bind,src=${join(process.cwd(), 'deploy/start-caddy.sh')},dst=/etc/caddy/start.sh,readonly`,
+        '--mount',
+        `type=bind,src=${join(dir, 'empty-access')},dst=/run/secrets/staging_access,readonly`,
+        'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
+        '/etc/caddy/start.sh',
+      ],
+      { env, encoding: 'utf8' },
     );
-  const preflight = spawnSync(
-    process.execPath,
-    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
-    { env, encoding: 'utf8' },
-  );
-  if (preflight.status !== 0)
-    throw new Error(`Local deployment preflight failed: ${preflight.stderr}`);
-  const externalCheck = spawnSync(
-    process.execPath,
-    ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv],
-    { env, encoding: 'utf8' },
-  );
-  if (externalCheck.status === 0)
-    throw new Error('Loopback QA configuration must not pass external deployment readiness.');
-  console.log(
-    'Resolved Compose preflight passed locally and correctly rejects external readiness.',
-  );
+    if (
+      emptySecretCheck.status !== 1 ||
+      !emptySecretCheck.stderr.includes('non-empty staging access')
+    )
+      throw new Error('Empty staging secret guard did not reject startup.');
+    // Generated, throwaway test credentials. They are never printed or committed.
+    const hash = docker(
+      [
+        'run',
+        '--rm',
+        '--network',
+        'none',
+        '--entrypoint',
+        'caddy',
+        'caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9',
+        'hash-password',
+        '--plaintext',
+        password,
+      ],
+      { capture: true },
+    );
+    writeFileSync(env.STAGING_ACCESS_FILE, `basic_auth {\n  tester ${hash}\n}\n`, { mode: 0o400 });
+    const preflightEnv = join(dir, 'compose.env');
+    writeFileSync(
+      preflightEnv,
+      '# Isolated QA. Values are supplied in the subprocess environment.\n',
+      { mode: 0o600 },
+    );
+    const rejectedSecret = spawnSync(
+      process.execPath,
+      ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
+      { env: { ...env, MASTER_BOOTSTRAP_FILE: invalidBootstrap }, encoding: 'utf8' },
+    );
+    if (rejectedSecret.status !== 1 || !rejectedSecret.stderr.includes('RUNTIME_SECRETS'))
+      throw new Error(
+        'Offline app-UID validation must reject a 0400 whitespace-only secret without disclosing it.',
+      );
+    const preflight = spawnSync(
+      process.execPath,
+      ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv, '--local'],
+      { env, encoding: 'utf8' },
+    );
+    if (preflight.status !== 0)
+      throw new Error(`Local deployment preflight failed: ${preflight.stderr}`);
+    const externalCheck = spawnSync(
+      process.execPath,
+      ['--import', 'tsx', 'scripts/check-deployment.mjs', '--env-file', preflightEnv],
+      { env, encoding: 'utf8' },
+    );
+    if (externalCheck.status === 0)
+      throw new Error('Loopback QA configuration must not pass external deployment readiness.');
+    console.log(
+      'Resolved Compose preflight passed locally and correctly rejects external readiness.',
+    );
+  }
   compose(['config', '--quiet']);
   compose(['up', '--detach', '--no-build', '--wait', '--wait-timeout', '90']);
   let certificateReady = false;
@@ -197,8 +242,13 @@ try {
     { capture: true },
   );
   const ca = readFileSync(join(dir, 'root.crt'));
-  if ((await probe(ca)) !== 401) throw new Error('Unauthenticated staging access was not denied.');
-  const authorization = 'Basic ' + Buffer.from(`tester:${password}`).toString('base64');
+  const anonymousStatus = await probe(ca, undefined, railway ? '/' : '/api/health');
+  if (anonymousStatus !== 401)
+    throw new Error(
+      `Unauthenticated staging access returned HTTP ${anonymousStatus}, expected 401.`,
+    );
+  const username = railway ? 'pixel' : 'tester';
+  const authorization = 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64');
   const status = await probe(ca, authorization);
   if (status !== 200) throw new Error(`Authenticated TLS/health check failed: HTTP ${status}.`);
   console.log('Local CA verified (hostname + chain); staging gate rejects anonymous HTTPS.');
@@ -212,7 +262,8 @@ try {
     ...env,
     NODE_EXTRA_CA_CERTS: join(dir, 'root.crt'),
     OPS_BASE_URL: origin,
-    OPS_ACCESS_USER: 'tester',
+    OPS_ACCESS_USER: username,
+    OPS_DEPLOYMENT_PROFILE: railway ? 'railway' : 'compose',
     OPS_ACCESS_PASSWORD: password,
     OPS_BOOTSTRAP_KEY: bootstrap,
     OPS_CONFIG_FILE: join(dir, 'config.json'),

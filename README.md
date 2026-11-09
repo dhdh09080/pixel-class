@@ -1,4 +1,4 @@
-# Pixel Class v0.4
+# Pixel Class v0.5
 
 **Learn AI. Build Your Own Service.**
 
@@ -35,6 +35,8 @@ v0.3은 동시 편집 보호·파일/피드백/알림의 원자적 저장, 모�
 
 v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. **외부 배포 URL은 아직 없습니다.**
 
+v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. **Railway 계정 접근이 연결되지 않아 실제 배포와 외부 HTTPS URL은 미완료입니다.** 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
+
 ## 할 수 있는 일
 
 - 레이어로 그리는 48×64 캐릭터, 고정된 흰색 무지 안전모와 남색 작업복, 이름표
@@ -55,7 +57,7 @@ v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 
 - 교안 기술 주제 태그와 프로젝트 필요 기술에 맞는 규칙 기반 추천
 - 향후 Windows 캐릭터 앱이 사용할 개인 이벤트 피드와 수신 확인 API
 
-현재 제공되는 저장소는 **로컬 SQLite 서버**입니다. Supabase Auth/Postgres/Realtime/Storage 연동은 구현하지 않았습니다. 서버 API를 통하지 않고 DB를 공개하지 않으며, 모든 데이터 접근에 서버에서 학교·계정·역할·학적·소유권을 검사합니다. [STATUS.md](STATUS.md)에 완료/부분 구현/미구현을 구분했습니다.
+현재 제공되는 저장소는 **SQLite 기반 단일 서버**입니다. Supabase Auth/Postgres/Realtime/Storage 연동은 구현하지 않았습니다. 서버 API를 통하지 않고 DB를 공개하지 않으며, 모든 데이터 접근에 서버에서 학교·계정·역할·학적·소유권을 검사합니다. [STATUS.md](STATUS.md)에 완료/부분 구현/미구현을 구분했습니다.
 
 ## 나만의 비공개 학교 만들기
 
@@ -115,6 +117,7 @@ npm run test:load
 # Docker 이미지 빌드 후 비공개 HTTPS/복원 통합 검사
 docker build -t pixel-class:ops-test .
 npm run test:operations
+npm run test:railway
 ```
 
 Playwright는 이 Cloud 환경의 `/usr/bin/chromium`을 사용합니다. 없으면 `npx playwright install chromium`으로 설치한 브라우저를 사용하며 `CHROMIUM_PATH`로 직접 지정할 수도 있습니다. 테스트는 임시 DB와 별도 포트(3011/3014/3015: API, 3012/5174: 브라우저, 3013: 프로덕션)를 사용합니다. PostgreSQL 전환 준비 SQL은 네트워크 연결 없이 PGlite에서 검증합니다. 실제 Supabase 검증과는 다릅니다.

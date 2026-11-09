@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-11-09T03:07:21.233Z",
+  "kind": "Local Docker Railway-profile QA, not actual Railway metrics",
+  "port": 8080,
+  "uid": 1000,
+  "gid": 1000,
+  "effectiveCapabilities": 0,
+  "readOnlyRoot": true,
+  "publishedAppPorts": [],
+  "storage": [
+    {
+      "name": "school.sqlite",
+      "bytes": 73728,
+      "uid": 1000,
+      "mode": 384
+    },
+    {
+      "name": "school.sqlite-wal",
+      "bytes": 0,
+      "uid": 1000,
+      "mode": 384
+    }
+  ],
+  "serverRssKiB": 116584,
+  "configuredMemoryLimitBytes": 1073741824,
+  "limitations": "One process RSS sample after two-account workflow. Docker aggregate stats are not attributable to this app in this virtualized environment; configured cgroup limits are not proof of enforcement. Not a capacity benchmark or Railway billing observation."
+}

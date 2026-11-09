@@ -1,0 +1,6 @@
+# Deliberately NO edge authentication: the Express/WS gate must enforce it.
+https://localhost {
+  tls internal
+  encode zstd gzip
+  reverse_proxy app:8080
+}

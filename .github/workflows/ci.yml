@@ -8,7 +8,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +24,8 @@ jobs:
         run: docker build -t pixel-class:ops-test .
       - name: Verify private HTTPS container and real accounts
         run: npm run test:operations
+      - name: Verify Railway volume guards and private HTTPS accounts
+        run: npm run test:railway
       - uses: actions/upload-artifact@v4
         if: always()
         with:
