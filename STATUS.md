@@ -22,4 +22,4 @@
 
 [v0.5 Railway 보고서](V05_RAILWAY_REPORT.md) · [변수/배포/복원/비용 절차](deploy/railway/README.md) · [런타임 증거](docs/v05/runtime-check.json) · [기존 v0.4 보고서](V04_RELEASE_REPORT.md) · [기존 Compose 운영](deploy/README.md).
 
-다음 단계는 **배포 적용 승인 → 서비스/Volume 실제 생성 → HTTPS 도메인·PUBLIC_ORIGIN·실행 제한/비밀 보호 확인 → 외부 두 컴퓨터 인수**입니다. Railway accept-deploy가 사용자 미승인으로 취소되어 현재34개 초안만 저장돼 있습니다. 토큰/키를 채팅이나 Git에 입력하지 않습니다. 실제 성공 후에만 외부 URL과 배포 완료 상태를 갱신합니다.
+다음 단계는 **배포 적용 승인 → 서비스/Volume 실제 생성 → HTTPS 도메인·PUBLIC_ORIGIN·실행 제한/비밀 보호 확인 → 외부 두 컴퓨터 인수**입니다. Railway accept-deploy가 사용자 미승인으로 취소되어 서비스·Volume·변수 초안만 저장돼 있습니다. 토큰/키를 채팅이나 Git에 입력하지 않습니다. 실제 성공 후에만 외부 URL과 배포 완료 상태를 갱신합니다.

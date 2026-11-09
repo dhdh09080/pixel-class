@@ -23,7 +23,7 @@ Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoam
 
 ## 실제 Railway 초안과 승인 상태
 
-- GitHub main `da25fe7aad9f132f72e3d4b191d02755f85d37ab` 고정 소스를 연결한 서비스·500MB Volume·PORT8080·health/restart/drain·CDN 꺼짐·AI 꺼짐·서버 변수의 **34개 staged 변경**을 준비했습니다. 환경 조회상 us-west2·replica1이며 서비스와 볼륨 모두 staged-create입니다.
+- GitHub main `da25fe7aad9f132f72e3d4b191d02755f85d37ab` 고정 소스를 연결한 서비스·500MB Volume·PORT8080·health/restart/drain·CDN 꺼짐·AI 꺼짐·서버 변수의 **서비스·Volume·변수 staged 변경**을 준비했습니다. 환경 조회상 us-west2·replica1이며 서비스와 볼륨 모두 staged-create입니다.
 - 비공개 접근/부트스트랩 암호는 Git 밖0600 개인 파일에 생성하고 변수 초안으로 전달했습니다. 값은 채팅·보고서·Git에 쓰지 않았습니다. 현재 MCP에 sealed 쓰기 옵션이 없어 실제 sealed 여부는 미검증입니다.
 - 도메인 생성과 명시적 메모리/CPU 제한은 아직 live ServiceInstance가 없어 거부됐습니다. 적용 후 생성 도메인 target8080·정확한 PUBLIC_ORIGIN·실행 제한을 설정하고 다시 검증해야 합니다. 현재 PUBLIC_ORIGIN은 Railway 공개 도메인 참조 초안이며 실제 HTTPS 검증 결과가 아닙니다.
 - accept-deploy는 “Cancelled — the user did not approve this action. No changes were made.”로 취소됐습니다. **실행 서비스/배포 ID/URL/실제 DB는 아직 없습니다.** 승인 없이 다른 경로로 적용하지 않았습니다.
@@ -83,7 +83,7 @@ Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoam
 
 ## 남은 설정·차단 요인
 
-1. **배포 적용 승인**: Railway OAuth 계정 연결은 완료했습니다. 현재34개 초안 적용이 승인되지 않아 중단되어 있습니다. 승인 후에만 서비스/볼륨을 실제 생성·배포합니다. 토큰/키는 채팅에 입력하지 않습니다.
+1. **배포 적용 승인**: Railway OAuth 계정 연결은 완료했습니다. 서비스·Volume·변수 초안 적용이 승인되지 않아 중단되어 있습니다. 승인 후에만 서비스/볼륨을 실제 생성·배포합니다. 토큰/키는 채팅에 입력하지 않습니다.
 2. **비용 확인/승인**: 실제 플랜/잔액, 서비스·500MB Volume·네트워크·백업 예상 비용을 검토하고 필요한 새 비용 승인을 받습니다. 기존 자원 삭제·플랜 상향은 하지 않습니다.
 3. **플랫폼 설정**: 단일 서비스·지속 Volume·실제 도메인/PUBLIC_ORIGIN·독립 sealed 비밀2개, 새 DB create 또는 검증한 기존 백업 existing. plan에 삭제/교체가 없는지 확인합니다.
 4. **외부 인수**: 두 컴퓨터의 실제 테스트 계정으로 HTTPS/WSS·전 흐름·재배포 보존·접근 제한·프로세스 UID·원격 로그를 검증합니다. 성공 후 URL/프로젝트/배포 ID를 STATUS에 기록합니다.
