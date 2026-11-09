@@ -2,7 +2,7 @@
 
 ## 실행 경계
 
-v0.5 Railway 경계는 HTTPS edge → Express 정적 파일/API/인증 WebSocket 한 서비스 → `/app/data` SQLite WAL입니다. 기존 Compose/Caddy 경로는 보존합니다. `.railway/railway.ts`는 SDK 기반 scoped IaC이며 서비스1개·Volume1개·replica1·Health Check·재시작·drain을 선언합니다. **실제 Railway 연결/배포는 아직 미완료**이며 [운영 절차](deploy/railway/README.md)에 필수 변수와 중단 조건을 구분했습니다.
+v0.5 Railway 경계는 HTTPS edge → Express 정적 파일/API/인증 WebSocket 한 서비스 → `/app/data` SQLite WAL입니다. 기존 Compose/Caddy 경로는 보존합니다. `.railway/railway.ts`는 SDK 기반 scoped IaC이며 서비스1개·Volume1개·replica1·Health Check·재시작·drain을 선언합니다. **Railway 연결·프로젝트 초안은 완료됐고 실제 배포 적용은 승인 대기**이며 [운영 절차](deploy/railway/README.md)에 필수 변수와 중단 조건을 구분했습니다.
 
 Railway launcher(`scripts/start.mjs`)는 실제 Volume mountinfo를 검사한 뒤 root 소유 디렉터리/선택 DB 파일만 앱 UID1000으로 조정하고, 보조 그룹·root 권한을 버린 뒤 execve로 서버를 실행합니다. `server/runtime.ts`는 DB 모듈이 열리기 전에 다시 비특권 UID·마운트·DB 생성/복원 모드·무결성을 검증합니다. 기본 `existing`은 DB 누락을 거부하며, 새 Volume의 명시적 `create`는 초기화 marker로 반복 초기화를 막습니다. 스키마를 바꾸거나 기존 DB를 삭제하지 않습니다. root launcher가 가져오는 이미지 코드·상위 디렉터리·package는 root 소유이며 UID1000은 읽기/실행만 허용됩니다. 배포 release의 권한을 정규화해 서버 코드 읽기는 가능하고 수정은 불가능하게 합니다.
 

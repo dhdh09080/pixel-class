@@ -35,7 +35,7 @@ v0.3은 동시 편집 보호·파일/피드백/알림의 원자적 저장, 모�
 
 v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. **외부 배포 URL은 아직 없습니다.**
 
-v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. **Railway 계정 접근이 연결되지 않아 실제 배포와 외부 HTTPS URL은 미완료입니다.** 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
+v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. **Railway 계정 연결과 비공개 프로젝트·500MB 볼륨 초안은 준비됐지만, 배포 적용이 승인되지 않아 실제 배포와 외부 HTTPS URL은 미완료입니다.** 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
 
 ## 할 수 있는 일
 
