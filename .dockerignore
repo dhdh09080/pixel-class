@@ -10,3 +10,5 @@ attachments
 docs
 supabase/.temp
 *.tsbuildinfo
+.railway/*
+!.railway/railway.ts

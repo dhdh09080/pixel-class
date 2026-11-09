@@ -4,8 +4,11 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync, execFile } from 'node:child_process';
 import { emptyProject, type AppState } from '../shared/types';
+import WebSocket from 'ws';
 
 const base = process.env.OPS_BASE_URL!;
+const railway = process.env.OPS_DEPLOYMENT_PROFILE === 'railway';
+const evidenceDir = railway ? 'docs/v05' : 'docs/operations';
 const headers = { 'X-Pixel-Class': '1', Origin: base };
 const gate = {
   username: process.env.OPS_ACCESS_USER!,
@@ -37,7 +40,7 @@ const compose = (args: string[]) => docker([...config.composeArgs, ...args]);
 const state = async (context: BrowserContext): Promise<AppState> =>
   (await context.request.get('/api/state')).json();
 
-test('private Docker HTTPS: real MASTER invitation, student character, desk, project, feedback, session security and restored data', async ({
+test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invitation, student character, desk, project, feedback, session security and restored data`, async ({
   browser,
 }) => {
   const credentials = {
@@ -69,6 +72,16 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
       const anonymous = await request.newContext({ baseURL: base, httpCredentials: undefined });
       try {
         expect((await anonymous.get('/')).status()).toBe(401);
+        if (railway) {
+          expect(await (await anonymous.get('/api/health')).json()).toEqual({ ok: true });
+          for (const path of [
+            '/api/config',
+            '/api/state',
+            '/assets/missing.js',
+            '/api/health?details=1',
+          ])
+            expect((await anonymous.get(path)).status()).toBe(401);
+        }
       } finally {
         await anonymous.dispose();
       }
@@ -96,6 +109,15 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
         ).status(),
       ).toBe(403);
       expect((await teacher.request.post('/api/login', { data: {} })).status()).toBe(403);
+      if (railway)
+        expect(
+          (
+            await teacher.request.post('/api/login', {
+              headers: { ...headers, 'Content-Type': 'application/json' },
+              data: '{malformed',
+            })
+          ).status(),
+        ).toBe(400);
     });
 
     let invitation = '',
@@ -150,6 +172,37 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
       expect(identity.role).toBe('STUDENT');
       expect(identity.appearance.hair).toBe('#925b32');
       expect(signed.desks.some((d) => d.id === identity.deskId)).toBe(true);
+      if (railway) {
+        const cookie = (await student.cookies()).find((c) => c.name === 'pixel_session')!;
+        for (const authorization of [
+          undefined,
+          'Basic ' + Buffer.from('pixel:wrong').toString('base64'),
+        ]) {
+          const status = await new Promise<number>((resolve, reject) => {
+            const socket = new WebSocket(base.replace('https:', 'wss:') + '/socket', {
+              headers: {
+                Origin: base,
+                Cookie: `pixel_session=${cookie.value}`,
+                ...(authorization ? { Authorization: authorization } : {}),
+              },
+              handshakeTimeout: 5000,
+            });
+            socket.once('open', () => {
+              socket.close();
+              reject(Error('WSS private gate accepted an unauthorized handshake.'));
+            });
+            socket.once('unexpected-response', (_req, res) => {
+              res.resume();
+              socket.terminate();
+              resolve(res.statusCode || 0);
+            });
+            socket.on('error', () =>
+              reject(Error('WSS gate did not return the expected HTTP rejection.')),
+            );
+          });
+          expect(status).toBe(401);
+        }
+      }
       expect(
         (
           await student.request.post('/api/invitations', { headers, data: { label: '금지' } })
@@ -270,6 +323,14 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
         ).status(),
       ).toBe(503);
       expect((await state(student)).aiConfigured).toBe(false);
+      if (railway) {
+        const disabled = await student.request.post(`/api/projects/${projectId}/ai`, {
+          headers,
+          data: { text: '연결 상태 확인' },
+        });
+        expect(disabled.status()).toBe(503);
+        expect((await disabled.json()).error).toContain('AI 조교가 꺼져 있어요');
+      }
 
       await masterPage.getByRole('button', { name: '자료실', exact: true }).click();
       await masterPage.getByRole('button', { name: '교안 올리기', exact: true }).click();
@@ -317,11 +378,33 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
           (await state(student)).events?.some((e) => e.type === 'mentor.feedback.created'),
         )
         .toBe(true);
-      mkdirSync('docs/operations', { recursive: true });
+      mkdirSync(evidenceDir, { recursive: true });
       await studentPage.screenshot({
-        path: 'docs/operations/student-feedback.png',
+        path: `${evidenceDir}/student-feedback.png`,
         fullPage: true,
       });
+      if (railway) {
+        await studentPage.getByRole('button', { name: '닫기', exact: true }).click();
+        await studentPage.getByRole('button', { name: '교실', exact: true }).click();
+        for (const viewport of [
+          { width: 1366, height: 768 },
+          { width: 390, height: 844 },
+        ]) {
+          await studentPage.setViewportSize(viewport);
+          await studentPage.reload();
+          await expect(studentPage.locator('canvas')).toBeVisible();
+          await expect
+            .poll(() =>
+              studentPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+            )
+            .toBe(true);
+          await studentPage.screenshot({
+            path: `${evidenceDir}/classroom-${viewport.width}x${viewport.height}.png`,
+            fullPage: true,
+          });
+        }
+        await studentPage.setViewportSize({ width: 1440, height: 1000 });
+      }
       expect(errors).toEqual([]);
       for (const page of [masterPage, studentPage])
         expect(
@@ -376,7 +459,55 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
         ).text(),
       ).toBe('private operational attachment');
       const details = JSON.parse(docker(['inspect', compose(['ps', '-q', 'app'])]))[0];
-      expect(details.Config.User).toBe('node');
+      if (railway) {
+        expect(details.Config.User).toBe('0:0');
+        const status = compose(['exec', '-T', 'app', 'cat', '/proc/1/status']);
+        expect(status).toMatch(/Uid:\s+1000\s+1000\s+1000\s+1000/);
+        expect(status).toMatch(/Gid:\s+1000\s+1000\s+1000\s+1000/);
+        expect(status).toMatch(/CapEff:\s+0000000000000000/);
+        expect(Object.keys(details.HostConfig.PortBindings || {})).toEqual([]);
+        const storage = JSON.parse(
+          compose([
+            'exec',
+            '-T',
+            '--user',
+            '1000:1000',
+            'app',
+            'node',
+            '-e',
+            "const fs=require('node:fs');console.log(JSON.stringify(['school.sqlite','school.sqlite-wal'].map(name=>{const s=fs.statSync('/app/data/'+name);return {name,bytes:s.size,uid:s.uid,mode:s.mode&511}})))",
+          ]),
+        );
+        for (const file of storage) {
+          expect(file.uid).toBe(1000);
+          expect(file.mode).toBe(0o600);
+        }
+        const rss = /VmRSS:\s+(\d+)\s+kB/.exec(status);
+        expect(rss).not.toBeNull();
+        mkdirSync('docs/v05', { recursive: true });
+        writeFileSync(
+          'docs/v05/runtime-check.json',
+          JSON.stringify(
+            {
+              capturedAt: new Date().toISOString(),
+              kind: 'Local Docker Railway-profile QA, not actual Railway metrics',
+              port: 8080,
+              uid: 1000,
+              gid: 1000,
+              effectiveCapabilities: 0,
+              readOnlyRoot: true,
+              publishedAppPorts: [],
+              storage,
+              serverRssKiB: Number(rss![1]),
+              configuredMemoryLimitBytes: details.HostConfig.Memory,
+              limitations:
+                'One process RSS sample after two-account workflow. Docker aggregate stats are not attributable to this app in this virtualized environment; configured cgroup limits are not proof of enforcement. Not a capacity benchmark or Railway billing observation.',
+            },
+            null,
+            2,
+          ) + '\n',
+        );
+      } else expect(details.Config.User).toBe('node');
       expect(details.HostConfig.ReadonlyRootfs).toBe(true);
       expect(details.HostConfig.PortBindings['3001/tcp']).toBeUndefined();
       expect(
@@ -424,7 +555,8 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
       const overlay = join(config.dir, 'restore.yaml');
       writeFileSync(
         overlay,
-        'services:\n  app:\n    environment:\n      DATABASE_PATH: /app/data/restored.sqlite\n',
+        'services:\n  app:\n    environment:\n      DATABASE_PATH: /app/data/restored.sqlite\n' +
+          (railway ? '      DATABASE_MODE: existing\n' : ''),
         { mode: 0o600 },
       );
       docker([
@@ -537,9 +669,9 @@ test('private Docker HTTPS: real MASTER invitation, student character, desk, pro
         true,
       );
       expect(new Set(results.map((value) => value.clientAddress)).size).toBe(2);
-      mkdirSync('docs/v04', { recursive: true });
+      mkdirSync(railway ? 'docs/v05' : 'docs/v04', { recursive: true });
       writeFileSync(
-        'docs/v04/network-peers.json',
+        `${railway ? 'docs/v05' : 'docs/v04'}/network-peers.json`,
         JSON.stringify(
           {
             capturedAt: new Date().toISOString(),

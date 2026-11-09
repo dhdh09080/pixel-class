@@ -1,5 +1,6 @@
 import { defineConfig } from '@playwright/test';
 import { existsSync } from 'node:fs';
+const profile = process.env.OPS_DEPLOYMENT_PROFILE === 'railway' ? 'railway' : 'operations';
 
 export default defineConfig({
   testDir: './tests',
@@ -7,8 +8,8 @@ export default defineConfig({
   workers: 1,
   timeout: 150000,
   expect: { timeout: 10000 },
-  outputDir: 'test-results/operations',
-  reporter: [['list'], ['html', { outputFolder: 'playwright-report/operations', open: 'never' }]],
+  outputDir: `test-results/${profile}`,
+  reporter: [['list'], ['html', { outputFolder: `playwright-report/${profile}`, open: 'never' }]],
   use: {
     baseURL: process.env.OPS_BASE_URL,
     viewport: { width: 1440, height: 1000 },

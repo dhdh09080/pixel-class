@@ -1,0 +1,56 @@
+# Local QA only: emulate Railway's HTTPS edge and root-owned runtime volume.
+# The production Railway service uses the root Dockerfile, NOT this Compose file.
+services:
+  app:
+    image: ${PIXEL_IMAGE:-pixel-class:ops-test}
+    user: '0:0'
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, DAC_OVERRIDE, SETUID, SETGID]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ['/tmp:size=64m,mode=1777']
+    mem_limit: 1g
+    pids_limit: 128
+    stop_grace_period: 15s
+    environment:
+      PIXEL_RUNTIME: railway
+      NODE_ENV: production
+      DEMO_MODE: 'false'
+      HOST: 0.0.0.0
+      PORT: '8080'
+      PUBLIC_ORIGIN: https://localhost:${PIXEL_HTTPS_PORT:-8444}
+      COOKIE_SECURE: 'true'
+      TRUST_PROXY_HOPS: '1'
+      RAILWAY_VOLUME_NAME: isolated-qa-data
+      RAILWAY_VOLUME_MOUNT_PATH: /app/data
+      DATABASE_PATH: /app/data/school.sqlite
+      DATABASE_MODE: create
+      MASTER_BOOTSTRAP_KEY_FILE: /run/secrets/master_bootstrap
+      STAGING_ACCESS_KEY_FILE: /run/secrets/staging_access
+      AI_ENABLED: 'false'
+      # Deliberate non-credential fixtures: AI must stay disabled even if a key/model are present.
+      OPENAI_API_KEY: fixture-not-a-real-api-key
+      OPENAI_MODEL: fixture-not-a-real-model
+      AI_SCHOOL_DAILY_CALLS: '3'
+      AI_MAX_CONCURRENT: '1'
+    secrets: [master_bootstrap, staging_access]
+    volumes: [school-data:/app/data]
+  https:
+    image: caddy:2.11.3@sha256:ec18ee54aab3315c22e25f3b2babda73ff8007d39b13b3bd1bfffa2f0444c7d9
+    environment:
+      NO_PROXY: ${NO_PROXY:-},app,localhost,127.0.0.1,::1
+      no_proxy: ${no_proxy:-},app,localhost,127.0.0.1,::1
+    ports: ['127.0.0.1:${PIXEL_HTTPS_PORT:-8444}:443']
+    volumes:
+      - ./deploy/railway/Caddyfile.test:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      app: { condition: service_healthy }
+secrets:
+  master_bootstrap: { file: '${MASTER_BOOTSTRAP_FILE:?Private QA bootstrap file required}' }
+  staging_access: { file: '${STAGING_ACCESS_FILE:?Private QA access file required}' }
+volumes:
+  school-data:
+  caddy-data:
+  caddy-config:

@@ -19,6 +19,7 @@
     "tests",
     "vite.config.ts",
     "playwright.config.ts",
-    "playwright.operations.config.ts"
+    "playwright.operations.config.ts",
+    ".railway/railway.ts"
   ]
 }
