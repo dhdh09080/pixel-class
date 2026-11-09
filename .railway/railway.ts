@@ -3,7 +3,7 @@ import { defineRailway, project, service, github, volume, preserve } from 'railw
 // Scoped IaC: review `railway config plan` before apply. Never manage unrelated resources.
 export const partial = 'pixel-class';
 export default defineRailway(() => {
-  const data = volume('school-data', { sizeMB: 1024 });
+  const data = volume('school-data', { sizeMB: 500 });
   const app = service('pixel-class', {
     source: github('dhdh09080/pixel-class', { branch: 'main', checkSuites: true }),
     build: { builder: 'DOCKERFILE', dockerfilePath: 'Dockerfile' },

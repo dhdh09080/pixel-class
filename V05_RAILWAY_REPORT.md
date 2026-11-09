@@ -1,6 +1,6 @@
 # Pixel Class v0.5 — Railway 운영 준비·검증 보고
 
-2026-11-09 KST. **코드와 로컬 운영 검증은 완료했지만 실제 Railway 배포는 미완료입니다. 외부 배포 URL은 없습니다.** 계정 접근을 연결해야 실제 프로젝트·Volume·도메인·변수 설정과 외부 인수를 진행할 수 있습니다.
+2026-11-09 KST. **코드·로컬 운영 검증과 Railway OAuth 연결/프로젝트 초안 준비는 완료했습니다. 배포 적용이 승인되지 않아 실제 배포는 미완료이며 외부 URL은 없습니다.** 배포 적용 승인 후 실제 서비스/Volume 생성·도메인 설정·외부 인수를 진행해야 합니다.
 
 ## Git·배포 상태
 
@@ -10,16 +10,25 @@
 | 기존 PR/CI              | #1→#2→[v0.4 #3](https://github.com/dhdh09080/pixel-class/pull/3) 병합 완료. main [CI #28](https://github.com/dhdh09080/pixel-class/actions/runs/42490469960) 86개 성공                                                                                                |
 | 작업 브랜치/구현        | `feature/pixel-class-v05`, `577147f` (`feat: secure Railway runtime and persistent school deployment`). 후속 문서/증거는 브랜치 커밋 목록 참조                                                                                                                        |
 | v0.5 PR/CI              | [PR #4](https://github.com/dhdh09080/pixel-class/pull/4)는 `0c0c77b`로 main 병합, [CI #30](https://github.com/dhdh09080/pixel-class/actions/runs/42555296733) 92개 성공. 코드 권한 보완은 [PR #5](https://github.com/dhdh09080/pixel-class/pull/5)와 해당 Checks 참조 |
-| Railway 프로젝트/서비스 | **미생성·미조회**. `pixel-class`는 제안 이름이며 실제 자원 이름/ID가 아님                                                                                                                                                                                             |
+| Railway 프로젝트/서비스 | 프로젝트 `pixel-class` 실제 생성: `c46ee1d7-c441-4b23-a3f2-f1d349c9f504`. 환경 `private-test`: `3a0dc4b5-3a92-4478-92e7-8a0927b1f09e`. 서비스 `pixel-class` 초안: `a64cd7e5-f18b-47ac-a714-d2322cca69e7` (staged-create, 미실행)                                      |
 | 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                                                                                                                       |
-| 실제 Volume             | **미연결**. 제안 1GB `/app/data`, 실제 플랫폼 ID·지역·요금 미확인                                                                                                                                                                                                     |
+| 실제 Volume             | `school-data` 초안 `2e639437-1dd9-4ba4-a078-976d2eb2136d`, 500MB `/app/data`. 미provision·미마운트. 현재 계정 상한500MB로 1GB 요청은 거부되어 조정                                                                                                                    |
 | 최초 MASTER             | 로컬 QA 생성/복원/재로그인 통과. **외부 학교 MASTER 미등록**                                                                                                                                                                                                          |
 | 실제 HTTPS/WSS          | Railway 공인 TLS/외부 WSS는 **미검증**. 로컬 CA 검증 HTTPS/WSS는 성공                                                                                                                                                                                                 |
 | DB/AI                   | SQLite WAL 유지, 스키마 변경 없음. Supabase 전환 없음. 실제 OpenAI 키/모델·호출·품질·비용 평가 없음                                                                                                                                                                   |
 
-Railway 플러그인은 설치·활성 상태로 표시되지만 **현재 대화에 호출 가능한 Railway 도구가 없습니다**. 환경에도 Railway 토큰·로그인 설정·연결된 비밀이 없었습니다. 계정/프로젝트 자체가 없다고 판단한 것은 아닙니다. GitHub 읽기·푸시·PR 권한과 최신 main은 확인했습니다.
+작업 초기에는 설치된 Railway 도구가 노출되지 않았고 환경 토큰도 없었습니다. 이후 사용자의 연결 확인 과정에서 Railway 도구가 활성화됐고 whoami·workspace/project 조회에 성공했습니다. 프로젝트0개인 개인 워크스페이스에 전용 비공개 프로젝트를 만들었습니다. 토큰을 채팅으로 전달받거나 인증을 우회하지 않았습니다. GitHub 읽기·푸시·PR 권한도 확인했습니다.
 
-Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoami` 시도는 설치 단계 exit1로 끝나 계정 조회에 성공하지 못했습니다. 런타임 Railway 문서 접속도 CONNECT403으로 제한됐습니다. 공식 문서는 별도 검색 도구로 확인했습니다. 로컬 브라우저 연결과 Cloud CUA가 불가능해 환경의 Chromium/Playwright로 제품을 검증했습니다. 인증이나 네트워크 정책을 우회하지 않았고 유료 자원 생성·플랜 변경도 실행하지 않았습니다.
+Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoami` 시도는 설치 단계 exit1로 끝나 계정 조회에 성공하지 못했습니다. 런타임 Railway 문서 접속도 CONNECT403으로 제한됐습니다. 공식 문서는 별도 검색 도구로 확인했습니다. 로컬 브라우저 연결과 Cloud CUA가 불가능해 환경의 Chromium/Playwright로 제품을 검증했습니다. 인증이나 네트워크 정책은 우회하지 않았습니다. 이후에는 연결된 Railway MCP를 사용했습니다. 실제 유료 플랜 변경이나 실행 리소스 provision은 하지 않았습니다.
+
+## 실제 Railway 초안과 승인 상태
+
+- GitHub main `da25fe7aad9f132f72e3d4b191d02755f85d37ab` 고정 소스를 연결한 서비스·500MB Volume·PORT8080·health/restart/drain·CDN 꺼짐·AI 꺼짐·서버 변수의 **서비스·Volume·변수 staged 변경**을 준비했습니다. 환경 조회상 us-west2·replica1이며 서비스와 볼륨 모두 staged-create입니다.
+- 비공개 접근/부트스트랩 암호는 Git 밖0600 개인 파일에 생성하고 변수 초안으로 전달했습니다. 값은 채팅·보고서·Git에 쓰지 않았습니다. 현재 MCP에 sealed 쓰기 옵션이 없어 실제 sealed 여부는 미검증입니다.
+- 도메인 생성과 명시적 메모리/CPU 제한은 아직 live ServiceInstance가 없어 거부됐습니다. 적용 후 생성 도메인 target8080·정확한 PUBLIC_ORIGIN·실행 제한을 설정하고 다시 검증해야 합니다. 현재 PUBLIC_ORIGIN은 Railway 공개 도메인 참조 초안이며 실제 HTTPS 검증 결과가 아닙니다.
+- accept-deploy는 “Cancelled — the user did not approve this action. No changes were made.”로 취소됐습니다. **실행 서비스/배포 ID/URL/실제 DB는 아직 없습니다.** 승인 없이 다른 경로로 적용하지 않았습니다.
+- [프로젝트 초안](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)에서 검토할 수 있습니다. 적용 후 최초 MASTER/학생 생성, 외부 HTTP/WSS와 재시작 보존 검증이 남아 있습니다.
+- #4·#5는 main에 병합했습니다. 최종 앱 소스의 [CI #35](https://github.com/dhdh09080/pixel-class/actions/runs/42557694186)와 main [CI #36](https://github.com/dhdh09080/pixel-class/actions/runs/42558485563)에서92개 전체 성공했습니다.
 
 ## 구현 결과
 
@@ -74,8 +83,8 @@ Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoam
 
 ## 남은 설정·차단 요인
 
-1. **Railway 접근 활성화**: 이 대화의 Railway 앱 도구 또는 환경 비밀을 통한 공식 CLI 인증. 토큰/키는 채팅에 입력하지 않습니다. 계정·프로젝트·GitHub 권한 조회부터 필요합니다.
-2. **비용 확인/승인**: 실제 플랜/잔액, 서비스·1GB Volume·네트워크·백업 예상 비용을 검토하고 필요한 새 비용 승인을 받습니다. 기존 자원 삭제·플랜 상향은 하지 않습니다.
+1. **배포 적용 승인**: Railway OAuth 계정 연결은 완료했습니다. 서비스·Volume·변수 초안 적용이 승인되지 않아 중단되어 있습니다. 승인 후에만 서비스/볼륨을 실제 생성·배포합니다. 토큰/키는 채팅에 입력하지 않습니다.
+2. **비용 확인/승인**: 실제 플랜/잔액, 서비스·500MB Volume·네트워크·백업 예상 비용을 검토하고 필요한 새 비용 승인을 받습니다. 기존 자원 삭제·플랜 상향은 하지 않습니다.
 3. **플랫폼 설정**: 단일 서비스·지속 Volume·실제 도메인/PUBLIC_ORIGIN·독립 sealed 비밀2개, 새 DB create 또는 검증한 기존 백업 existing. plan에 삭제/교체가 없는지 확인합니다.
 4. **외부 인수**: 두 컴퓨터의 실제 테스트 계정으로 HTTPS/WSS·전 흐름·재배포 보존·접근 제한·프로세스 UID·원격 로그를 검증합니다. 성공 후 URL/프로젝트/배포 ID를 STATUS에 기록합니다.
 5. **운영 백업/비용 경보**: Volume 백업 스케줄·외부 암호화 백업/복원 연습·Railway Usage 알림/지출 제한·원격 메모리/디스크 관측은 미설정입니다.
