@@ -33,11 +33,15 @@ if (process.argv.includes('--no-volume')) {
     '/app',
     '/app/scripts',
     '/app/server',
+    '/app/shared',
+    '/app/dist',
     '/app/scripts/start.mjs',
     '/app/server/railway-volume.mjs',
     '/app/package.json',
   ]) {
     assert.equal(statSync(path).uid, 0, 'Application code must remain root-owned.');
+    accessSync(path, constants.R_OK);
+    if (statSync(path).isDirectory()) accessSync(path, constants.X_OK);
     assert.throws(
       () => accessSync(path, constants.W_OK),
       /EACCES/,

@@ -54,7 +54,7 @@ Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저�
 
 앱은 플랫폼의 볼륨 메타데이터뿐 아니라 Linux mountinfo의 정확한 `/app/data` 마운트도 검사합니다. Dockerfile의 암묵적 익명 `VOLUME` 생성은 제거했고 Compose의 명시적 볼륨은 유지했습니다. 볼륨이 없으면 임시 디렉터리에 DB를 만들지 않습니다.
 
-루트 launcher는 최상위 데이터 디렉터리(0700)와 선택한 DB/WAL/SHM/초기화 marker의 소유권만 UID1000으로 맞춘 뒤 보조 그룹·root 권한을 버립니다. 재귀 chown이나 파일 삭제를 하지 않습니다. 실제 Node 서버의 UID/GID1000·CapEff0은 컨테이너 QA에서 검사합니다. 새 파일은 umask077입니다. Railway 실제 프로세스/마운트 상태는 배포 후 다시 검사해야 합니다.
+루트 launcher는 최상위 데이터 디렉터리(0700)와 선택한 DB/WAL/SHM/초기화 marker의 소유권만 UID1000으로 맞춘 뒤 보조 그룹·root 권한을 버립니다. 재귀 chown이나 파일 삭제를 하지 않습니다. 실제 Node 서버의 UID/GID1000·CapEff0은 컨테이너 QA에서 검사합니다. 새 파일은 umask077입니다. root launcher·서버·공유 코드·dist·package는 root 소유이며 앱 사용자는 읽기/실행만 할 수 있습니다. 소유권 변경 때문에 읽기까지 막히지 않도록 release 디렉터리/파일 권한을 정규화합니다. 쓰기 가능한 파일시스템에서 앱 UID가 launcher와 상위 디렉터리를 수정할 수 없는지도 QA합니다. Railway 실제 프로세스/마운트 상태는 배포 후 다시 검사해야 합니다.
 
 기존 파일은 읽기 전용 SQLite quick_check와 필수 Pixel Class 테이블을 확인합니다. 빈 파일·다른 DB·손상·심볼릭 링크·하드 링크는 거부합니다. 새 DB 생성 전에 `.pixel-class-volume.json`을 독점 생성하므로 초기화 중 프로세스가 죽거나 이후 DB 파일이 사라지면 `create`가 남아 있어도 다시 빈 학교를 만들지 않습니다. 이 경우 **marker를 지워 재시도하지 말고** 원인을 조사하고 검증한 백업을 복원하세요.
 
