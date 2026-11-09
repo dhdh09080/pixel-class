@@ -92,6 +92,7 @@ test('Railway IaC defines an offline graph with one service, one volume and pres
   assert.ok(serialized.includes('"isSealed":true'));
   const app = definition.resources?.flat().find((resource) => resource.type === 'service');
   assert.equal(app?.deploy?.numReplicas, 1);
+  assert.deepEqual(app?.cdn, { enabled: false });
   assert.equal(app?.deploy?.healthcheckPath, '/api/health');
   assert.equal(app?.deploy?.requiredMountPath, '/app/data');
   assert.equal(app?.deploy?.overlapSeconds, 0);

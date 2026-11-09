@@ -8,6 +8,7 @@ export default defineRailway(() => {
     source: github('dhdh09080/pixel-class', { branch: 'main', checkSuites: true }),
     build: { builder: 'DOCKERFILE', dockerfilePath: 'Dockerfile' },
     replicas: 1,
+    cdn: { enabled: false },
     healthcheck: '/api/health',
     healthcheckTimeout: 60,
     deploy: {

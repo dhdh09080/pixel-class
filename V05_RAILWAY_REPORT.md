@@ -9,7 +9,7 @@
 | 저장소/시작 main        | `dhdh09080/pixel-class`, `42191e83fc3a51073b54d3880468e552b4f0c093`                                                                                                    |
 | 기존 PR/CI              | #1→#2→[v0.4 #3](https://github.com/dhdh09080/pixel-class/pull/3) 병합 완료. main [CI #28](https://github.com/dhdh09080/pixel-class/actions/runs/42490469960) 86개 성공 |
 | 작업 브랜치/구현        | `feature/pixel-class-v05`, `577147f` (`feat: secure Railway runtime and persistent school deployment`). 후속 문서/증거는 브랜치 커밋 목록 참조                         |
-| v0.5 PR/CI              | PR 생성 후 실제 번호·최종 CI 결과를 기록                                                                                                                               |
+| v0.5 PR/CI              | [PR #4](https://github.com/dhdh09080/pixel-class/pull/4), 최신 head와 CI는 [Checks](https://github.com/dhdh09080/pixel-class/pull/4/checks) 참조                       |
 | Railway 프로젝트/서비스 | **미생성·미조회**. `pixel-class`는 제안 이름이며 실제 자원 이름/ID가 아님                                                                                              |
 | 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                        |
 | 실제 Volume             | **미연결**. 제안 1GB `/app/data`, 실제 플랫폼 ID·지역·요금 미확인                                                                                                      |
@@ -45,7 +45,7 @@ Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoam
 | `npm run test:operations`                  | 1/1. 기존 Compose/Caddy 실계정2개·교안 UI/다운로드·WSS·재생성·백업/복원·세션 철회·독립 네트워크 유지                                                                                              |
 | `npm run test:railway`                     | 새1/1+볼륨 보호 assertion. TLS-only edge 뒤 Express/WS gate, PORT8080, root 볼륨→UID1000/CapEff0/DB0600, 최소 health·익명 차단·유효 세션만 있는 WSS401, AI 강제 비활성, 전체 사용/복원·두 IP 교환 |
 | `npm run typecheck`, `npm run build`       | 통과. 기존 Phaser 약1.37MB(gzip 약357KB) chunk 경고 유지                                                                                                                                          |
-| `npm run format:check`, `git diff --check` | 최종 문서·증거 정리 후 검사, 최종 CI는 PR Checks 참조                                                                                                                                             |
+| `npm run format:check`, `git diff --check` | 최종 문서·증거 포함 통과, 원격 최종 결과는 PR Checks 참조                                                                                                                                         |
 | `npm audit --omit=dev --audit-level=high`  | 알려진 취약점0 보고. 전체 보안 인증이나 취약점 부재 보장은 아님                                                                                                                                   |
 
 부정 사례는 실제 마운트 없음, root 앱 실행, existing의 DB 누락, 약한 초기 KEY, marker 후 DB 생성 중단, 손상 DB, DB/WAL symlink를 거부하고 파일 내용을 보존합니다. 다른 학생/학교 자료, 초대 재사용, 파일 접근과 세션 교체·철회는 기존 회귀 및 동일 운영 흐름에서 계속 검사합니다.

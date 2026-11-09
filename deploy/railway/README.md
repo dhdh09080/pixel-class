@@ -42,7 +42,7 @@ Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저�
 1. Railway 앱 도구를 이 대화에서 활성화하거나 공식 CLI를 인증합니다. 토큰은 환경의 비밀 설정에 주입하고 출력하지 않습니다. 읽기 요청으로 계정·프로젝트·환경·잔액/요금/역할을 확인합니다.
 2. 기존 `pixel-class` 프로젝트가 있으면 자원 ID·Volume·기존 데이터를 먼저 조사합니다. 없을 때만 비용 검토 후 생성합니다. GitHub 연결에서 이 저장소에 대한 권한을 확인합니다. 배포 소스는 CI를 통과한 최신 main입니다.
 3. 연결된 프로젝트/테스트 환경에서 `railway config plan`으로 partial의 추가/수정 범위를 확인합니다. **삭제·볼륨 교체·복제·예상 밖 변경이 있으면 apply하지 않습니다.** `--show-values`를 사용하지 않습니다. 이 세션에서는 실제 plan/apply를 실행하지 못했습니다.
-4. 단일 서비스, Dockerfile 빌더, 1GB Volume `/app/data`, Health Check `/api/health`, 재시작 ON_FAILURE(최대5), drain15초, replica1을 적용합니다. Volume은 런타임에만 연결되므로 **pre-deploy 명령으로 DB를 만들지 않습니다**. 정지/재배포 중 잠깐의 중단은 허용합니다.
+4. 단일 서비스, Dockerfile 빌더, 1GB Volume `/app/data`, Health Check `/api/health`, 재시작 ON_FAILURE(최대5), drain15초, replica1·CDN 꺼짐을 적용합니다. Start Command는 별도 덮어쓰기 없이 Docker CMD의 `node scripts/start.mjs`를 사용해야 합니다. 기존 서비스에 start override·TCP proxy·다른 domain이 있으면 plan과 실제 설정을 먼저 조사합니다. Volume은 런타임에만 연결되므로 **pre-deploy 명령으로 DB를 만들지 않습니다**. 정지/재배포 중 잠깐의 중단은 허용합니다.
 5. HTTPS 도메인을 생성하고 대상 `PORT`를 확인합니다. 정확한 `PUBLIC_ORIGIN`과 위 보안 변수·sealed 비밀을 설정합니다. 처음에는 DB/변수 누락으로 unhealthy인 상태를 성공으로 판정하지 않습니다.
 6. 새 학교는 **완전히 빈 새 Volume**임을 확인한 후 `DATABASE_MODE=create`로 배포합니다. 기존 학교는 아래 백업 복원 절차와 `existing`을 사용합니다. 기존 SQLite 파일을 삭제하거나 데모 DB로 덮어쓰지 않습니다.
 7. 외부에서 익명 `/`·`/api/config`·파일·`/socket`이 401이고 `/api/health`만 `{"ok":true}`인지 확인합니다. 브라우저 접근 암호 창의 사용자명은 **pixel**, 암호는 `STAGING_ACCESS_KEY`입니다. 이는 계정 로그인/초대 KEY와 별도입니다.

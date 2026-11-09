@@ -5,7 +5,7 @@
 | 항목                    | 실제 상태                                                                                                                                                                   |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Git 기준                | v0.4 PR #3은 `42191e8`로 main 병합 완료. #1→#2→#3과 기존 main CI #28 성공 확인                                                                                              |
-| v0.5                    | `feature/pixel-class-v05`, 구현 `577147f`. PR·최종 CI·main 반영은 V05 보고서와 PR 기록 참조                                                                                 |
+| v0.5                    | `feature/pixel-class-v05`, 구현 `577147f`. [PR #4](https://github.com/dhdh09080/pixel-class/pull/4), 최종 CI·main 반영은 PR 병합 기록과 V05 보고서 참조                     |
 | Railway 프로젝트/서비스 | 현재 대화에 호출 가능한 도구·토큰·로그인 없음. 계정/프로젝트 권한 미확인, 원격 자원 미생성                                                                                  |
 | 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                             |
 | 배포 구조               | Railway HTTPS edge → Express 정적 React/Phaser·API·WSS 한 서비스 → `/app/data` SQLite WAL. scoped TypeScript IaC, replica1, health/restart/drain                            |
