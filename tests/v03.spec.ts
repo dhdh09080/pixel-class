@@ -7,6 +7,10 @@ const open = async (page: Page) => {
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('.map-online')).toContainText('접속 중');
 };
+const switchToMaster = async (page: Page) => {
+  await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+  await expect(page.locator('.header-profile small')).toHaveText('MASTER');
+};
 test('dialog has a name, keeps border clicks inside, restores focus and supports reduced motion', async ({
   page,
 }) => {
@@ -114,7 +118,7 @@ test('MASTER student counters filter students and prioritize unanswered question
   page,
 }) => {
   await open(page);
-  await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+  await switchToMaster(page);
   await page.getByRole('button', { name: '교무실', exact: true }).click();
   await page.getByRole('button', { name: '학생·프로젝트 현황 4개 더 보기', exact: true }).click();
   await page.getByRole('button', { name: /^휴학생/ }).click();
@@ -188,7 +192,12 @@ test('material preview treats uploaded markup as text and upload errors preserve
   page,
 }) => {
   await open(page);
-  await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+  // Exercise the real asynchronous demo-account transition before navigating.
+  await page.route('**/api/demo', async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.continue();
+  });
+  await switchToMaster(page);
   await page.getByRole('button', { name: '자료실', exact: true }).click();
   await page.getByRole('button', { name: '교안 올리기', exact: true }).click();
   const dialog = page.getByRole('dialog');
@@ -257,7 +266,7 @@ for (const width of [1366, 390])
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: '자료실', exact: true }).click();
     await audit();
-    await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+    await switchToMaster(page);
     await page.getByRole('button', { name: '교무실', exact: true }).click();
     await audit();
     await page.getByRole('button', { name: '학생·프로젝트 현황 4개 더 보기', exact: true }).click();
@@ -297,7 +306,7 @@ test('repeated appearance changes release obsolete game textures', async ({ page
 
 test('expanded classroom releases replaced floor textures', async ({ page, context }) => {
   await open(page);
-  await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
+  await switchToMaster(page);
   await expect(page.locator('.header-profile small')).toHaveText('MASTER');
   const world = page.locator('.game-host');
   for (let i = 0; i < 3; i++) {

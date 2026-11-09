@@ -1,0 +1,10 @@
+{
+  "applicationUid": 1000,
+  "launcherOwnerUid": 0,
+  "launcherMode": 420,
+  "readable": true,
+  "writable": false,
+  "capturedAt": "2026-11-09T03:29:24.186638+00:00",
+  "imageId": "sha256:2a1cc771965e04b9301e404fe03cb2364dec7dc36ef0ddc39b130f2fef673afb",
+  "kind": "Disposable local Docker container with writable root filesystem, not a Railway deployment"
+}
