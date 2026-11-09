@@ -7,6 +7,8 @@ import {
   unlinkSync,
   symlinkSync,
   statSync,
+  accessSync,
+  constants,
 } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { prepareVolumePermissions, admitRailwayDatabase } from '/app/server/railway-volume.mjs';
@@ -25,6 +27,23 @@ if (process.argv.includes('--no-volume')) {
   process.setgid(1000);
   process.setuid(1000);
   process.umask(0o077);
+  // Writable root filesystem, like Railway: the app must not replace code
+  // that a future root launcher will import on process restart.
+  for (const path of [
+    '/app',
+    '/app/scripts',
+    '/app/server',
+    '/app/scripts/start.mjs',
+    '/app/server/railway-volume.mjs',
+    '/app/package.json',
+  ]) {
+    assert.equal(statSync(path).uid, 0, 'Application code must remain root-owned.');
+    assert.throws(
+      () => accessSync(path, constants.W_OK),
+      /EACCES/,
+      'Application code must not be writable by UID1000.',
+    );
+  }
   assert.equal(statSync('/app/data').uid, 1000);
   assert.equal(statSync('/app/data').mode & 0o777, 0o700);
   assert.throws(() => admitRailwayDatabase(env), /Database missing/);
