@@ -1,12 +1,12 @@
 export function worldCanvas(height = 700) {
   const h = height / 2;
   const canvas = document.createElement('canvas');
-  canvas.width = 560;
-  canvas.height = h;
+  canvas.width = 1120;
+  canvas.height = height;
   const c = canvas.getContext('2d')!;
   const r = (x: number, y: number, w: number, h: number, color: string) => {
     c.fillStyle = color;
-    c.fillRect(x, y, w, h);
+    c.fillRect(x * 2, y * 2, w * 2, h * 2);
   };
   r(0, 0, 560, h, '#cbdbbf');
   r(0, 0, 560, 11, '#92aa8f');
@@ -16,24 +16,40 @@ export function worldCanvas(height = 700) {
   // Walnut floorboards, seams and a restrained deterministic grain.
   r(12, 100, 536, h - 112, '#d6b98c');
   const boards = ['#d6b98c', '#d8bc91', '#d2b489', '#d9bd91'];
-  for (let row = 0; row < Math.ceil((h - 112) / 20); row++) {
-    const y = 100 + row * 20;
-    for (let col = -1; col < 9; col++) {
-      const x = 12 + col * 70 + (row % 2 ? 35 : 0);
+  for (let row = 0; row < Math.ceil((h - 112) / 16); row++) {
+    const y = 100 + row * 16;
+    for (let col = -1; col < 12; col++) {
+      const x = 12 + col * 52 + (row % 2 ? 26 : 0);
       const left = Math.max(12, x),
-        right = Math.min(548, x + 70);
+        right = Math.min(548, x + 52);
       const seed = (row * 17 + col * 13 + 997) % 19;
       if (right <= left) continue;
-      r(left, y + 1, right - left, Math.min(19, h - 17 - y), boards[seed % boards.length]);
+      r(left, y + 1, right - left, Math.min(15, h - 17 - y), boards[seed % boards.length]);
       r(left, y, right - left, 1, '#c3a477');
-      if (x >= 12) r(x, y, 1, 20, '#bea071');
+      if (x >= 12) r(x, y, 0.5, 16, '#bea071');
       if (x + 9 > 12 && x + 47 < 548) {
         r(x + 9 + seed, y + 5 + (seed % 4), 16 + (seed % 9), 1, '#dfc398');
-        r(x + 21, y + 15, 10 + (seed % 12), 1, '#ccad7d');
+        r(x + 21, y + 12, 10 + (seed % 12), 1, '#ccad7d');
         if (seed % 7 === 0) r(x + 35, y + 10, 6, 1, '#bfa173');
       }
     }
   }
+  c.save();
+  c.beginPath();
+  c.rect(24, 206, 1072, height - 242);
+  c.clip();
+  for (let y = 213; y < height - 37; y += 16)
+    for (let x = 28; x < 1093; x += 43) {
+      const seed = (x * 13 + y * 7) % 19;
+      c.fillStyle = seed % 3 ? '#e5cba4' : '#bd9e77';
+      c.fillRect(x + seed, y + (seed % 5), 9 + seed, 1);
+      if (seed % 5 === 0) {
+        c.fillRect(x + 14, y + 5, 5, 1);
+        c.fillRect(x + 13, y + 6, 1, 2);
+        c.fillRect(x + 14, y + 8, 5, 1);
+      }
+    }
+  c.restore();
   r(12, 100, 536, 6, '#bd9e76');
   r(0, 0, 12, h, '#93ad92');
   r(548, 0, 12, h, '#93ad92');
@@ -141,6 +157,28 @@ export function worldCanvas(height = 700) {
   r(483, 225, 6, 4, '#86a688');
   r(507, 226, 15, 8, '#9aa4a0');
   r(509, 224, 11, 3, '#e0e1cf');
+  for (const wx of [98, 848]) {
+    c.fillStyle = '#f7f6e4';
+    for (let j = 0; j < 4; j++) c.fillRect(wx + 15 + j * 3, 54 + j * 2, 1, 24 - j * 3);
+    c.fillStyle = '#d9e1c6';
+    c.fillRect(wx - 5, 157, 150, 1);
+  }
+  for (const [px, py] of [
+    [46, 182],
+    [1054, 182],
+    [1056, 592],
+    [64, 616],
+  ]) {
+    c.fillStyle = '#acd08d';
+    for (let i = -8; i < 10; i += 5) {
+      c.fillRect(px + i, py - 20 + Math.abs(i), 1, 11);
+      c.fillRect(px + i + 1, py - 17 + Math.abs(i), 3, 1);
+    }
+    c.fillStyle = '#e4b28b';
+    c.fillRect(px - 10, py + 18, 1, 17);
+  }
+  c.fillStyle = '#dce5cd';
+  for (let x = 400; x < 715; x += 37) c.fillRect(x, 52 + (x % 7), 13, 1);
   return canvas;
   function plant(x: number, y: number) {
     r(x - 8, y + 15, 17, 5, '#aa956f');
@@ -172,12 +210,12 @@ export function worldCanvas(height = 700) {
 }
 export function deskCanvas() {
   const canvas = document.createElement('canvas');
-  canvas.width = 66;
-  canvas.height = 58;
+  canvas.width = 132;
+  canvas.height = 116;
   const c = canvas.getContext('2d')!;
   const r = (x: number, y: number, w: number, h: number, col: string) => {
     c.fillStyle = col;
-    c.fillRect(x, y, w, h);
+    c.fillRect(x * 2, y * 2, w * 2, h * 2);
   };
   // Shared light from the upper left: contact shadow falls down and right.
   c.globalAlpha = 0.16;
@@ -208,6 +246,25 @@ export function deskCanvas() {
   r(23, 43, 23, 5, '#83a08a');
   r(25, 51, 4, 6, '#775e45');
   r(41, 51, 4, 6, '#775e45');
+  c.fillStyle = '#eac591';
+  for (let x = 13; x < 118; x += 17) {
+    c.fillRect(x, 32 + (x % 5), 12, 1);
+    c.fillRect(x + 2, 43, 7, 1);
+  }
+  c.fillStyle = '#c6d4c5';
+  for (let y = 49; y < 55; y += 2) for (let x = 51; x < 88; x += 4) c.fillRect(x, y, 3, 1);
+  c.fillStyle = '#6e9b8c';
+  for (let y = 10; y < 25; y += 3) {
+    c.fillRect(55, y, 2, 1);
+    c.fillRect(60, y, 9 + (y % 7), 1);
+  }
+  c.fillStyle = '#b8c6ab';
+  c.fillRect(64, 37, 2, 4);
+  c.fillStyle = '#a7b99d';
+  for (let x = 48; x < 87; x += 5) c.fillRect(x, 88, 2, 1);
+  c.fillStyle = '#f4d8ab';
+  c.fillRect(12, 23, 106, 1);
+  c.fillRect(17, 29, 1, 19);
   return canvas;
 }
 export function robotCanvas() {

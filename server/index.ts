@@ -1,4 +1,6 @@
 import './runtime.js';
+import { defaultSchoolSettings, type SchoolSettings } from '../shared/school.js';
+import { appearanceSchema } from '../shared/appearance-schema.js';
 import { saveProject, ProjectConflict } from './projects.js';
 import { validateUpload, UploadError } from './uploads.js';
 import { allowedOrigin } from './config.js';
@@ -237,18 +239,6 @@ const credentialSchema = z.object({
     .max(200)
     .transform((v) => v.toLowerCase()),
   password: z.string().min(10, '비밀번호는 10자 이상 입력해 주세요.').max(128),
-});
-const appearanceSchema = z.object({
-  skin: z.string().regex(/^#[0-9a-f]{6}$/i),
-  hair: z.string().regex(/^#[0-9a-f]{6}$/i),
-  eyes: z.string().regex(/^#[0-9a-f]{6}$/i),
-  hairstyle: z.number().int().min(0).max(2),
-  eyeShape: z.number().int().min(0).max(2),
-  brows: z.number().int().min(0).max(2),
-  mouth: z.number().int().min(0).max(2),
-  expression: z.number().int().min(0).max(2),
-  accessory: z.number().int().min(0).max(2),
-  body: z.number().int().min(0).max(2),
 });
 const status = z.enum(['IDEA', 'PLANNING', 'BUILDING', 'TESTING', 'REVIEW', 'COMPLETED', 'PAUSED']);
 const url = z.union([
@@ -513,11 +503,38 @@ app.post('/api/register', (req, res) => {
   changed(u.schoolId);
   res.status(201).json({ ok: true });
 });
+function schoolSettings(schoolId: string): SchoolSettings {
+  const saved = get<SchoolSettings>('school-settings', `school-settings-${schoolId}`, schoolId);
+  return {
+    name: saved?.name ?? defaultSchoolSettings.name,
+    cohortName: saved?.cohortName ?? defaultSchoolSettings.cohortName,
+    roomName: saved?.roomName ?? defaultSchoolSettings.roomName,
+    term: saved?.term ?? defaultSchoolSettings.term,
+  };
+}
+app.patch('/api/school', (req, res) => {
+  const u = master(req);
+  const v = z
+    .object({
+      name: z.string().trim().min(1).max(40),
+      cohortName: z.string().trim().min(1).max(40),
+      roomName: z.string().trim().min(1).max(60),
+      term: z.string().trim().min(1).max(24),
+    })
+    .strict()
+    .parse(req.body);
+  transaction(() =>
+    put('school-settings', { id: `school-settings-${u.schoolId}`, ...v }, u.schoolId),
+  );
+  changed(u.schoolId);
+  res.json(v);
+});
 app.get('/api/state', (req, res) => {
   const u = auth(req);
   const isActive = u.status === 'ACTIVE';
   res.json({
     me: u,
+    school: schoolSettings(u.schoolId),
     members: isActive ? members(u.schoolId) : [u],
     projects: list<Project>('project', u.schoolId)
       .filter((p) => p.ownerId === u.id || (isActive && (u.role === 'MASTER' || p.isPublic)))
@@ -562,6 +579,9 @@ app.patch('/api/me', (req, res) => {
     })
     .parse(req.body);
   transaction(() => {
+    // An already-open legacy client has no clothing/headwear fields. Preserve
+    // those saved layers when it edits its original face/hair controls.
+    if (v.appearance) v.appearance = { ...u.appearance, ...v.appearance };
     Object.assign(u, v);
     if (v.help !== undefined) u.helpSource = 'MANUAL';
     saveMember(u);

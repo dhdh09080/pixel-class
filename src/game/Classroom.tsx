@@ -22,6 +22,45 @@ export default function Classroom({
   const stopTouch = () => scene.current?.touchMove(0, 0);
   const latest = useRef({ state, enabled, onAction, onRefresh, onConnection });
   useEffect(() => {
+    let frame = 0;
+    const placeTouchPad = () => {
+      frame = 0;
+      const root = host.current;
+      const pad = root?.querySelector<HTMLElement>('.touch-controls');
+      if (!root || !pad || getComputedStyle(pad).display === 'none') return;
+      const box = root.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const viewportBottom = viewport ? viewport.height + viewport.offsetTop : innerHeight;
+      const menu = document.querySelector<HTMLElement>('.sidebar');
+      const menuTop =
+        !document.fullscreenElement && menu && getComputedStyle(menu).position === 'fixed'
+          ? menu.getBoundingClientRect().top
+          : viewportBottom;
+      const bottom = Math.min(box.bottom, viewportBottom, menuTop) - 12;
+      const visibleHeight = bottom - Math.max(0, box.top) - 12;
+      pad.style.visibility = visibleHeight >= pad.offsetHeight ? 'visible' : 'hidden';
+      root.style.setProperty('--touch-safe-bottom', `${Math.max(12, box.bottom - bottom)}px`);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(placeTouchPad);
+    };
+    const observer = new ResizeObserver(schedule);
+    if (host.current) observer.observe(host.current);
+    window.addEventListener('scroll', schedule, { capture: true, passive: true });
+    window.addEventListener('resize', schedule);
+    window.visualViewport?.addEventListener('resize', schedule);
+    document.addEventListener('fullscreenchange', schedule);
+    schedule();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule, true);
+      window.removeEventListener('resize', schedule);
+      window.visualViewport?.removeEventListener('resize', schedule);
+      document.removeEventListener('fullscreenchange', schedule);
+    };
+  }, []);
+  useEffect(() => {
     latest.current = { state, enabled, onAction, onRefresh, onConnection };
     scene.current?.sync(state);
     if (scene.current) {
@@ -38,10 +77,13 @@ export default function Classroom({
     let retry: ReturnType<typeof setTimeout>;
     const preventPageScroll = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
+      const arrow = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key);
+      const gameButton = target?.closest('button') && container.current?.contains(target);
       if (
         latest.current.enabled &&
-        !target?.closest('input,textarea,select,button,a,[contenteditable=true]') &&
-        ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)
+        ((arrow && gameButton) ||
+          (!target?.closest('input,textarea,select,button,a,[contenteditable=true]') &&
+            (arrow || event.key === ' ')))
       )
         event.preventDefault();
     };

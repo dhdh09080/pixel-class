@@ -2,9 +2,20 @@ import { useEffect, useState } from 'react';
 import type { AppState } from '../shared/types';
 import { Field } from './components';
 import { api } from './api';
+import { defaultSchoolSettings, type SchoolSettings } from '../shared/school';
 type Usage = { usedBytes: number; limitBytes: number; freeBytes: number; backupAt: string | null };
 const mb = (n: number) => (n / 1024 / 1024).toFixed(1);
-export function AccountPage({ state, onToast }: { state: AppState; onToast: (v: string) => void }) {
+export function AccountPage({
+  state,
+  onToast,
+  onSchoolSaved,
+}: {
+  state: AppState;
+  onToast: (v: string) => void;
+  onSchoolSaved: (value: SchoolSettings) => void;
+}) {
+  const [school, setSchool] = useState(() => ({ ...defaultSchoolSettings, ...state.school }));
+  const [schoolSaving, setSchoolSaving] = useState(false);
   const [current, setCurrent] = useState(''),
     [password, setPassword] = useState(''),
     [again, setAgain] = useState('');
@@ -28,6 +39,54 @@ export function AccountPage({ state, onToast }: { state: AppState; onToast: (v: 
           </p>
         </div>
       </div>
+      {state.me.role === 'MASTER' && (
+        <div className="panel school-settings-panel">
+          <h2>학교와 교실 이름</h2>
+          <p className="muted">MASTER가 바꾸면 학생 화면에도 같은 이름으로 표시돼요.</p>
+          <form
+            className="project-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (schoolSaving) return;
+              setSchoolSaving(true);
+              void api<SchoolSettings>('/school', 'PATCH', school)
+                .then((saved) => {
+                  setSchool(saved);
+                  onSchoolSaved(saved);
+                  onToast('학교와 교실 이름을 저장했어요.');
+                })
+                .catch((error) => onToast(error.message))
+                .finally(() => setSchoolSaving(false));
+            }}
+          >
+            <div className="form-grid">
+              {(
+                [
+                  { key: 'name', label: '학교 이름', max: 40 },
+                  { key: 'cohortName', label: '기수 이름', max: 40 },
+                  { key: 'roomName', label: '교실 이름', max: 60 },
+                  { key: 'term', label: '학기 표시', max: 24 },
+                ] as const
+              ).map((field) => (
+                <Field key={field.key} label={field.label}>
+                  <input
+                    value={school[field.key]}
+                    required
+                    maxLength={field.max}
+                    disabled={schoolSaving}
+                    onChange={(event) =>
+                      setSchool((previous) => ({ ...previous, [field.key]: event.target.value }))
+                    }
+                  />
+                </Field>
+              ))}
+            </div>
+            <button className="button primary" disabled={schoolSaving}>
+              {schoolSaving ? '저장 중…' : '학교 이름 저장하기'}
+            </button>
+          </form>
+        </div>
+      )}
       <div className="panel">
         <h2>비밀번호 변경</h2>
         <form

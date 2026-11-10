@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-10",
+  "unit": {
+    "command": "npm test",
+    "passed": 76,
+    "failed": 0
+  },
+  "browser": {
+    "command": "npm run test:e2e",
+    "passed": 40,
+    "failed": 0,
+    "duration": "4.8 minutes"
+  },
+  "compose": {
+    "command": "npm run test:operations",
+    "passed": 1,
+    "failed": 0,
+    "duration": "35.4 seconds"
+  },
+  "railwayProfile": {
+    "command": "npm run test:railway",
+    "passed": 1,
+    "failed": 0,
+    "duration": "42.6 seconds",
+    "scope": "local Docker, not an actual Railway deployment"
+  },
+  "total": 118,
+  "limitations": "Chromium and isolated synthetic accounts; no external production account test or physical device certification."
+}

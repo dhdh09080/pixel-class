@@ -6,6 +6,7 @@ import {
   Images,
   Users,
   Settings,
+  Pencil,
   Bell,
   ChevronRight,
   ArrowUpRight,
@@ -40,6 +41,7 @@ import { MasterPage } from './Master';
 import { MaterialsPage } from './Materials';
 import { TeachingPage } from './Teaching';
 import { AccountPage } from './Account';
+import { defaultSchoolSettings } from '../shared/school';
 import { CharacterEditor } from './CharacterEditor';
 import { Auth, type Config } from './Auth';
 import type { GameAction } from './game/scene';
@@ -386,10 +388,10 @@ export default function App() {
             <span className="school-symbol">
               <Flag size={15} />
             </span>
-            <strong>픽셀 스쿨</strong>
+            <strong>{state.school?.name || defaultSchoolSettings.name}</strong>
             <ChevronRight size={13} />
-            <span>AI 메이커스 1기</span>
-            <span className="school-term">2026 가을학기</span>
+            <span>{state.school?.cohortName || defaultSchoolSettings.cohortName}</span>
+            <span className="school-term">{state.school?.term || defaultSchoolSettings.term}</span>
           </div>
           <div className="topbar-actions">
             {state.demo && (
@@ -516,8 +518,20 @@ export default function App() {
                         <span className="room-icon">
                           <Home size={18} />
                         </span>
-                        <h2>AI 메이커스 교실</h2>
-                        <span className="room-badge">1학년 1반</span>
+                        <h2>{state.school?.roomName || defaultSchoolSettings.roomName}</h2>
+                        {me.role === 'MASTER' && (
+                          <button
+                            className="icon-button room-rename"
+                            aria-label="학교·교실 이름 바꾸기"
+                            title="학교·교실 이름 바꾸기"
+                            onClick={() => setPage('account')}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
+                        <span className="room-badge">
+                          {state.school?.cohortName || defaultSchoolSettings.cohortName}
+                        </span>
                       </div>
                       <div className="map-online">
                         <span className={`connection-dot ${connected ? 'live' : ''}`} />
@@ -792,7 +806,16 @@ export default function App() {
           ) : page === 'teaching' ? (
             <TeachingPage key={me.id} state={state} onToast={onToast} />
           ) : page === 'account' ? (
-            <AccountPage key={me.id} state={state} onToast={onToast} />
+            <AccountPage
+              key={me.id}
+              state={state}
+              onToast={onToast}
+              onSchoolSaved={(school) =>
+                setState((previous) =>
+                  previous && previous.me.id === me.id ? { ...previous, school } : previous,
+                )
+              }
+            />
           ) : page === 'materials' ? (
             <MaterialsPage state={state} mutate={mutate} onToast={onToast} />
           ) : page === 'gallery' ? (

@@ -176,11 +176,15 @@ test('character preview updates instantly, cancellation discards changes, and ke
   const original = (await (await context.request.get('/api/state')).json()).me;
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
   const dialog = page.getByRole('dialog');
-  const avatar = dialog.locator('.avatar');
+  const avatar = dialog.locator('.character-preview > .avatar');
   const image = await avatar.getAttribute('src');
+  const options = ['내추럴 레이어', '실키 롱', '숏 크롭'];
   await dialog
-    .getByLabel('헤어스타일', { exact: true })
-    .selectOption(String((original.appearance.hairstyle + 1) % 3));
+    .getByRole('button', {
+      name: '헤어스타일: ' + options[(original.appearance.hairstyle + 1) % 3],
+      exact: true,
+    })
+    .click();
   await expect(avatar).not.toHaveAttribute('src', image!);
   await dialog.getByLabel('이름', { exact: true }).fill('저장하지 않을 이름');
   await dialog.getByRole('button', { name: '취소', exact: true }).click();

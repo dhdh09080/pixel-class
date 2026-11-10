@@ -3,6 +3,7 @@ import App from './App';
 import { ErrorBoundary } from './ErrorBoundary';
 import './styles.css';
 import './design-system.css';
+import './character-studio.css';
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>
     <App />
