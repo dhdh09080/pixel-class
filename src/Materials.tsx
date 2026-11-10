@@ -179,7 +179,7 @@ export function MaterialsPage({
             </div>
             {deleting === m.id && (
               <div className="delete-confirm">
-                <span>자료를 삭제할까요?</span>
+                <span>자료와 보관된 모든 버전을 삭제할까요?</span>
                 <button
                   className="text-button danger-text"
                   onClick={() =>

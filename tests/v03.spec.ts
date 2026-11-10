@@ -331,7 +331,9 @@ test('sitting follows a safe route to the assigned chair and movement exits the 
   const desk = state.desks.find((d: any) => d.id === state.me.deskId);
   const world = page.locator('.game-host');
   await page.getByRole('button', { name: '책상에 앉기', exact: true }).click();
-  await expect(world).toHaveAttribute('data-seated', 'true', { timeout: 15000 });
+  // Earlier scale/texture scenarios leave a tall classroom. Walking from its
+  // bottom entrance to the first desk legitimately takes more than 15 seconds.
+  await expect(world).toHaveAttribute('data-seated', 'true', { timeout: 30000 });
   const x = Number(await world.getAttribute('data-x')),
     y = Number(await world.getAttribute('data-y'));
   expect(Math.hypot(x - desk.x, y - desk.y - 80)).toBeLessThan(6);
