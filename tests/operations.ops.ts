@@ -126,6 +126,16 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
     let identity: AppState['me'];
     await test.step('two independent password accounts complete the actual UI flow', async () => {
       await masterPage.goto('/');
+      if (railway) {
+        await masterPage.getByLabel('공용 접근 비밀번호').fill('incorrect-access-code');
+        await masterPage.getByRole('button', { name: '계속하기' }).click();
+        await expect(masterPage.getByRole('alert')).toContainText('다시 확인');
+        await masterPage.getByLabel('공용 접근 비밀번호').fill(gate!.password);
+        await masterPage.getByRole('button', { name: '계속하기' }).click();
+        const pass = (await teacher.cookies()).find((c) => c.name === '__Host-pixel_access');
+        expect(pass?.httpOnly).toBe(true);
+        expect(pass?.secure).toBe(true);
+      }
       await masterPage.getByLabel('부트스트랩 KEY').fill(process.env.OPS_BOOTSTRAP_KEY!);
       await masterPage.getByLabel('이름', { exact: true }).fill('운영 검증 선생님');
       await masterPage.getByLabel('이메일').fill('ops-master@example.com');
@@ -158,6 +168,11 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
       invitation = await masterPage.locator('.invite-result code').innerText();
       expect(invitation.length).toBeGreaterThan(20);
       await studentPage.goto('/?invite=' + encodeURIComponent(invitation));
+      if (railway) {
+        await studentPage.getByLabel('공용 접근 비밀번호').fill(gate!.password);
+        await studentPage.getByRole('button', { name: '계속하기' }).click();
+        await expect(studentPage.getByLabel('입학 초대 KEY')).toHaveValue(invitation);
+      }
       await studentPage.getByLabel('이름', { exact: true }).fill('운영 검증 학생');
       await studentPage.getByLabel('이메일').fill('ops-student@example.com');
       await studentPage.getByLabel('비밀번호', { exact: true }).fill(credentials.student);

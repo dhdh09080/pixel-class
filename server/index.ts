@@ -3,6 +3,15 @@ import { saveProject, ProjectConflict } from './projects.js';
 import { validateUpload, UploadError } from './uploads.js';
 import { allowedOrigin } from './config.js';
 import { privateAccess } from './private-access.js';
+import {
+  accessCookie,
+  accessDuration,
+  createAccessPass,
+  entranceInvite,
+  entrancePage,
+  validAccessCode,
+  validAccessPass,
+} from './entrance.js';
 import { isRailway } from './railway-volume.mjs';
 import { aiLimits, mentoringInput } from './ai-policy.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
@@ -76,10 +85,22 @@ app.use((req, res, next) => {
   if (railway) {
     // Never cache gated assets at a shared edge. Only the minimal liveness probe is public.
     res.setHeader('Cache-Control', 'private, no-store');
+    const accessSecret = process.env.STAGING_ACCESS_KEY;
+    if (req.method === 'POST' && req.path === '/access') {
+      if (
+        !req.headers.origin ||
+        !allowedOrigin(req.headers.origin, req.headers.host, process.env.PUBLIC_ORIGIN)
+      )
+        return res.status(403).json({ error: '다른 출처의 요청은 허용하지 않습니다.' });
+      return next();
+    }
     if (
       !(req.method === 'GET' && req.url === '/api/health') &&
-      !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)
+      !privateAccess(req.headers.authorization, accessSecret) &&
+      !validAccessPass(req.headers.cookie, accessSecret)
     ) {
+      if (req.method === 'GET' && req.path === '/' && req.get('accept')?.includes('text/html'))
+        return res.status(401).send(entrancePage(entranceInvite(req.query.invite)));
       res.setHeader(
         'WWW-Authenticate',
         'Basic realm="Pixel Class private school", charset="UTF-8"',
@@ -170,6 +191,34 @@ function rate(key: string, max: number, ms = 15 * 60000) {
     limits.set(key, r);
   }
   if (++r.count > max) fail(429, '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.');
+}
+if (railway) {
+  app.post(
+    '/access',
+    express.urlencoded({ extended: false, limit: '2kb', parameterLimit: 2 }),
+    (req, res) => {
+      const invite = entranceInvite(req.body?.invite);
+      const secret = process.env.STAGING_ACCESS_KEY;
+      try {
+        rate('entrance:' + req.ip, 20);
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.status !== 429) throw error;
+        return res.status(429).send(entrancePage(invite, error.message));
+      }
+      if (!secret || !validAccessCode(req.body?.code, secret))
+        return res
+          .status(401)
+          .send(entrancePage(invite, '공용 접근 비밀번호를 다시 확인해 주세요.'));
+      res.cookie(accessCookie, createAccessPass(secret), {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: accessDuration,
+      });
+      return res.redirect(303, invite ? '/?invite=' + invite : '/');
+    },
+  );
 }
 const str = z.string().trim().max(4000);
 const credentialSchema = z.object({
@@ -1098,7 +1147,11 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });
 server.on('upgrade', (req, socket, head) => {
-  if (railway && !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)) {
+  if (
+    railway &&
+    !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY) &&
+    !validAccessPass(req.headers.cookie, process.env.STAGING_ACCESS_KEY)
+  ) {
     socket.end(
       'HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm="Pixel Class private school"\r\n\r\n',
     );

@@ -48,23 +48,26 @@ export function Auth({
   return (
     <div className={`auth-shell ${embedded ? 'embedded' : ''}`}>
       <div className="auth-brand">
-        <div className="brand-mark">
-          P<span />
+        <div className="auth-terminal">
+          <div className="auth-terminal-bar">
+            <span aria-hidden="true">&gt;_</span> pixel-class / workspace
+          </div>
+          <div className="auth-terminal-body">
+            <p className="auth-kicker">AI LEARNING WORKSPACE</p>
+            <strong>PIXEL CLASS</strong>
+            <p className="auth-team">성동자이리버뷰 안전보건팀</p>
+            <div className="auth-pixel-people" aria-hidden="true">
+              <Avatar appearance={defaultAppearance} size={112} />
+              <Avatar
+                appearance={{ ...defaultAppearance, hairstyle: 1, hair: '#925b32', accessory: 1 }}
+                size={112}
+              />
+            </div>
+            <p className="auth-terminal-status">
+              <i /> PROJECTS · SUBMISSIONS · FEEDBACK
+            </p>
+          </div>
         </div>
-        <strong>PIXEL CLASS</strong>
-        <p>
-          Learn AI.
-          <br />
-          Build Your Own Service.
-        </p>
-        <div className="auth-pixel-people">
-          <Avatar appearance={defaultAppearance} size={160} />
-          <Avatar
-            appearance={{ ...defaultAppearance, hairstyle: 1, hair: '#925b32', accessory: 1 }}
-            size={160}
-          />
-        </div>
-        <span>내 아이디어가 자라는 작은 학교</span>
       </div>
       <div className="auth-content">
         {customize ? (
@@ -94,7 +97,7 @@ export function Auth({
           </>
         ) : (
           <>
-            <p className="eyebrow">WELCOME, MAKER</p>
+            <p className="eyebrow">{config.demo ? 'LOCAL WORKSPACE' : '02 / 02 · ACCOUNT'}</p>
             <h1>
               {mode === 'bootstrap'
                 ? '우리 학교를 시작해요'
@@ -107,7 +110,7 @@ export function Auth({
                 ? '서버에 설정한 부트스트랩 KEY로 최초 MASTER를 등록해요.'
                 : mode === 'register'
                   ? 'MASTER에게 받은 초대 KEY로 입학해 보세요.'
-                  : '작은 아이디어가 자라는 교실로 들어가요.'}
+                  : '교실 계정으로 로그인하세요. 선생님 계정은 접속 안내 파일에 있어요.'}
             </p>
             <div className="filter-tabs">
               <button
