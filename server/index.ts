@@ -210,7 +210,7 @@ if (railway) {
       const reset = entranceInvite(req.body?.reset);
       const secret = process.env.STAGING_ACCESS_KEY;
       try {
-        rate('entrance:' + req.ip, 20);
+        rate('entrance:' + req.ip, 120);
       } catch (error) {
         if (!(error instanceof HttpError) || error.status !== 429) throw error;
         return res.status(429).send(entrancePage(invite, error.message, reset));
@@ -408,8 +408,11 @@ app.post('/api/demo', (req, res) => {
   res.json({ ok: true });
 });
 app.post('/api/login', (req, res) => {
-  rate(`login:${req.ip}`, 15);
+  // Classmates commonly share one site/office NAT. Bound the source and the
+  // individual account separately so one class can sign in together.
+  rate(`login:${req.ip}`, 120);
   const c = credentialSchema.parse(req.body);
+  rate(`login-account:${digest(c.email)}`, 12);
   const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(c.email) as
     { password: string; body: string } | undefined;
   const [salt, expected] = (row?.password || '0:').split(':');

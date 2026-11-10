@@ -222,9 +222,7 @@ export function TeachingPage({
                                 결과물 열기 ↗
                               </a>
                             )}
-                            <p className="muted">
-                              {deadlineText(s.submittedAt)} · 제출 버전 {s.revision}
-                            </p>
+                            <p className="muted">{deadlineText(s.submittedAt)}</p>
                             <ReviewForm key={studentId} submission={s} act={act} />
                           </>
                         )}

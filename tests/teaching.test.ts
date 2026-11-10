@@ -415,3 +415,41 @@ test('deleting a material releases every saved version from the school storage b
   );
   fixture.close();
 });
+
+test('shared-IP login allowance retains a separate per-account guessing limit', async () => {
+  for (let i = 0; i < 12; i++) {
+    assert.equal(
+      (
+        await request(
+          '/login',
+          'POST',
+          { email: 'missing-account@example.com', password: 'incorrect-password' },
+          '',
+        )
+      ).res.status,
+      401,
+    );
+  }
+  assert.equal(
+    (
+      await request(
+        '/login',
+        'POST',
+        { email: 'missing-account@example.com', password: 'incorrect-password' },
+        '',
+      )
+    ).res.status,
+    429,
+  );
+  assert.equal(
+    (
+      await request(
+        '/login',
+        'POST',
+        { email: 'teacher@teaching.example', password: 'teacher-password-only' },
+        '',
+      )
+    ).res.status,
+    200,
+  );
+});
