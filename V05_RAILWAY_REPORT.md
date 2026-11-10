@@ -1,5 +1,7 @@
 # Pixel Class v0.5 — Railway 배포 확인 보고
 
+> 최신 계정 인계 상태: 실제 복구·검증 백업과 공용 암호 일치를 확인했고 최종 배포는 SUCCESS입니다. 두 비밀의 Seal과 일반 시작 명령 복원도 완료했습니다. 아래 이전 시점의 차단 기록과 구분해 [MASTER_HANDOFF.md](MASTER_HANDOFF.md)를 확인하세요.
+
 2026-11-10 KST. 이 문서는 v0.5 실제 배포 확인과 최신 main 통합 기록입니다. main에는 v0.6 수업·과제·수동 복구·자동 로컬 백업 기능이 추가되어 이를 보존합니다. **Railway 실제 배포는 `SUCCESS`이며 서비스 1개와 영구 Volume이 실행 중입니다.** 주소는 <https://pixel-class-private-test.up.railway.app>입니다. 다만 현재 Codex 실행 환경에서 이 호스트로의 HTTPS 요청이 CONNECT403으로 차단되어, 이번 작업의 외부 두 계정 인수 검사는 완료하지 못했습니다. 배포 성공과 학생 사용 준비 완료를 구분합니다.
 
 ## Git와 실제 플랫폼 상태
@@ -91,3 +93,7 @@ Railway 최근1시간 61개 표본에서 MEMORY_USAGE_GB 현재 약0.08675, 최�
 ## MASTER 계정 인계 후속 기록
 
 2026-11-10 KST. 기존 MASTER의 실제 로그인 정보 인계가 확인되지 않아 [PR #9](https://github.com/dhdh09080/pixel-class/pull/9)의 플랫폼 관리자용 오프라인 복구 도구를 main에 병합했습니다. [CI](https://github.com/dhdh09080/pixel-class/actions/runs/42769565895)109/109 성공. 공개 인증 경로는 추가하지 않으며, 원본 검증 백업과 같은 사용자/학교 보존, 이전 MASTER 세션만 철회, 재실행 시 이후 변경한 비밀번호 보존을 검사했습니다. 실제 배포 적용은 사용자 미승인 응답으로 취소돼 staged 상태이며, 기존 DB·키·계정은 변경하지 않았습니다. [상세 인계 기록](MASTER_HANDOFF.md)과 실제 서비스 상태를 구분합니다.
+
+## MASTER 인계 실제 적용 완료
+
+사용자 대시보드 승인 후 복구 배포 `9e6e1f3c-dc8b-4f02-a061-63b57dfc7b12`에서 applied:true/backupVerified:true를 확인했습니다. 최종 `fb44aa92-27bc-411d-83ad-8954010861cc`는 SUCCESS, alreadyApplied:true/accessMatchesExpected:true이며 source는 main `67f84b5`입니다. 같은 500MB Volume 유지, 일반 시작 명령 복원, 실제 두 비밀 Seal·대기 변경 없음 확인. CI109개 성공. 초기 접속 정보는 저장소 밖 개인 파일로 인계하며 Git·로그에는 넣지 않습니다. 외부 두 계정/WSS 전체 인수는 미완료로 유지합니다.

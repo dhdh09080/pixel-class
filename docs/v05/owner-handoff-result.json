@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-11-10T06:57:48Z",
+  "sourceCommit": "67f84b5d957ca6eed65745b73400adbf3bc0ef00",
+  "pr": "https://github.com/dhdh09080/pixel-class/pull/9",
+  "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/42769565895",
+  "tests": {
+    "server": 72,
+    "browser": 35,
+    "operations": 2,
+    "total": 109
+  },
+  "handoff": {
+    "deploymentId": "9e6e1f3c-dc8b-4f02-a061-63b57dfc7b12",
+    "status": "SUCCESS",
+    "applied": true,
+    "backupVerified": true,
+    "oldAccessCandidateMatched": false
+  },
+  "accessRotation": {
+    "deploymentId": "fb44aa92-27bc-411d-83ad-8954010861cc",
+    "status": "SUCCESS",
+    "applied": false,
+    "alreadyApplied": true,
+    "accessMatchesExpected": true
+  },
+  "normalStartCommand": "node scripts/start.mjs",
+  "sealedVariableNames": ["MASTER_BOOTSTRAP_KEY", "STAGING_ACCESS_KEY"],
+  "volume": {
+    "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+    "mountPath": "/app/data",
+    "sizeMB": 500,
+    "preserved": true
+  },
+  "stagedChanges": 0,
+  "credentialsInGit": false,
+  "externalTwoAccountAcceptance": false
+}

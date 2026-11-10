@@ -25,8 +25,18 @@
 - `npm run build`, `npm run typecheck`, `npm run format:check`: 통과.
 - 기존 브라우저35개/Compose1개를 포함한 전체109개 CI와 실제 원격 적용 결과는 해당 PR Checks 및 후속 상태를 기준으로 기록합니다. 로컬 통과를 원격 적용 완료로 보고하지 않습니다.
 
-## 실제 적용 상태
+## 실제 적용 상태 — 완료
 
-PR #9를 main `67f84b5`에 병합했고, [CI 42769565895](https://github.com/dhdh09080/pixel-class/actions/runs/42769565895)에서 전체109개(서버72·브라우저35·운영2)가 통과했습니다. 실제 서비스에는 아직 적용되지 않았습니다. 실제 반영 로그·백업·공용 암호 일치·정상 재시작이 확인된 뒤에만 계정 인계 완료로 갱신합니다. 사용자가 설정한 두 비밀의 Seal 변경도 보존합니다. 기존 키를 되돌리거나 DB를 삭제하지 않습니다.
+2026-11-10 KST. [PR #9](https://github.com/dhdh09080/pixel-class/pull/9)를 main `67f84b5`에 병합했고 [CI 42769565895](https://github.com/dhdh09080/pixel-class/actions/runs/42769565895)에서109/109개가 통과했습니다.
 
-2026-11-10 KST: 기존 서비스에 소스 `67f84b5`와 일회성 복구 시작 명령을 staged로 준비했습니다. 사용자가 설정한 두 비밀의 Seal 변경도 그대로 보존했습니다. Volume 삭제/교체·새 자원·원문 비밀번호 변수는 없습니다. 실제 `accept-deploy` 요청은 승인 단계에서 “Cancelled — the user did not approve this action. No changes were made.”로 취소됐습니다. 기존 배포 `a427cac4-806c-4d0f-bf5f-75a8d655f7a2`는 유지되며, MASTER 로그인 변경과 복구 전 운영 백업 생성은 아직 실행되지 않았습니다. 준비된 변경을 소유자가 승인한 뒤 실제 적용 로그와 공용 암호 일치를 확인해야 합니다. 접속 안내 파일은 확인 후에만 전달합니다.
+- 첫 실제 배포 `9e6e1f3c-dc8b-4f02-a061-63b57dfc7b12`가 SUCCESS입니다. 운영 로그에 `ok:true, applied:true, backupVerified:true`가 확인되어 기존 MASTER 계정 인계와 검증된 사전 백업이 적용됐습니다.
+- 보관된 공용 암호가 실제 값과 달라 잘못된 암호를 전달하지 않았습니다. 기존 Seal을 유지하면서 STAGING_ACCESS_KEY의 encryptedValue만 변경했고, 사용자가 승인해 두 번째 배포에 적용했습니다. 키 원문을 읽거나 Unseal하지 않았습니다.
+- 최종 배포 `fb44aa92-27bc-411d-83ad-8954010861cc`가 SUCCESS입니다. 재실행 로그는 `ok:true, applied:false, alreadyApplied:true, accessMatchesExpected:true`입니다. MASTER 비밀번호를 다시 변경하지 않았고 전달할 공용 암호와 서버 값의 일치를 확인했습니다.
+- 같은 school-data Volume ID, `/app/data`, sfo·500MB를 유지했습니다. DB나 기존 계정을 삭제하지 않았으며 학교/사용자 ID·캐릭터·학생·프로젝트·교안을 유지하는 복구 경로입니다.
+- 현재 서비스 설정은 `node scripts/start.mjs`로 복원됐고 staged 변경은 없습니다. 현재 프로세스도 일반 서버로 전환해 PRIVATE SCHOOL 준비가 확인됐습니다. startCommand 복원 자체가 별도 재배포/재시작 검증을 의미하지는 않습니다.
+- 실제 sealedVariableNames에 MASTER_BOOTSTRAP_KEY와 STAGING_ACCESS_KEY가 포함됨을 재확인했습니다. DATABASE_MODE=existing 설정을 유지합니다.
+- 실제 로그인 이메일·초기 비밀번호·공용 암호는 Git 밖0600 개인 파일 `MASTER-접속안내.txt`로 인계합니다. 초기 로그인 후 본인이 계정 화면에서 비밀번호를 변경합니다. 부트스트랩 KEY는 로그인에 필요하지 않습니다.
+
+초기 도구 적용 요청들은 사용자 미승인 응답으로 취소됐으나, 이후 사용자가 대시보드에서 직접 승인한 배포 두 건의 성공과 적용 로그를 확인했습니다. 이 이전 차단 사유를 현재 미완료 상태로 사용하지 않습니다.
+
+[비밀 없는 적용 결과](docs/v05/owner-handoff-result.json)를 보관합니다. 현재 Codex outbound 정책 때문에 실제 외부 브라우저 계정 로그인·두 계정/WSS 전체 인수는 이 환경에서 직접 재실행하지 못했습니다. 서버의 계정 인계/백업/공용 암호 일치 검증과 로컬 정상 로그인 검사를 외부 전체 흐름 완료로 확대 보고하지 않습니다. 외부 백업·비용 경보·이메일 확인/MFA는 별도 운영 항목입니다.

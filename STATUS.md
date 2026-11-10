@@ -32,28 +32,28 @@ Railway pixel-class/private-test, 단일 Express가 React/Phaser·API·WebSocket
 
 2026-11-10 KST. **Railway 실제 배포 성공(`SUCCESS`), 비공개 외부 인수 대기.** 이전 승인 대기/URL 없음 기록을 갱신합니다.
 
-| 항목                     | 상태                                                                                                                                                                         |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 실제 URL                 | <https://pixel-class-private-test.up.railway.app>                                                                                                                            |
-| 프로젝트 / 환경 / 서비스 | `pixel-class` / `private-test` / `pixel-class`, [Railway](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)                                                  |
-| 배포                     | `a427cac4-806c-4d0f-bf5f-75a8d655f7a2`, SUCCESS / Online / 1 running, 적용 대기 없음                                                                                         |
-| 실행 소스                | `main` @ `c7218ad9ac4635a5916149397e79a0f8fbb9806d` (v0.6) 고정. main 갱신과 실행 소스는 구분                                                                                |
-| Volume / DB              | live `school-data` 500MB `/app/data` sfo. SQLite WAL 유지, Supabase 전환·기존 DB 삭제 없음. 실제 DB 직접 조회/원격 복원은 미검증                                             |
-| 인증                     | 공용 암호 폼·서명 쿠키 + 계정 세션·초대·학교/역할/소유권 검사. 로컬 통과. 실제 과거 bootstrap/register/login 성공 이력 있음; 현재 계정 상태는 미조회                         |
-| 비밀                     | 변수 값은 OAuth에서 가림. 실제 sealed 목록은 비어 있으므로 소유자 UI의 Seal 작업 필요. 비밀 원문 공개/재발급 안 함                                                           |
-| 검사                     | 최신 main 통합: 단위/통합68 + 브라우저35 + Railway 운영1 + Compose 운영1 = 105/105 로컬 통과. 운영 의존성 audit 취약점0. 최종 PR CI는 보고서 참조                            |
-| 실제 HTTPS/WSS           | 기존 main CI42757062609 live 성공: 실제 HTTPS 릴리스0.6.0·health·입구·익명 경로/틀린 암호/Origin 차단. Codex 직접 HTTPS는 CONNECT403. 외부 두 계정/WSS101/재배포 보존 미완료 |
-| 네트워크 제한            | 도메인 허용 요청 후에도 현재 인스턴스는 allowed_hosts=[] / restricted / enforced. 현재 환경 반영 또는 새 환경 필요                                                           |
-| 화면 / 성능              | 기존5해상도·접근성·노트북/모바일 CPU4배 감속 검사 통과. 새 로컬 증거 `docs/v05/release-check/`; 실물 기기 인증 아님                                                          |
-| 원격 자원                | 최근1시간 메모리 약0.08675GB·제한 약1GB, 디스크 지표 약0.03382GB. 단일 관측이며 Volume 사용률/부하 보증 아님                                                                 |
-| AI                       | OpenAI 키/모델 변수 없음·실제 호출 미실행. 기본 비활성. 연결 시 학교 하루3회/동시1개부터 시작                                                                                |
-| 비용 / 백업              | 기존 리소스 유지·플랜 상향 없음. 실제 청구/잔액·지출 경보·외부 백업 스케줄 미확인/미설정                                                                                     |
-| 공개 운영                | 이메일 검증/복구/MFA·외부 인수 미완료. 공개 운영 보류                                                                                                                        |
+| 항목                     | 상태                                                                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 실제 URL                 | <https://pixel-class-private-test.up.railway.app>                                                                                                                                   |
+| 프로젝트 / 환경 / 서비스 | `pixel-class` / `private-test` / `pixel-class`, [Railway](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)                                                         |
+| 배포                     | `fb44aa92-27bc-411d-83ad-8954010861cc`, SUCCESS / Online / 1 running, 적용 대기 없음                                                                                                |
+| 실행 소스                | `main` @ `67f84b5d957ca6eed65745b73400adbf3bc0ef00` (v0.6 + 소유자 인계 도구) 고정. main 갱신과 실행 소스는 구분                                                                    |
+| Volume / DB              | live `school-data` 500MB `/app/data` sfo. SQLite WAL 유지, Supabase 전환·기존 DB 삭제 없음. 관리 도구의 기존 DB 무결성 검사·복구 전 백업 검증 완료. 원격 백업 복원 연습은 미실행    |
+| 인증                     | 공용 암호 폼·서명 쿠키 + 계정 세션·초대·학교/역할/소유권 검사. 로컬 통과. 운영 MASTER 인계 applied:true 및 재실행 alreadyApplied:true 확인. 외부 실제 브라우저 로그인 검증은 미완료 |
+| 비밀                     | 변수 값은 OAuth에서 가림. 두 비밀의 실제 Seal 확인. 공용 접근 암호를 Seal 유지로 갱신했고 서버 값과 전달 후보의 일치 확인                                                           |
+| 검사                     | 소유자 인계 포함: 서버72 + 브라우저35 + Railway 운영1 + Compose 운영1 = 109/109 CI 통과. 복구 컨테이너·일반 로그인·안전한 재실행 검증 포함                                          |
+| 실제 HTTPS/WSS           | 기존 main CI42757062609 live 성공: 실제 HTTPS 릴리스0.6.0·health·입구·익명 경로/틀린 암호/Origin 차단. Codex 직접 HTTPS는 CONNECT403. 외부 두 계정/WSS101/재배포 보존 미완료        |
+| 네트워크 제한            | 도메인 허용 요청 후에도 현재 인스턴스는 allowed_hosts=[] / restricted / enforced. 현재 환경 반영 또는 새 환경 필요                                                                  |
+| 화면 / 성능              | 기존5해상도·접근성·노트북/모바일 CPU4배 감속 검사 통과. 새 로컬 증거 `docs/v05/release-check/`; 실물 기기 인증 아님                                                                 |
+| 원격 자원                | 최근1시간 메모리 약0.08675GB·제한 약1GB, 디스크 지표 약0.03382GB. 단일 관측이며 Volume 사용률/부하 보증 아님                                                                        |
+| AI                       | OpenAI 키/모델 변수 없음·실제 호출 미실행. 기본 비활성. 연결 시 학교 하루3회/동시1개부터 시작                                                                                       |
+| 비용 / 백업              | 기존 리소스 유지·플랜 상향 없음. 실제 청구/잔액·지출 경보·외부 백업 스케줄 미확인/미설정                                                                                            |
+| 공개 운영                | 이메일 검증/복구/MFA·외부 인수 미완료. 공개 운영 보류                                                                                                                               |
 
 [V05_RAILWAY_REPORT.md](V05_RAILWAY_REPORT.md)에 실제 ID·검증 결과·남은 설정·Git/CI를 기록합니다. [Railway 운영 지침](deploy/railway/README.md) · [기존 Compose](deploy/README.md).
 
-## MASTER 로그인 인계 — 적용 승인 대기
+## MASTER 로그인 인계 — 완료
 
-PR #9의 오프라인 복구 도구를 main `67f84b5`에 병합했습니다. 전체109개 CI 통과. 기존 DB·사용자 ID·학교·학생 데이터를 유지하는 일회성 인계와 검증된 사전 백업을 준비했습니다. 실제 이메일·비밀번호·공용 암호는 Git에 기록하지 않습니다.
+PR #9/main `67f84b5`, CI109개 성공. 사용자 승인 후 실제 복구 배포 `9e6e1f3c-dc8b-4f02-a061-63b57dfc7b12`에서 계정 인계·검증 백업이 적용됐습니다. 최종 배포 `fb44aa92-27bc-411d-83ad-8954010861cc`는 SUCCESS이며 공용 암호 일치와 비밀번호 미재변경을 확인했습니다. 같은 영구 Volume을 유지하고 일반 시작 명령을 복원했습니다. 두 비밀은 실제 sealed이며 대기 변경은 없습니다.
 
-Railway에 사용자 Seal2개와 소스/실행 명령 변경이 staged 상태입니다. 배포 적용 도구는 사용자 미승인으로 취소됐으며 기존 서비스가 실행 중입니다. **운영 MASTER 인계는 아직 완료되지 않았고 실제 백업/계정 변경도 미실행입니다.** [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 CI와 차단 사유를 기록합니다.
+접속 정보는 Git 밖 개인용0600 파일로 전달하며 실제 이메일·비밀번호·공용 암호는 Git/로그에 기록하지 않습니다. 외부 브라우저 두 계정/WSS 전체 인수와 외부 백업·비용 경보는 남아 있습니다. [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 실제 적용과 검증 범위를 기록합니다.
