@@ -1,3 +1,4 @@
+import { CHARACTER_SCALE } from './character';
 import Phaser from 'phaser';
 import { placeNameplate, type LabelRect } from '../../shared/nameplates';
 import type { AppState, Member } from '../../shared/types';
@@ -84,7 +85,7 @@ export class ClassroomScene extends Phaser.Scene {
     this.textures.addCanvas('world', worldCanvas(room.height));
     this.textures.addCanvas('desk', deskCanvas());
     this.textures.addCanvas('robot', robotCanvas());
-    this.worldImage = this.add.image(0, 0, 'world').setOrigin(0).setScale(2);
+    this.worldImage = this.add.image(0, 0, 'world').setOrigin(0).setScale(1);
     this.cameras.main.setBounds(0, 0, room.width, room.height);
     this.input.on('wheel', (_p: unknown, _o: unknown, _x: number, y: number) => {
       if (this.enabled) {
@@ -227,7 +228,7 @@ export class ClassroomScene extends Phaser.Scene {
         const image = this.add
           .image(d.x, d.y + 58, 'desk')
           .setOrigin(0.5, 1)
-          .setScale(2)
+          .setScale(1)
           .setDepth(d.y + 35)
           .setInteractive({ useHandCursor: true });
         const glow = this.highlight(image, d.x, d.y + 7, 134, 116);
@@ -285,7 +286,7 @@ export class ClassroomScene extends Phaser.Scene {
         const sprite = this.add
           .sprite(x, y, `${texturePrefix}-down-0`)
           .setOrigin(0.5, 1)
-          .setScale(1.15)
+          .setScale(CHARACTER_SCALE)
           .setInteractive({ useHandCursor: true });
         sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
           this.pointerAction(pointer, { type: 'profile', memberId: member.id }),
@@ -617,7 +618,7 @@ export class ClassroomScene extends Phaser.Scene {
       const prefix = p.sprite.getData('prefix') as string;
       const frame =
         p.moving && !this.reducedMotion ? [0, 1, 0, 2][Math.floor(p.walkDistance / 18) % 4] : 0;
-      p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (64 * 1.15) : 1);
+      p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (128 * CHARACTER_SCALE) : 1);
       p.sprite.setTexture(p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`);
       p.sprite.setDepth(p.sprite.y - (p.seated ? 40 : 0));
       const visible = this.cameras.main.worldView.contains(p.sprite.x, p.sprite.y - 35);

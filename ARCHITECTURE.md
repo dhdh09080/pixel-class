@@ -1,12 +1,12 @@
-# Pixel Class v0.5 아키텍처
+# Pixel Class v0.6 아키텍처
 
 ## 실행 경계
 
-v0.5 Railway 경계는 HTTPS edge → Express 정적 파일/API/인증 WebSocket 한 서비스 → `/app/data` SQLite WAL입니다. 기존 Compose/Caddy 경로는 보존합니다. `.railway/railway.ts`는 SDK 기반 scoped IaC이며 서비스1개·Volume1개·replica1·Health Check·재시작·drain을 선언합니다. **Railway 연결·프로젝트 초안은 완료됐고 실제 배포 적용은 승인 대기**이며 [운영 절차](deploy/railway/README.md)에 필수 변수와 중단 조건을 구분했습니다.
+v0.5 Railway 경계는 HTTPS edge → Express 정적 파일/API/인증 WebSocket 한 서비스 → `/app/data` SQLite WAL입니다. 기존 Compose/Caddy 경로는 보존합니다. `.railway/railway.ts`는 SDK 기반 scoped IaC이며 서비스1개·Volume1개·replica1·Health Check·재시작·drain을 선언합니다. **기존 v0.6 비공개 Railway 배포는 SUCCESS이며 새 변경의 실제 적용 커밋은 STATUS.md에서 별도 추적**이며 [운영 절차](deploy/railway/README.md)에 필수 변수와 중단 조건을 구분했습니다.
 
 Railway launcher(`scripts/start.mjs`)는 실제 Volume mountinfo를 검사한 뒤 root 소유 디렉터리/선택 DB 파일만 앱 UID1000으로 조정하고, 보조 그룹·root 권한을 버린 뒤 execve로 서버를 실행합니다. `server/runtime.ts`는 DB 모듈이 열리기 전에 다시 비특권 UID·마운트·DB 생성/복원 모드·무결성을 검증합니다. 기본 `existing`은 DB 누락을 거부하며, 새 Volume의 명시적 `create`는 초기화 marker로 반복 초기화를 막습니다. 스키마를 바꾸거나 기존 DB를 삭제하지 않습니다. root launcher가 가져오는 이미지 코드·상위 디렉터리·package는 root 소유이며 UID1000은 읽기/실행만 허용됩니다. 배포 release의 권한을 정규화해 서버 코드 읽기는 가능하고 수정은 불가능하게 합니다.
 
-Railway HTTP/WS 양쪽에서 별도 비공개 Basic 접근 암호를 검사하고 기존 세션·학교·학적·소유권 검사를 유지합니다. JSON 파싱 전에 gate를 적용하며 health GET만 최소 응답으로 허용합니다. 모든 gated 응답은 private/no-store입니다. 플랫폼 TLS 종단·정확한 HTTPS PUBLIC_ORIGIN·Secure cookie·proxy1 hop이 필수이고, AI는 `AI_ENABLED=false` 기본 차단입니다. 이 gate는 이메일 검증·MFA·계정 복구를 대체하지 않습니다.
+Railway HTTP/WS 양쪽에서 공용 접근 암호의 서명 쿠키(기존 Basic 요청도 호환)를 검사하고 기존 세션·학교·학적·소유권 검사를 유지합니다. JSON 파싱 전에 gate를 적용하며 health GET만 최소 응답으로 허용합니다. 모든 gated 응답은 private/no-store입니다. 플랫폼 TLS 종단·정확한 HTTPS PUBLIC_ORIGIN·Secure cookie·proxy1 hop이 필수이고, AI는 `AI_ENABLED=false` 기본 차단입니다. 이 gate는 이메일 검증·MFA·계정 복구를 대체하지 않습니다.
 
 React/Vite UI → 같은 출처의 Express API → 로컬 SQLite WAL 저장소입니다. Phaser가 교실을 그리며 인증된 `/socket`으로 이동·변경 이벤트를 전달합니다. 개발은 Vite 프록시, 프로덕션은 Express가 `dist/`를 제공합니다. 기존 v0.1을 다른 프로젝트로 교체하지 않았습니다.
 
@@ -34,6 +34,7 @@ React: 프로젝트 / 멘토링 / 교안 / 알림
 - `project-attachment`: 프로젝트 ID와 비공개 파일 내용
 - `material`, `material-version`: 교안·기술 주제·파일/이전 버전
 - `personal-event`: 서버가 결정한 사용자 수신 이벤트와 readAt
+- `school-settings`: MASTER가 편집한 학교·기수·교실·학기 표시
 
 사용자당 외모 한 개와 기존 책상 ID/좌표를 보존합니다. 추가 필드가 없는 v0.1 프로젝트는 `normalizeProject`에서 기본 분석·빈 배열·질문 상태를 채우고 기존 필드는 유지합니다. 저장 시 새 필드만 합쳐 보관하며 파괴적 DB 마이그레이션을 실행하지 않습니다.
 
@@ -59,7 +60,7 @@ A*는 20px 격자의 4방향 이웃을 탐색하며, 실제 캐릭터 발 위치
 
 Phaser 카메라는 자기 캐릭터를 부드럽게 따라가고 월드 경계를 지킵니다. 휠/버튼 줌, 내 위치, 집중/전체 화면을 제공합니다. 좌표는 카메라 변환 후 경로로 사용합니다. 모달/입력 중 이동을 막고, DOM 도구막대 클릭을 Canvas 입력으로 처리하지 않습니다.
 
-이름표는 안전모 위에서 캐릭터를 따라가며 긴 이름·MASTER·온라인/오프라인·도움 표식을 유지합니다. 카메라 경계 안에서 이름표 충돌을 피하며 자기 캐릭터·MASTER·도움 요청·접속자 순으로 배치합니다. 밀집해서 공간이 없으면 보조 이름표를 숨기고 프로필/학생 목록으로 전체 정보를 제공합니다. 캐릭터는 48×64 레이어 생성기로 같은 외모 텍스처를 공유하며, 교실 가구 레이아웃이 바뀌지 않으면 Phaser 객체를 재생성하지 않습니다. 오프라인 캐릭터는 변경된 책상을 따라 배치합니다. 이동 좌표는 React state가 아닌 Phaser/ref로 갱신합니다.
+이름표는 안전모 위에서 캐릭터를 따라가며 긴 이름·MASTER·온라인/오프라인·도움 표식을 유지합니다. 카메라 경계 안에서 이름표 충돌을 피하며 자기 캐릭터·MASTER·도움 요청·접속자 순으로 배치합니다. 밀집해서 공간이 없으면 보조 이름표를 숨기고 프로필/학생 목록으로 전체 정보를 제공합니다. 캐릭터는 실제1px 디테일을 그리는96×128 레이어 생성기로 같은 외모 텍스처를 공유하며, 월드 표시 배율0.575로 기존48×64/1.15배 캐릭터의 발 좌표와 크기를 유지합니다. 헤어·얼굴·의상·모자/패턴을 같은 생성기로 프리뷰/교실/방향/앉기에 반영합니다. 기존 외모 레코드는 선택적 새 필드의 렌더링 기본값만 적용해 재작성하지 않습니다. 교실 바탕과 책상은 월드1:1 텍스처에 미세 목재 결/창문/키보드/식물 디테일을 추가했습니다. 또한, 교실 가구 레이아웃이 바뀌지 않으면 Phaser 객체를 재생성하지 않습니다. 오프라인 캐릭터는 변경된 책상을 따라 배치합니다. 이동 좌표는 React state가 아닌 Phaser/ref로 갱신합니다.
 
 ## 실시간
 
@@ -133,3 +134,11 @@ QA는 기존 단위/통합·브라우저·Docker 검사와 별도 6컨텍스트 
 AI 입력은 redaction 후 프로젝트 6000자·최근10개 대화 총16000자로 제한합니다. 최신 질문을 먼저 보존하고 이전 대화를 줄입니다. 글자/호출 상한은 토큰 단가나 달러 예산을 대체하지 않습니다. 실제 모델 호출은 키/모델이 연결된 별도 소액 검증 후 허용해야 합니다.
 
 프런트 라이브러리는 빌드용 devDependencies이며, 운영 이미지에는 dist·server·shared와 백업 CLI만 포함합니다. 배포 점검/브라우저 QA는 저장소의 호스트 도구로 실행합니다. 새 검사는 기존 데이터 형식의 업그레이드, 실제 Compose 경계, 학교 AI 정책, 두 Docker 네트워크 클라이언트와 CPU/네트워크 감속 Chromium을 포함합니다. 실제 외부 호스트/물리 기기 검증과 구분합니다.
+
+## 캐릭터 카탈로그와 학교 설정
+
+`shared/appearance.ts`는 스타일·팔레트·레거시 외모 기본값을 공유하고 `appearance-schema.ts`는 서버 입력 범위를 검증합니다. 카탈로그 배열 길이로 API 숫자 범위를 정하므로 프리뷰에 있지만 저장되지 않는 옵션을 방지합니다. 클라이언트 카탈로그는 서버 전용 Zod 모듈을 불러오지 않습니다. 외모 변경은 기존 자기 계정 PATCH 경로와 개인 이벤트를 사용합니다.
+
+`school-settings` 레코드는 사용자 schoolId에서 유도한 고정 ID로 저장합니다. GET state는 자기 학교의 name/cohortName/roomName/term만 반환하고 내부 record ID는 반환하지 않습니다. PATCH /api/school은 ACTIVE MASTER와 엄격한 필드/길이 검증을 요구하며 학교 ID를 입력받지 않습니다. 같은 학교에만 refresh를 방송합니다. DB DDL/사용자/책상/프로젝트 마이그레이션은 없습니다.
+
+모바일 이동 패드는 viewport와 하단 메뉴 사이의 실제 가시 영역에 배치합니다. scroll/resize/fullscreen 관측은 rAF로 합치고 해제하며 React state나 WebSocket 이동 메시지를 만들지 않습니다. 게임 버튼에 포커스가 있어도 방향키는 페이지를 스크롤하지 않으며 폼 입력과 모달의 기본 키보드 동작은 유지합니다.

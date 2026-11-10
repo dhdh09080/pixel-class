@@ -1,0 +1,7 @@
+{
+  "scenario": "Focus classroom zoom-in toolbar button, then press ArrowDown at 1366x768",
+  "beforeWindowScrollY": 0,
+  "afterWindowScrollY": 40,
+  "cause": "Game scroll prevention excluded all buttons while Phaser still handled movement",
+  "status": "reproduced before fix"
+}

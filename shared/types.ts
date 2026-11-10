@@ -22,6 +22,12 @@ export type Appearance = {
   expression: number;
   accessory: number;
   body: number;
+  helmetStyle?: number;
+  helmetColor?: string;
+  helmetPattern?: number;
+  outfit?: number;
+  outfitColor?: string;
+  accentColor?: string;
 };
 export const defaultAppearance: Appearance = {
   skin: '#f1c6a1',
@@ -34,6 +40,12 @@ export const defaultAppearance: Appearance = {
   expression: 0,
   accessory: 0,
   body: 0,
+  helmetStyle: 0,
+  helmetColor: '#f7f6ed',
+  helmetPattern: 0,
+  outfit: 0,
+  outfitColor: '#334b70',
+  accentColor: '#e7d5a6',
 };
 export type Member = {
   id: string;
@@ -135,6 +147,7 @@ export type History = {
   createdAt: string;
 };
 export type AppState = {
+  school?: import('./school').SchoolSettings;
   me: Member;
   members: Member[];
   projects: Project[];

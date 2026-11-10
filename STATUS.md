@@ -1,5 +1,7 @@
 # Pixel Class v0.6 수업 운영 현황
 
+2026-11-10 KST. **캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정 변경은 서버76·브라우저40·운영2 = **118/118 로컬 검사 통과**, 아직 Railway에 반영되지 않았습니다.** [변경 보고서](CHARACTER_STUDIO_REPORT.md).
+
 2026-11-10 KST. main의 v0.6 실행 소스가 Railway SUCCESS임을 후속 조회로 확인했습니다. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/
 
 ## main에 구현된 수업 기능

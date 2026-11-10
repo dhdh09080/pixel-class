@@ -14,14 +14,14 @@ import {
 import { X, ArrowUpRight, Check, ExternalLink } from 'lucide-react';
 import type { Appearance, ProjectStatus } from '../shared/types';
 import { statusLabels } from '../shared/types';
-import { characterCanvas } from './game/character';
+import { characterCanvas, type Direction } from './game/character';
 // Bounded value-keyed cache avoids rerendering identical sprites after every state refresh.
 const avatarImages = new Map<string, string>();
-function avatarImage(appearance: Appearance) {
-  const key = JSON.stringify(appearance);
+function avatarImage(appearance: Appearance, direction: Direction = 'down') {
+  const key = JSON.stringify([appearance, direction]);
   let source = avatarImages.get(key);
   if (!source) {
-    source = characterCanvas(appearance).toDataURL();
+    source = characterCanvas(appearance, direction).toDataURL();
     if (avatarImages.size >= 128) avatarImages.delete(avatarImages.keys().next().value!);
     avatarImages.set(key, source);
   }
@@ -31,19 +31,23 @@ export function Avatar({
   appearance,
   size = 60,
   className = '',
+  direction = 'down',
+  decorative = false,
 }: {
   appearance: Appearance;
   size?: number;
   className?: string;
+  direction?: Direction;
+  decorative?: boolean;
 }) {
-  const image = useMemo(() => avatarImage(appearance), [appearance]);
+  const image = useMemo(() => avatarImage(appearance, direction), [appearance, direction]);
   return (
     <img
       className={`avatar ${className}`}
       src={image}
       width={size * 0.75}
       height={size}
-      alt="흰색 안전모와 남색 작업복을 입은 나의 캐릭터"
+      alt={decorative ? '' : '나의 픽셀 캐릭터'}
     />
   );
 }

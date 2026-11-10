@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-11-10T08:19:06.816Z",
+  "profile": {
+    "name": "office-laptop",
+    "width": 1366,
+    "height": 768,
+    "mobile": false
+  },
+  "emulation": {
+    "cpuSlowdown": 4,
+    "latencyMs": 80,
+    "downloadBitsPerSecond": 1500000,
+    "uploadBitsPerSecond": 750000,
+    "cacheDisabled": true
+  },
+  "readyMs": 12082,
+  "cadence": {
+    "frames": 300,
+    "durationMs": 5000.799999999628,
+    "p95FrameMs": 16.799999999999272,
+    "meanFrameMs": 16.669333333332094
+  },
+  "taskDurationSeconds": 3.8115080000000003,
+  "jsHeapMiB": 10.543807983398438,
+  "errors": [],
+  "limitations": "Headless Chromium emulation on Cloud hardware; RAF cadence is not Phaser FPS or physical office laptop/mobile certification. Loopback HTTP exception only in isolated QA."
+}
