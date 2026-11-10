@@ -6,7 +6,7 @@ RUN npm ci --strict-ssl=true
 COPY . .
 RUN npm run build && mkdir -p /release/scripts \
     && cp -r dist server shared /release/ \
-    && cp scripts/database.mjs scripts/start.mjs /release/scripts/ \
+    && cp scripts/database.mjs scripts/start.mjs scripts/master-handoff.mjs /release/scripts/ \
     && chmod -R u=rwX,go=rX /release
 
 FROM node:24.22.1-bookworm-slim@sha256:be8204d4bd327363357f532187b752ff62759c31bedf98e9e18fc08c9cbd605c AS runtime
