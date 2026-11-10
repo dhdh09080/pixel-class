@@ -1,6 +1,6 @@
 # Railway 비공개 테스트 학교 운영
 
-이 문서는 **배포 절차**입니다. 현재 Railway OAuth 연결과 비공개 pixel-class/private-test 프로젝트 초안은 준비됐습니다. 배포 적용 요청이 승인되지 않아 서비스/볼륨은 아직 staged 상태이며 공인 URL은 없습니다. 검증한 로컬 Compose 모의 환경과 실제 Railway 배포를 구분합니다. 기존 `compose.yaml` + Caddy 운영 방식도 그대로 사용할 수 있습니다.
+이 문서는 **배포·운영 절차**입니다. 2026-11-10 실제 `pixel-class/private-test` 서비스가 SUCCESS이며 <https://pixel-class-private-test.up.railway.app>과 500MB `/app/data` Volume이 실행 중입니다. 현재 Codex 네트워크가 해당 호스트를 차단해 외부 두 계정 인수는 미완료입니다. 상세 상태는 [배포 보고서](../../V05_RAILWAY_REPORT.md)를 확인하세요. 기존 `compose.yaml` + Caddy 운영 방식도 유지합니다.
 
 ## 구성과 사전 조건
 
@@ -8,7 +8,7 @@ Railway HTTPS 프록시 → 단일 Express(React/Phaser 정적 파일 + API + `/
 
 `.railway/railway.ts`는 공식 `railway@3.16.0` SDK를 사용하는 **이름 있는 partial**입니다. 기존 프로젝트의 다른 서비스를 관리하지 않도록 계획을 검토하세요. 새 서비스에서 사용할 수 없는 구형 `railway.json`/`railway.toml`을 추가하지 않았습니다. CLI는 공식 최신 호환 버전(현재 확인한 5.71.0, SDK 최소 5.42.1 이상)을 사용합니다.
 
-현재 초안: 프로젝트 c46ee1d7-c441-4b23-a3f2-f1d349c9f504, 환경3a0dc4b5-3a92-4478-92e7-8a0927b1f09e, 서비스a64cd7e5-f18b-47ac-a714-d2322cca69e7, 볼륨2e639437-1dd9-4ba4-a078-976d2eb2136d. 아직 provision/deploy되지 않았습니다. 도메인/실행 리소스 제한은 서비스가 실제 생성된 후 설정·검증해야 합니다.
+현재 live: 프로젝트 c46ee1d7-c441-4b23-a3f2-f1d349c9f504, 환경3a0dc4b5-3a92-4478-92e7-8a0927b1f09e, 서비스a64cd7e5-f18b-47ac-a714-d2322cca69e7, 볼륨2e639437-1dd9-4ba4-a078-976d2eb2136d(sfo·500MB). 실제 소스는 `main` @ `c7218ad` (v0.6) 고정입니다. 아래 새 배포 절차를 기존 학교에 다시 적용하거나 DB를 초기화하지 마세요. IaC의 main 선언과 live 소스는 다르므로 변경 전 plan을 검토합니다.
 
 필요 권한은 Railway 프로젝트/환경/서비스/Volume/변수/도메인 관리, GitHub 저장소 연결 권한입니다. 기존 리소스와 결제 상태부터 조회하고 **새 유료 리소스의 예상 비용을 승인받은 뒤** 생성합니다. 다른 프로젝트/학생 볼륨을 삭제하거나 요금제를 올리지 않습니다. 지역은 계정에서 사용 가능한 가까운 지역으로 서비스와 Volume을 함께 정하고 plan에서 확인합니다.
 
@@ -37,7 +37,7 @@ Railway HTTPS 프록시 → 단일 Express(React/Phaser 정적 파일 + API + `/
 npm run railway:secrets -- /absolute/private/directory/pixel-railway-secrets.env
 ```
 
-Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저장하는 것을 권장합니다. 현재 MCP의 변수 쓰기 도구는 sealed 옵션을 노출하지 않아 초안 변수의 sealed 여부는 확인하지 못했습니다. 실제 적용 후 sealedVariableNames와 소유자 UI에서 확인하고 필요하면 Seal을 적용해야 합니다. OAuth 연결에는 일반 변수도 이름만 반환됩니다. 일반 커밋·PR·채팅·명령 인자에 값을 붙이지 않습니다. IaC의 `preserve()`/`preserveExisting`은 이미 저장한 값을 유지하는 선언이며 비밀을 생성하거나 누락된 값을 채워주지 않습니다. `.railway/railway.ts`의 `PUBLIC_ORIGIN`도 실제 도메인을 설정해야 합니다. Railway 로컬 연결 파일/plan/환경 덤프는 Git에 넣지 않습니다.
+Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저장하는 것을 권장합니다. 현재 MCP의 변수 쓰기에는 sealed 옵션이 없으며 실제 sealedVariableNames는 빈 목록입니다. 소유자 UI에서 두 비밀에 Seal을 적용해야 합니다. OAuth 연결에는 일반 변수도 이름만 반환됩니다. 일반 커밋·PR·채팅·명령 인자에 값을 붙이지 않습니다. IaC의 `preserve()`/`preserveExisting`은 이미 저장한 값을 유지하는 선언이며 비밀을 생성하거나 누락된 값을 채워주지 않습니다. `.railway/railway.ts`의 `PUBLIC_ORIGIN`도 실제 도메인을 설정해야 합니다. Railway 로컬 연결 파일/plan/환경 덤프는 Git에 넣지 않습니다.
 
 ## 실제 배포 순서
 
@@ -47,7 +47,7 @@ Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저�
 4. 단일 서비스, Dockerfile 빌더, 500MB Volume `/app/data`, Health Check `/api/health`, 재시작 ON_FAILURE(최대5), drain15초, replica1·CDN 꺼짐을 적용합니다. Start Command는 별도 덮어쓰기 없이 Docker CMD의 `node scripts/start.mjs`를 사용해야 합니다. 기존 서비스에 start override·TCP proxy·다른 domain이 있으면 plan과 실제 설정을 먼저 조사합니다. Volume은 런타임에만 연결되므로 **pre-deploy 명령으로 DB를 만들지 않습니다**. 정지/재배포 중 잠깐의 중단은 허용합니다.
 5. HTTPS 도메인을 생성하고 대상 `PORT`를 확인합니다. 정확한 `PUBLIC_ORIGIN`과 위 보안 변수·sealed 비밀을 설정합니다. 처음에는 DB/변수 누락으로 unhealthy인 상태를 성공으로 판정하지 않습니다.
 6. 새 학교는 **완전히 빈 새 Volume**임을 확인한 후 `DATABASE_MODE=create`로 배포합니다. 기존 학교는 아래 백업 복원 절차와 `existing`을 사용합니다. 기존 SQLite 파일을 삭제하거나 데모 DB로 덮어쓰지 않습니다.
-7. 외부에서 익명 `/`·`/api/config`·파일·`/socket`이 401이고 `/api/health`만 `{"ok":true}`인지 확인합니다. 브라우저 접근 암호 창의 사용자명은 **pixel**, 암호는 `STAGING_ACCESS_KEY`입니다. 이는 계정 로그인/초대 KEY와 별도입니다.
+7. 외부에서 익명 `/`·`/api/config`·파일·`/socket`이 401이고 `/api/health`만 `{"ok":true}`인지 확인합니다. 브라우저 HTML 요청은 401 안내형 **교실 접근** 폼을 표시합니다. `STAGING_ACCESS_KEY`를 입력하면 HttpOnly·Secure·SameSite=Lax 서명 쿠키(7일)를 발급한 뒤 로그인 또는 원래 초대 링크로 이동합니다. 호환 Basic 방식의 사용자명은 **pixel**, 암호도 `STAGING_ACCESS_KEY`입니다. 이는 계정 로그인/초대 KEY와 별도입니다.
 8. MASTER 등록은 별도의 부트스트랩 KEY로 최초 한 번만 진행합니다. 교무실에서 학생용 일회용 초대를 발급합니다. 학생에게는 부트스트랩 KEY를 전달하지 않습니다. 테스트는 가짜 이메일/개인정보로만 합니다.
 9. 최초 DB가 정상 생성되면 `DATABASE_MODE=existing`으로 변경하고 재배포합니다. MASTER 등록 후 부트스트랩 KEY를 제거합니다. 학생 책상·프로젝트·교안·피드백·로그인이 유지되는지 확인합니다.
 10. 실제 서로 다른 두 컴퓨터에서 가입, 캐릭터, 이동, 온라인 표시, 채팅, 프로젝트, 피드백, 교안 파일, 새로고침/재로그인, 재배포 후 보존을 검증하고 URL·서비스/배포 ID·시각·결과를 STATUS에 기록합니다. **현재 이 외부 검증은 미실행입니다.**
@@ -68,7 +68,7 @@ Railway 변수 UI의 안전한 입력 기능으로 두 값을 **sealed**로 저�
 
 - 1개 인스턴스와 500MB 볼륨 제안은 **요금제/잔액 검증 결과가 아닙니다**. 배포 전 계정 플랜과 예상 CPU·RAM·볼륨·네트워크·백업 비용을 확인합니다. 기존 플랜을 올리지 않습니다. Railway Usage의 알림 및 지출 제한을 설정하고, 제한에 따른 서비스 중단·볼륨 처리 정책을 확인합니다. 현재 계정의 비용 관측/알림은 미설정입니다. 계정 API가 허용한 Volume 상한은500MB이며1GB 초안 요청은 거부됐습니다. 플랜을 상향하지 않고500MB로 맞췄습니다.
 - 배포 후 Railway Metrics와 로그에서 메모리·CPU·디스크·재시작·오류율을 확인합니다. 로컬 QA의 수치를 실제 학교 부하나 Railway 요금으로 일반화하지 않습니다. 인증 헤더·세션·초대·부트스트랩 값을 로그에 남기지 않습니다.
-- 이메일 검증·복구·MFA가 없으므로 초대된 소규모 학교에만 제공합니다. 공용 접근 암호가 유출되면 sealed 값을 회전하고 재배포합니다. 브라우저는 Basic 인증을 캐시할 수 있으므로 **개별 계정 로그아웃이 공용 접근 암호까지 지우지는 않습니다**. 공용 PC에서는 별도 브라우저 프로필/시크릿 창을 닫습니다. 계정·학교·학적·소유권 검사는 공용 암호와 독립적으로 유지됩니다.
+- 이메일 검증·복구·MFA가 없으므로 초대된 소규모 학교에만 제공합니다. 공용 접근 암호가 유출되면 sealed 값을 회전하고 재배포합니다. 개별 계정 로그아웃은 계정 세션을 철회하지만 **공용 입구 쿠키나 캐시된 Basic 인증을 지우지는 않습니다**. 입구 쿠키만으로는 프로젝트/파일/채팅에 접근할 수 없으며 계정 세션이 별도로 필요합니다. 공용 암호 회전 시 기존 서명 쿠키도 무효가 됩니다. 공용 PC에서는 별도 브라우저 프로필/시크릿 창을 닫습니다. 계정·학교·학적·소유권 검사는 공용 암호와 독립적으로 유지됩니다.
 - AI는 `AI_ENABLED=false`로 시작합니다. 활성화 시 학교 전체 UTC 하루 최대3회, 동시1개, 개인 한도, 30초 timeout, 최대1200 출력 토큰, 실패도 횟수 차감입니다. **호출 수 제한은 달러 상한이 아닙니다**. OpenAI 프로젝트에서도 소액 예산/경보를 설정합니다. 실제 연결 후 정확성·초보자 이해도·보지 않은 코드 검토 주장 부재를 가짜 프로젝트로 평가합니다.
 
 ## 재현 가능한 로컬 QA

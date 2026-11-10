@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-11-10T04:47:30.345Z",
+  "source": "Existing main GitHub Actions live job; not a direct request from the restricted Codex environment",
+  "runUrl": "https://github.com/dhdh09080/pixel-class/actions/runs/42757062609",
+  "jobId": 129636312760,
+  "commit": "c7218ad9ac4635a5916149397e79a0f8fbb9806d",
+  "conclusion": "success",
+  "result": {
+    "ok": true,
+    "url": "https://pixel-class-private-test.up.railway.app",
+    "release": "0.6.0",
+    "checks": [
+      "HTTPS health",
+      "guided entrance",
+      "anonymous data blocked",
+      "recovery link preserved",
+      "foreign Origin blocked",
+      "incorrect access code rejected"
+    ]
+  },
+  "limitations": "No authenticated two-account, WSS, remote database inspection or restart retention checks in this job."
+}

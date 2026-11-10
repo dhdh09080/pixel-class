@@ -35,7 +35,7 @@ v0.3은 동시 편집 보호·파일/피드백/알림의 원자적 저장, 모�
 
 v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. **비공개 Railway 교실은 https://pixel-class-private-test.up.railway.app/ 입니다.**
 
-v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. 현재 비공개 교실 주소는 **https://pixel-class-private-test.up.railway.app/** 입니다. 서버의 실행 상태와 배포 커밋은 Railway 콘솔 및 CI의 live 검사에서 확인합니다. 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
+v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 DB 초기화/복원을 추가합니다. **2026-11-10 실제 배포는 SUCCESS이며 <https://pixel-class-private-test.up.railway.app>에서 실행 중입니다.** 500MB `/app/data` Volume을 유지합니다. 현재 플랫폼 고정 소스와 main의 수업 기능은 다를 수 있으므로 [STATUS.md](STATUS.md)의 실행 커밋과 검증 범위를 확인하세요. 현재 Codex의 outbound 정책 때문에 외부 두 계정 인수는 미완료이며 공개 운영은 보류합니다. [운영 절차](deploy/railway/README.md) · [배포 보고서](V05_RAILWAY_REPORT.md).
 
 ## 할 수 있는 일
 
@@ -152,6 +152,8 @@ NODE_ENV=production DEMO_MODE=false DATABASE_PATH=/persistent/school.sqlite \
 전체 구조와 Supabase/Tauri 확장 방향은 [ARCHITECTURE.md](ARCHITECTURE.md)를 참고하세요. 가구와 캐릭터는 코드로 직접 그렸으며 외부 게임 에셋을 복제하지 않았습니다.
 
 ## 오늘 교육 시작하기 (v0.6)
+
+아래는 main에 구현된 기능입니다. 실제 서비스에 해당 릴리스가 배포됐는지 [STATUS.md](STATUS.md)에서 먼저 확인하세요.
 
 1. 온라인 교실에서 공용 접근 암호를 입력하고 기존 선생님 계정으로 로그인합니다. 암호와 계정은 기존 PC의 **교실 접속 안내.html**을 사용합니다.
 2. **교무실 → 입학 초대 → 여러 학생 초대 링크 한 번에 만들기**에서 필요한 인원(기본 8명)을 발급합니다. 각 학생에게 서로 다른 링크 하나와 공용 접근 암호를 전달합니다. 링크는 7일 유효·1회용이며 원문은 발급 화면에서만 표시합니다.

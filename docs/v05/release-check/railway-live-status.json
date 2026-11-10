@@ -1,0 +1,104 @@
+{
+  "checkedAt": "2026-11-10T04:46:16.785Z",
+  "scope": "Railway OAuth metadata and bounded logs; not a two-account public HTTPS/WSS acceptance",
+  "projectId": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+  "environment": {
+    "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "name": "private-test"
+  },
+  "service": {
+    "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "name": "pixel-class",
+    "state": "live"
+  },
+  "source": {
+    "repo": "dhdh09080/pixel-class",
+    "branch": "main",
+    "commitSha": "c7218ad9ac4635a5916149397e79a0f8fbb9806d"
+  },
+  "deployment": {
+    "id": "a427cac4-806c-4d0f-bf5f-75a8d655f7a2",
+    "status": "SUCCESS",
+    "createdAt": "2026-11-10T04:38:00.998Z",
+    "url": null
+  },
+  "volumes": [
+    {
+      "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+      "name": "school-data",
+      "mountPath": "/app/data",
+      "sizeMB": 500,
+      "region": "sfo",
+      "state": "live"
+    }
+  ],
+  "domains": {
+    "serviceDomains": [
+      {
+        "id": "60975d72-e9db-48cd-a1fc-1b2e09fe5cf1",
+        "domain": "pixel-class-private-test.up.railway.app",
+        "targetPort": 8080
+      }
+    ],
+    "customDomains": []
+  },
+  "tcpProxies": [],
+  "stagedChangeCount": 0,
+  "variables": {
+    "valuesRedacted": true,
+    "sealedVariableNames": [],
+    "openAIKeyOrModelNamesPresent": false
+  },
+  "externalAcceptance": {
+    "twoAccountFlowComplete": false,
+    "directCodexHTTPSBlocked": true,
+    "reason": "Current environment remains restricted with no custom allowed hosts."
+  },
+  "remoteDatabaseContentsInspected": false,
+  "metrics": {
+    "windowHours": 1,
+    "measurements": [
+      {
+        "measurement": "CPU_USAGE",
+        "current": 0.0011186,
+        "average": 0.0011067409836065575,
+        "min": 0,
+        "max": 0.012810216666666667,
+        "sampleCount": 61
+      },
+      {
+        "measurement": "CPU_LIMIT",
+        "current": 2,
+        "average": 1.9672131147540983,
+        "min": 0,
+        "max": 2,
+        "sampleCount": 61
+      },
+      {
+        "measurement": "MEMORY_USAGE_GB",
+        "current": 0.086747136,
+        "average": 0.08601119895081966,
+        "min": 0,
+        "max": 0.098281472,
+        "sampleCount": 61
+      },
+      {
+        "measurement": "MEMORY_LIMIT_GB",
+        "current": 0.99999744,
+        "average": 0.9836040393442631,
+        "min": 0,
+        "max": 0.99999744,
+        "sampleCount": 61
+      },
+      {
+        "measurement": "DISK_USAGE_GB",
+        "current": 0.033824768,
+        "average": 0.032987438163934395,
+        "min": 0,
+        "max": 0.033824768,
+        "sampleCount": 61
+      }
+    ],
+    "limitations": "Provider units unchanged; not a load test, SQL file size or volume fullness measurement."
+  }
+}

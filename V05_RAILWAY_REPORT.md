@@ -1,95 +1,89 @@
-> 이 문서는 2026-11-09 준비 작업 이력입니다. 이후 실제 배포가 진행됐습니다. 현재 주소와 수업용 기능은 [STATUS.md](STATUS.md)를 확인하세요.
+# Pixel Class v0.5 — Railway 배포 확인 보고
 
-# Pixel Class v0.5 — Railway 운영 준비·검증 보고
+2026-11-10 KST. 이 문서는 v0.5 실제 배포 확인과 최신 main 통합 기록입니다. main에는 v0.6 수업·과제·수동 복구·자동 로컬 백업 기능이 추가되어 이를 보존합니다. **Railway 실제 배포는 `SUCCESS`이며 서비스 1개와 영구 Volume이 실행 중입니다.** 주소는 <https://pixel-class-private-test.up.railway.app>입니다. 다만 현재 Codex 실행 환경에서 이 호스트로의 HTTPS 요청이 CONNECT403으로 차단되어, 이번 작업의 외부 두 계정 인수 검사는 완료하지 못했습니다. 배포 성공과 학생 사용 준비 완료를 구분합니다.
 
-2026-11-09 KST. **코드·로컬 운영 검증과 Railway OAuth 연결/프로젝트 초안 준비는 완료했습니다. 배포 적용이 승인되지 않아 실제 배포는 미완료이며 외부 URL은 없습니다.** 배포 적용 승인 후 실제 서비스/Volume 생성·도메인 설정·외부 인수를 진행해야 합니다.
+## Git와 실제 플랫폼 상태
 
-## Git·배포 상태
+| 항목               | 확인 결과                                                                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 저장소 / 시작 main | `dhdh09080/pixel-class`, `9e534c37bf8f4eef3d70c56960a57d8864ca40a2`                                                                                     |
+| 기존 PR            | #1→#2→#3(v0.4)→#4→#5→#6 main 병합 완료. 기존 전체92개 검사 유지. 작업 중 PR #7 수업 기능이 main `c7218ad`에 병합되어 해당102개 검사도 통합 대상에 포함  |
+| 실제 실행 소스     | `main`의 `c7218ad9ac4635a5916149397e79a0f8fbb9806d`에 고정 (후속 조회에서 v0.6 실제 배포 확인)                                                          |
+| 통합 작업 브랜치   | `release/pixel-class-v05-live`. 배포 브랜치의 기존 `b7b3682`, `1b85bd1` 변경을 보존하고 테스트/보고서를 추가                                            |
+| 프로젝트 / 환경    | [pixel-class](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504) / `private-test` (`3a0dc4b5-3a92-4478-92e7-8a0927b1f09e`)               |
+| 서비스             | `pixel-class`, `a64cd7e5-f18b-47ac-a714-d2322cca69e7`, live / Online                                                                                    |
+| 배포               | `a427cac4-806c-4d0f-bf5f-75a8d655f7a2`, terminal `SUCCESS`, 생성 2026-11-10 13:38:00 KST                                                                |
+| HTTPS 도메인       | `pixel-class-private-test.up.railway.app`, Railway 관리, 대상 PORT8080                                                                                  |
+| 지속 Volume        | `school-data`, `2e639437-1dd9-4ba4-a078-976d2eb2136d`, live, 500MB, `/app/data`, sfo                                                                    |
+| 인스턴스 / 노출    | sfo 1/1 running, 추가 TCP proxy 없음, 적용 대기 변경 없음                                                                                               |
+| Health / 종료      | `/api/health`, timeout60초, restart max retries5, drain15초, overlap0초. 로컬 선언과 실제 조회가 일치하지 않는 미노출 필드까지 검증했다고 주장하지 않음 |
+| DB                 | SQLite WAL 유지. Supabase 전환·기존 DB 삭제·스키마 초기화 없음                                                                                          |
+| 최초 MASTER        | 플랫폼 과거 HTTP 로그에 bootstrap200·register201·login200 이력이 있음. 현재 계정/학적 상태는 미조회. 빈 학교라고 가정하거나 기존 계정을 재생성하지 않음 |
+| AI                 | 변수 이름 목록에 OpenAI 키·모델 없음. 실제 호출/품질/지출 평가 미실행. 기본 AI 비활성 정책 유지                                                         |
 
-| 항목                    | 확인 결과                                                                                                                                                                                                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 저장소/시작 main        | `dhdh09080/pixel-class`, `42191e83fc3a51073b54d3880468e552b4f0c093`                                                                                                                                                                                                   |
-| 기존 PR/CI              | #1→#2→[v0.4 #3](https://github.com/dhdh09080/pixel-class/pull/3) 병합 완료. main [CI #28](https://github.com/dhdh09080/pixel-class/actions/runs/42490469960) 86개 성공                                                                                                |
-| 작업 브랜치/구현        | `feature/pixel-class-v05`, `577147f` (`feat: secure Railway runtime and persistent school deployment`). 후속 문서/증거는 브랜치 커밋 목록 참조                                                                                                                        |
-| v0.5 PR/CI              | [PR #4](https://github.com/dhdh09080/pixel-class/pull/4)는 `0c0c77b`로 main 병합, [CI #30](https://github.com/dhdh09080/pixel-class/actions/runs/42555296733) 92개 성공. 코드 권한 보완은 [PR #5](https://github.com/dhdh09080/pixel-class/pull/5)와 해당 Checks 참조 |
-| Railway 프로젝트/서비스 | 프로젝트 `pixel-class` 실제 생성: `c46ee1d7-c441-4b23-a3f2-f1d349c9f504`. 환경 `private-test`: `3a0dc4b5-3a92-4478-92e7-8a0927b1f09e`. 서비스 `pixel-class` 초안: `a64cd7e5-f18b-47ac-a714-d2322cca69e7` (staged-create, 미실행)                                      |
-| 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                                                                                                                       |
-| 실제 Volume             | `school-data` 초안 `2e639437-1dd9-4ba4-a078-976d2eb2136d`, 500MB `/app/data`. 미provision·미마운트. 현재 계정 상한500MB로 1GB 요청은 거부되어 조정                                                                                                                    |
-| 최초 MASTER             | 로컬 QA 생성/복원/재로그인 통과. **외부 학교 MASTER 미등록**                                                                                                                                                                                                          |
-| 실제 HTTPS/WSS          | Railway 공인 TLS/외부 WSS는 **미검증**. 로컬 CA 검증 HTTPS/WSS는 성공                                                                                                                                                                                                 |
-| DB/AI                   | SQLite WAL 유지, 스키마 변경 없음. Supabase 전환 없음. 실제 OpenAI 키/모델·호출·품질·비용 평가 없음                                                                                                                                                                   |
+이번 사용자 승인 후 조회했을 때 배포는 이미 성공했고 staged 변경이 없었습니다. 따라서 중복 `accept-deploy`나 재배포·Volume 생성·비밀 재발급을 하지 않았습니다. 기존 정상 서버와 데이터를 유지했습니다. 새 유료 리소스 생성·플랜 상향도 하지 않았습니다.
 
-작업 초기에는 설치된 Railway 도구가 노출되지 않았고 환경 토큰도 없었습니다. 이후 사용자의 연결 확인 과정에서 Railway 도구가 활성화됐고 whoami·workspace/project 조회에 성공했습니다. 프로젝트0개인 개인 워크스페이스에 전용 비공개 프로젝트를 만들었습니다. 토큰을 채팅으로 전달받거나 인증을 우회하지 않았습니다. GitHub 읽기·푸시·PR 권한도 확인했습니다.
+이전 2026-11-09 보고의 “초안만 있음 / URL 없음 / 승인 대기”는 당시 기록이며 현재 상태가 아닙니다. 플랫폼의 과거 실패 배포 `12bc3f34-3f32-4c0b-a7e3-226b5061b47d`는 Docker 빌더가 `type=secret` mount를 지원하지 않아 실패했습니다. 배포 브랜치에서 해당 개발 환경용 CA mount를 제거한 후 현재 배포는 성공했습니다. TLS 검증을 끄지 않았습니다.
 
-Railway CLI는 사전 설치되지 않았고, 공식 고정 버전 CLI의 `whoami` 시도는 설치 단계 exit1로 끝나 계정 조회에 성공하지 못했습니다. 런타임 Railway 문서 접속도 CONNECT403으로 제한됐습니다. 공식 문서는 별도 검색 도구로 확인했습니다. 로컬 브라우저 연결과 Cloud CUA가 불가능해 환경의 Chromium/Playwright로 제품을 검증했습니다. 인증이나 네트워크 정책은 우회하지 않았습니다. 이후에는 연결된 Railway MCP를 사용했습니다. 실제 유료 플랜 변경이나 실행 리소스 provision은 하지 않았습니다.
+## 구현과 보존한 변경
 
-## 실제 Railway 초안과 승인 상태
+- Express 한 서버가 React/Phaser·API·WebSocket을 제공하며 Railway HTTPS 프록시를 사용합니다. 기존 Compose/Caddy 운영 경로도 보존합니다.
+- 운영 시작 조건은 demo=false, 정확한 HTTPS PUBLIC_ORIGIN, Secure 계정 쿠키, 신뢰 프록시1홉, 실제 `/app/data` 마운트입니다. Volume이 없거나 기존 DB가 누락/손상되면 시작을 거부합니다.
+- root launcher는 데이터 경로 권한만 준비하고 UID/GID1000으로 전환합니다. root 소유 서버/launcher 코드는 앱에서 읽을 수 있고 쓸 수 없습니다. DB/WAL/SHM·marker와 링크 보호, 초기화 중단 후 빈 학교 재생성 금지, 새 파일 복원을 유지합니다.
+- 배포 브랜치의 안내형 입구와 현재 디자인을 보존합니다. 공용 접근 암호 → 계정 로그인/학생 초대 순서입니다. Basic 방식도 호환용으로 남습니다. 입구 쿠키는 암호 원문 대신 HMAC 서명·7일 만료, `__Host-`·HttpOnly·Secure·SameSite=Lax를 사용합니다. 계정 쿠키와 학교/역할/소유권 검사는 별도로 필요합니다.
+- `/access`는 정확한 Origin, 제한된 form 크기, 요청 제한을 적용합니다. 초대 KEY는 안전한 문자만 허용하고 외부 redirect를 받지 않습니다. HTTP·WSS 모두 공용 접근과 계정 세션을 검사합니다.
+- 새 입구 검사 3개를 추가했습니다. 브라우저 운영 QA는 Basic 인증을 자동 주입하지 않고 실제 암호 입력 폼을 사용하며, 별도 API 컨텍스트로 기존 Basic/Origin 보안 검사를 유지합니다.
+- 피드백 도착 후 탭 이름에 건수가 붙는 상황을 재현했습니다. 정확한 `MASTER 피드백` 또는 `MASTER 피드백 숫자`만 선택하게 수정하고 실제 피드백 내용·이벤트·저장 검증을 유지했습니다. timeout 확대나 재시도로 숨기지 않았습니다.
 
-- GitHub main `da25fe7aad9f132f72e3d4b191d02755f85d37ab` 고정 소스를 연결한 서비스·500MB Volume·PORT8080·health/restart/drain·CDN 꺼짐·AI 꺼짐·서버 변수의 **서비스·Volume·변수 staged 변경**을 준비했습니다. 환경 조회상 us-west2·replica1이며 서비스와 볼륨 모두 staged-create입니다.
-- 비공개 접근/부트스트랩 암호는 Git 밖0600 개인 파일에 생성하고 변수 초안으로 전달했습니다. 값은 채팅·보고서·Git에 쓰지 않았습니다. 현재 MCP에 sealed 쓰기 옵션이 없어 실제 sealed 여부는 미검증입니다.
-- 도메인 생성과 명시적 메모리/CPU 제한은 아직 live ServiceInstance가 없어 거부됐습니다. 적용 후 생성 도메인 target8080·정확한 PUBLIC_ORIGIN·실행 제한을 설정하고 다시 검증해야 합니다. 현재 PUBLIC_ORIGIN은 Railway 공개 도메인 참조 초안이며 실제 HTTPS 검증 결과가 아닙니다.
-- accept-deploy는 “Cancelled — the user did not approve this action. No changes were made.”로 취소됐습니다. **실행 서비스/배포 ID/URL/실제 DB는 아직 없습니다.** 승인 없이 다른 경로로 적용하지 않았습니다.
-- [프로젝트 초안](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)에서 검토할 수 있습니다. 적용 후 최초 MASTER/학생 생성, 외부 HTTP/WSS와 재시작 보존 검증이 남아 있습니다.
-- #4·#5는 main에 병합했습니다. 최종 앱 소스의 [CI #35](https://github.com/dhdh09080/pixel-class/actions/runs/42557694186)와 main [CI #36](https://github.com/dhdh09080/pixel-class/actions/runs/42558485563)에서92개 전체 성공했습니다.
+## 보안·비밀 검증 범위
 
-## 구현 결과
+로컬 HTTPS에서는 익명 API/정적 파일401, 최소 health200, 잘못된 공용 암호 차단, 입구 쿠키 속성, 잘못된 Origin403, MASTER 부트스트랩, 일회용 초대 재사용 거부, 학생 권한 상승 차단, 다른 소유자/학교 데이터·파일 차단, 계정 세션 교체·철회, WSS 접근 제한을 검사했습니다.
 
-- **같은 출처의 단일 서버**: 기존 Dockerfile/Express/React·Phaser/SQLite/WSS·Compose를 유지합니다. PORT/HOST, PORT 기반 Health Check, 최소 공개 probe, ON_FAILURE 재시작, replica1,15초 drain, 중첩 배포0을 설정했습니다. 기존 SIGTERM 소켓 정리를 사용합니다. 후속 코드 소유권 보완은 `fix/pixel-class-v05-launcher-ownership`의 `dec5330`·`649744e`에서 진행했습니다.
-- **현재 Railway IaC**: `.railway/railway.ts`는 공식 SDK `railway@3.16.0`을 개발 의존성으로만 사용합니다. 이름 있는 partial로 서비스1·볼륨1을 정의하고 sealed 변수 보존·Dockerfile 빌더를 선언합니다. SDK 그래프·타입은 검사했지만 **실제 CLI plan/apply·플랫폼 인수는 미실행**입니다. 새 서비스에서 사용할 수 없는 구형 railway.json/toml은 추가하지 않았습니다.
-- **시작 조건**: production, demo=false, HOST/PORT, 정확한 HTTPS PUBLIC_ORIGIN, Secure 쿠키, 신뢰 프록시1홉을 강제합니다. 원본 앱/DB 포트를 따로 공개하지 않는 구성입니다. 실제 플랫폼 헤더 전달과 TLS는 원격 인수 대상입니다.
-- **지속 데이터 보호**: 실제 Linux mountinfo와 플랫폼 Volume 변수를 함께 검사합니다. Dockerfile의 암묵적 익명 Volume 생성만 제거하고 Compose의 명시적 볼륨을 보존했습니다. 볼륨 없이 임시 DB로 시작하지 않습니다.
-- **비특권 실행**: root launcher는 데이터 디렉터리/선택 DB·WAL·SHM·marker의 권한만 준비하고 UID/GID1000·보조 그룹 없음으로 전환한 뒤 서버를 execve합니다. 디렉터리0700·파일0600·umask077이며 root 앱 실행과 DB/WAL/SHM의 심볼릭/하드 링크를 거부합니다. 재귀 chown·기존 데이터 삭제를 하지 않습니다. root로 실행할 launcher/import 코드와 package는 root 소유로 고정하고 디렉터리/파일을 앱이 읽을 수 있는 0755/0644 계열로 정규화했습니다. 쓰기 가능한 컨테이너 파일시스템에서도 앱 UID1000은 이 코드나 상위 디렉터리를 수정할 수 없음을 별도 검사합니다.
-- **새 학교와 복원 구분**: 기본 DATABASE_MODE=existing은 DB 누락을 거부합니다. 완전히 빈 새 Volume의 명시적 create+강한 MASTER KEY만 초기화하며 marker가 생긴 뒤에는 DB가 없어져도 재초기화하지 않습니다. 기존 DB의 quick_check·필수 테이블을 읽기 전용으로 확인합니다. 복원은 새 파일명+existing을 사용하고 원본을 덮어쓰지 않습니다.
-- **비공개 HTTP/WSS gate**: 사용자명 pixel·독립 난수 접근 암호를 양쪽에 요구합니다. MASTER 부트스트랩 KEY와 같은 암호는 거부합니다. 본문 파싱 전 차단, private/no-store를 적용하고 기존 초대·계정 세션·학교·역할·학적·소유권 검사를 유지합니다. GET health만 최소 응답으로 공개합니다.
-- **비밀과 오류**: 저장소 밖 0600 비밀 생성 도구와 sealed 변수 보존 선언을 추가했습니다. 기존 파일을 덮어쓰거나 키를 로그에 출력하지 않습니다. AI 전송 제외 목록에 접근 암호를 추가했습니다. 요청/비밀이 섞일 수 있는 예외 메시지를 기록하지 않고 잘못된 JSON400·과대 본문413을 한국어로 안내합니다.
-- **AI 기본 차단**: Railway AI_ENABLED=false는 키/모델 형태가 있어도 연결 표시와 호출을 차단합니다. 켤 때는 학교 UTC 하루3회 이하·동시1개를 시작 조건으로 검사합니다. 기존 원자적 예약·개인 한도·30초 timeout·최대1200 출력 토큰·문맥/민감정보 제한을 유지합니다. 실제 연결·응답 품질·비용은 미검증입니다.
-- **디자인 보존**: 포레스트 그린/크림 UI·48×64 캐릭터·외모·교실을 유지하고 버전과 비공개 학교 문구만 맞췄습니다.
+기존 main [CI #42757062609](https://github.com/dhdh09080/pixel-class/actions/runs/42757062609)의 live job은 실제 외부 HTTPS에서 릴리스0.6.0·최소 health200·안내형 입구401·익명 config/state/teaching/backup401·복구 링크 보존·다른 Origin403·틀린 암호401을 통과했습니다. [최소 결과](docs/v05/release-check/live-ci.json)를 보관합니다. 이는 GitHub runner의 독립 검사이며 Codex의 outbound 차단이 해제되었다는 뜻은 아닙니다. 인증된 두 계정 흐름·WSS·재시작 보존 검사는 포함하지 않습니다.
 
-## 검증
+실제 플랫폼 로그에는 익명 `/`·config401, 틀린 `/access`401, 성공 `/access`303, 잘못된 요청403, login200, 프로젝트/제출201 이력이 있습니다. 이것은 과거 요청의 보조 증거이며 이번 외부 사용자 흐름을 실행했다는 뜻이 아닙니다. `/socket`의 상태0은 WSS101 성공 증거로 사용하지 않았습니다. 로그 원문(IP·User-Agent·KEY 포함 가능)은 저장소에 넣지 않았습니다.
 
-기존86개 유지 + 신규6개 = **92개: 서버/단위/통합56 + 기존 Playwright34 + 기존 Compose 운영1 + 새 Railway 형태 운영1**입니다. 볼륨 fixture의 assertion, 클라이언트나 스크린샷을 별도 테스트로 중복 합산하지 않습니다.
+OAuth 변수 조회는 값이 가려지고 이름만 반환됩니다. **실제 `sealedVariableNames`는 빈 목록이므로 두 비밀의 Seal 적용은 남아 있습니다.** MCP 변수 쓰기에는 Seal 옵션이 없어 소유자가 Railway 변수 UI에서 `STAGING_ACCESS_KEY`, `MASTER_BOOTSTRAP_KEY`를 Seal 처리해야 합니다. IaC의 preserve/isSealed 선언만으로 실제 적용됐다고 보지 않습니다. 비밀은 Git/보고서/채팅에 쓰지 않았고 기존 값도 변경하지 않았습니다.
 
-| 실행                                       | 결과·범위                                                                                                                                                                                         |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                                 | 56/56. 기존51+새5: 접근 암호, 마운트, 운영/AI 정책, IaC 안전 설정, 비밀 생성                                                                                                                      |
-| `npm run test:e2e`                         | 34/34. 기존 실제 사용 흐름·5해상도·접근성·충돌/이동·노트북/모바일 감속 검사                                                                                                                       |
-| `npm run test:operations`                  | 1/1. 기존 Compose/Caddy 실계정2개·교안 UI/다운로드·WSS·재생성·백업/복원·세션 철회·독립 네트워크 유지                                                                                              |
-| `npm run test:railway`                     | 새1/1+볼륨 보호 assertion. TLS-only edge 뒤 Express/WS gate, PORT8080, root 볼륨→UID1000/CapEff0/DB0600, 최소 health·익명 차단·유효 세션만 있는 WSS401, AI 강제 비활성, 전체 사용/복원·두 IP 교환 |
-| `npm run typecheck`, `npm run build`       | 통과. 기존 Phaser 약1.37MB(gzip 약357KB) chunk 경고 유지                                                                                                                                          |
-| `npm run format:check`, `git diff --check` | 최종 문서·증거 포함 통과, 원격 최종 결과는 PR Checks 참조                                                                                                                                         |
-| `npm audit --omit=dev --audit-level=high`  | 알려진 취약점0 보고. 전체 보안 인증이나 취약점 부재 보장은 아님                                                                                                                                   |
+## 테스트 결과
 
-부정 사례는 실제 마운트 없음, root 앱 실행, existing의 DB 누락, 약한 초기 KEY, marker 후 DB 생성 중단, 손상 DB, DB/WAL symlink를 거부하고 파일 내용을 보존합니다. 다른 학생/학교 자료, 초대 재사용, 파일 접근과 세션 교체·철회는 기존 회귀 및 동일 운영 흐름에서 계속 검사합니다.
+기존86 + v0.5 기존6 + main 수업 기능10 + 이번 입구3 = **105개**입니다. v0.5 배포 소스에서도95/95 통과한 뒤, 최신 main 통합본을 다시 검사했습니다. fixture와 여러 assertion을 별도 테스트로 중복 합산하지 않습니다.
 
-각각 별도 Chromium 세션의 MASTER/STUDENT가 부트스트랩 → 초대 링크/KEY → 학생 계정/외모 → 자동 책상 → 이동/2명 표시 → 프로젝트 → 교안 업로드/학생 열람·다운로드 → MASTER 피드백/알림을 수행했습니다. 재로그인·컨테이너 재생성 후 외모/책상/파일/피드백을 확인하고, 온라인 백업을 **새 DB**로 복원해 세션 철회·재로그인·내용 보존을 확인했습니다. 두 개의 다른 Docker 네트워크 주소에서도 HTTPS/WSS·채팅·프로젝트·교안·피드백을 교환했습니다.
+| 실행                                      | 결과 / 범위                                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `npm test`                                | 68/68 통과. 신규3: 공용 암호 입력 경계, 쿠키 만료·변조·다른 키 거부, 초대·입구 markup/redirect 입력 차단                           |
+| `npm run test:e2e`                        | 35/35 통과. 실제 MASTER/STUDENT 흐름, 프로젝트/파일/권한/피드백, 5해상도·접근성·노트북/모바일 감속                                 |
+| `npm run test:railway`                    | 1/1 통과. 실제 폼 입구 → 별도 두 계정, HTTPS/WSS, 이동/접속/채팅, 교안, 프로젝트, 피드백, 재로그인·컨테이너 재생성·백업/새 DB 복원 |
+| `npm run test:operations`                 | 1/1 통과. 기존 Caddy Basic·두 계정·HTTPS/WSS·데이터 보존·백업/복원                                                                 |
+| `npm run build`, `npm run typecheck`      | 통과                                                                                                                               |
+| 실제 Railway 외부 두 계정/WSS·재배포 보존 | **이번 작업에서는 미실행/미완료**. 현재 실행 환경 outbound 정책 차단                                                               |
 
-계정은 일회용 QA이며 실제 학생 개인정보가 아닙니다. 종료 시 자체 생성 QA 자원만 정리했습니다. **물리 PC2대·공용 인터넷·실제 Railway 재배포를 검증한 것은 아닙니다.**
+운영 QA는 일회용 계정/컨테이너/Volume에서 수행했고 자체 QA 자원만 정리했습니다. **실제 학생 개인정보나 원격 학교 데이터를 사용·삭제하지 않았습니다.** 로컬 TLS는 CA 체인/호스트명을 확인합니다. 현재 Cloud 네트워크용 로컬 이미지 빌드에서만 임시 Dockerfile에 CA secret mount를 사용했습니다. 저장소 Dockerfile과 앱 코드는 동일하며 TLS 검증을 끄거나 CA/비밀을 이미지에 넣지 않았습니다. 실제 Railway는 저장소 Dockerfile로 성공했습니다.
 
-### 화면·성능·용량 증거
+새 입구의 1366×768/390×844 화면·가로 넘침·버튼 노출·axe WCAG2/2.1/2.2 AA 자동 검사도 통과했습니다. Origin 없는/다른 출처의 접근 폼과 위조 쿠키도 거부됨을 검사했습니다.
 
-- [Railway 형태 노트북 교실](docs/v05/classroom-1366x768.png), [390px 교실](docs/v05/classroom-390x844.png), [학생 피드백](docs/v05/student-feedback.png).
-- [노트북 감속 측정](docs/v05/device/office-laptop.json), [모바일 감속 측정](docs/v05/device/mobile.json): CPU4배 감속·80ms·1.5/0.75Mbps·캐시 비활성. 준비 표본 약12.4초/11.8초, RAF p95 약16.8ms/16.7ms, JS 오류 없음. 실물 기기·Phaser FPS 인증이나 빠른 초기 로딩으로 해석하지 않습니다. 루프백 HTTP는 Railway HTTPS 압축/네트워크와 다릅니다.
-- [프로세스/저장소 검사](docs/v05/runtime-check.json): UID/GID1000·CapEff0·PORT8080·앱 포트 비게시, DB/WAL0600. RSS는 `/proc/1/status` 단일 표본입니다. 가상화 환경의 Docker aggregate stats는 앱 전용 메모리로 해석할 수 없어 결론에 사용하지 않았습니다. 설정한 1GB 제한의 실제 강제 여부도 이 환경에서 보장하지 않습니다.
-- [코드 소유권 검사](docs/v05/code-permissions.json): 쓰기 가능한 일회용 컨테이너의 UID1000에서 launcher 소유자0·읽기 가능·쓰기 불가를 확인했습니다. 보호 회귀는 상위 디렉터리와 server/shared/dist/package의 읽기/탐색 및 쓰기 금지도 확인합니다.
-- 최종 후보 로컬 이미지 약261MB, 작은 QA DB 약72KiB. 실제 학교 용량이나 Railway 요금 추정은 아닙니다.
-- [독립 클라이언트 결과](docs/v05/network-peers.json)는 externalDeployment:false입니다. 기존 v0.2/v0.3/v0.4 증거를 보존하고 새 표본만 docs/v05에 저장했습니다.
+2026-11-10의 새 화면·감속 표본은 `docs/v05/release-check/`에 보관합니다. 기존 v0.2/v0.3/v0.4와 11월9일 v0.5 증거는 보존합니다. 이 화면은 로컬 QA이며 외부 URL 촬영이 아닙니다. 자동 검사 통과는 물리 모바일/노트북 성능이나 상용 교육 적합성을 보장하지 않습니다.
 
-### 실패·수정·재검사
+## 원격 관측과 비용
 
-1. 처음에는 YAML flow 속 tmpfs 쉼표가 별도 mount로 해석됐습니다. 하나의 문자열로 고친 뒤 시작했습니다.
-2. 로컬 HTTPS가 예상401을 반환하지 않은 시도는 Caddy 프록시 환경의 앱 내부 통신 예외가 빠진 구성이었습니다. 기존 운영과 같은 NO_PROXY를 추가하고 익명401·인증200·전체 흐름을 통과했습니다.
-3. 중간 후보는 작업 환경 ENOSPC로 마지막 독립 컨테이너 생성에 실패했습니다. DB/학교 볼륨을 건드리지 않고 ID로 확인한 이 프로젝트의 미사용 빌드 캐시만 정리해 재검사했습니다. 실패를 성공으로 집계하지 않았습니다.
-4. SDK 원시 그래프의 preserve 표현과 실제 변수 구성을 구분해 sealed+preserveExisting을 검사했습니다. 실제 Railway plan/apply 검증과 구분합니다.
-5. 병합 후 이미지 권한 재점검에서 UID1000이 root launcher 파일을 쓸 수 있음을 access(W_OK)로 재현했습니다. 앱 권한 탈취 후 재시작 시 root 코드 변조로 이어질 경로를 막도록 root 소유권과 앱 쓰기 금지 회귀를 추가했습니다. 첫 소유권 후보는 원본 서버 디렉터리0700 때문에 앱의 코드 읽기를 거부했고, release만 읽기/실행 가능·쓰기 불가로 정규화해 수정했습니다. 데이터 볼륨 권한과 DB는 그대로 보존합니다.
-6. [CI #33](https://github.com/dhdh09080/pixel-class/actions/runs/42556487167)은 v03 교안 브라우저 검사에서 역할 전환 직후 업로드 버튼을 찾다40초 timeout으로 실패했습니다. 데모 역할 API를250ms 지연해 같은 실패를 먼저 재현했습니다. 계정 전환은 기존 보안 경계에 따라 교실로 돌아가므로, 검사는 실제 헤더의 MASTER 역할이 반영된 뒤 자료실로 이동하도록 보완했습니다. 지연 조건을 회귀에 유지했고 악성 파일·스크립트 안전성·입력 보존 assertion은 그대로입니다. timeout 확대나 retry로 덮지 않았습니다. 데모 전환 중 다른 메뉴를 즉시 누르면 초기화되어 교실로 돌아가는 동작 자체는 유지하며, 실제 비공개 학교에서는 데모 전환 API가 차단됩니다.
+Railway 최근1시간 61개 표본에서 MEMORY_USAGE_GB 현재 약0.08675, 최대0.09828, MEMORY_LIMIT_GB 약1.0, DISK_USAGE_GB 약0.03382을 관측했습니다. 디스크 지표는 SQLite 파일 크기나 Volume 사용률로 간주하지 않습니다. CPU_USAGE 최대0.012810216666666667, CPU_LIMIT2는 공급자 원시 단위이며 임의로 백분율로 변환하지 않았습니다. 부하 검사나 동시 학생 수 인증이 아닙니다. [플랫폼 확인 요약](docs/v05/release-check/railway-live-status.json)을 참조하세요.
 
-## 남은 설정·차단 요인
+실제 청구액·잔액·Usage 알림/지출 제한·외부 암호화 백업/스케줄은 확인/설정되지 않았습니다. v0.6은 시작 시/6시간 같은 Volume 백업과 MASTER 다운로드 기능을 제공하지만, 실제 원격 백업 파일 생성/복구까지 직접 검사하지는 못했습니다. 현재 단일 인스턴스·500MB Volume을 유지하고 불필요한 새 리소스는 만들지 않았습니다. OpenAI는 연결하지 않았습니다. 향후 서버 전용 key/model과 AI_ENABLED=true를 설정할 때 학교 전체 UTC 하루 최대3회·동시1개부터 시작하고 공급자 프로젝트 예산/경보도 함께 설정해야 합니다. 호출 횟수 제한은 달러 비용 상한이 아닙니다.
 
-1. **배포 적용 승인**: Railway OAuth 계정 연결은 완료했습니다. 서비스·Volume·변수 초안 적용이 승인되지 않아 중단되어 있습니다. 승인 후에만 서비스/볼륨을 실제 생성·배포합니다. 토큰/키는 채팅에 입력하지 않습니다.
-2. **비용 확인/승인**: 실제 플랜/잔액, 서비스·500MB Volume·네트워크·백업 예상 비용을 검토하고 필요한 새 비용 승인을 받습니다. 기존 자원 삭제·플랜 상향은 하지 않습니다.
-3. **플랫폼 설정**: 단일 서비스·지속 Volume·실제 도메인/PUBLIC_ORIGIN·독립 sealed 비밀2개, 새 DB create 또는 검증한 기존 백업 existing. plan에 삭제/교체가 없는지 확인합니다.
-4. **외부 인수**: 두 컴퓨터의 실제 테스트 계정으로 HTTPS/WSS·전 흐름·재배포 보존·접근 제한·프로세스 UID·원격 로그를 검증합니다. 성공 후 URL/프로젝트/배포 ID를 STATUS에 기록합니다.
-5. **운영 백업/비용 경보**: Volume 백업 스케줄·외부 암호화 백업/복원 연습·Railway Usage 알림/지출 제한·원격 메모리/디스크 관측은 미설정입니다.
-6. **선택적 AI 연결**: 기본 꺼짐 유지. 시험 시에만 서버 전용 OpenAI key/model·AI_ENABLED=true·학교 하루3회/동시1개와 공급자 소액 예산/경보를 함께 설정합니다. 실제 품질 평가 결과는 아직 없습니다.
+## 남은 사용자 설정과 외부 인수
 
-이메일 검증·비밀번호 복구·MFA와 외부 보안 인수가 남아 있어 공개 운영을 승인하지 않습니다. **실제 비공개 학교 개통은 아직 미완료**입니다. 변수·초기화·복구/롤백·비밀·비용·공식 문서 근거는 [Railway 운영 지침](deploy/railway/README.md)에 있습니다.
+1. **현재 Codex 실행 환경에 도메인 허용 적용**: 사용자는 도메인을 추가했다고 답했으나 이후 환경 조회는 allowed_hosts=[] / restricted / enforced, 요청은 CONNECT403이었습니다. 저장된 환경 설정과 현재 실행 중인 인스턴스 적용은 구분해야 합니다. 현재 인스턴스에 반영하거나 해당 설정으로 새 작업 환경을 시작해야 직접 외부 검증이 가능합니다. 인증/네트워크 정책을 우회하지 않았습니다.
+2. **Railway 비밀 Seal / 최초 운영 정리**: 변수 UI에서 두 비밀을 Seal 처리합니다. 현재 MASTER 존재 여부를 인증 후 확인하고, 최초 등록이 이미 끝났다면 bootstrap 비밀을 제거하고 DATABASE_MODE=existing으로 전환합니다. DB/marker를 삭제하거나 새 학교로 초기화하지 않습니다. 현재 변수 값은 OAuth로 읽지 못했으므로 설정됐다고 주장하지 않습니다.
+3. **외부 인수**: 현재 학교를 보존하며 가짜 학생 개인정보로 두 세션의 초대·입학·외모/책상·이동·온라인·채팅·프로젝트·교안 업로드/다운로드·피드백·재로그인과 WSS101을 검증합니다. 백업을 확보한 뒤 재시작/재배포 후 같은 데이터 유지까지 확인합니다.
+4. **운영 백업/비용**: 외부 암호화 백업·복원 연습, Railway Usage 경보/지출 제한과 500MB 용량 관측을 설정합니다. 실제 계정의 요금/잔액은 소유자가 확인해야 합니다.
+5. **배포 소스 관리**: 실제 서비스는 현재 `main`의 `c7218ad` 고정 소스입니다. commitSha 고정이므로 후속 main 문서/테스트 병합이 자동 재배포를 의미하지 않습니다. IaC를 무검토 apply하여 실행 소스를 바꾸지 않습니다.
+
+이메일 검증·MFA·이메일 자동 복구와 외부 인수는 남아 있습니다. main의 MASTER 발급 학생 복구/본인 비밀번호 변경은 이와 구분합니다. 따라서 **실제 배포 성공 / 소규모 비공개 인수 대기 / 공개 운영 보류** 상태입니다. 추가 배포 승인 요청은 필요하지 않으며 이번 승인은 기록했습니다. [운영·복원 절차](deploy/railway/README.md)를 참고하세요.
+
+## 최신 main 통합
+
+작업 도중 PR #7이 main `c7218ad9ac4635a5916149397e79a0f8fbb9806d`에 병합됐습니다. 과제·일괄 초대·학생 복구·학교별 백업/파일 총량 보호 및 기존 디자인을 보존하기 위해 최신 main을 통합했습니다. main의 복구 기능과 자동 같은-Volume 백업은 이전 실행 소스 `1b85bd1`의 기능으로 소급 보고하지 않습니다. 통합 후보에서 서버68/68·브라우저35/35가 통과했습니다. 기존 main CI의102개 검사와 외부 live job도 성공했습니다. 최신 통합본 Railway/Compose 운영도 각1개 통과해105/105입니다. `npm run format:check`도 성공했으며 `npm audit --omit=dev --audit-level=high` 결과 알려진 운영 의존성 취약점0개입니다. 버전/권한 검사와 실제 사용성을 모두 보장하는 결과로 확대 해석하지 않습니다.
+
+후속 플랫폼 조회에서 `main` @ `c7218ad`의 배포 `a427cac4-806c-4d0f-bf5f-75a8d655f7a2`가 이미 SUCCESS임을 확인했습니다. 500MB Volume ID·마운트·sfo 1개 인스턴스는 동일하고 pending 변경은 없습니다. 시작 로그에 Volume mount와 PRIVATE SCHOOL 준비가 보입니다. 따라서 승인된 배포를 중복 적용하거나 소스를 과거 커밋으로 되돌리지 않았습니다. 이번 PR은 해당 실행 코드에 테스트/문서만 추가하므로 재배포 없이도 앱 코드가 일치합니다.
+
+통합본의 새 로컬 증거는 [integrated-main](docs/v05/release-check/integrated-main/)에 따로 보관합니다. 노트북/모바일 준비 표본은 각각 약12.0초, RAF p95 약16.7ms, JS 오류0개이며 실물 기기 성능 인증은 아닙니다. 원래 v0.5 증거도 보존했습니다. 본 후보의 [통합 PR/Checks](https://github.com/dhdh09080/pixel-class/pulls?q=is%3Apr+head%3Arelease%2Fpixel-class-v05-live)에서 최종 head CI와 병합 상태를 확인할 수 있습니다. 실행 코드는 `c7218ad`와 동일하고 차이는 테스트·문서·QA 증거뿐입니다.

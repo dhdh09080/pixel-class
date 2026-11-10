@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { execFileSync, execFile } from 'node:child_process';
 import { emptyProject, type AppState } from '../shared/types';
 import WebSocket from 'ws';
+import AxeBuilder from '@axe-core/playwright';
 
 const base = process.env.OPS_BASE_URL!;
 const railway = process.env.OPS_DEPLOYMENT_PROFILE === 'railway';
@@ -49,7 +50,11 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
   };
   const contexts: BrowserContext[] = [];
   const newContext = async () => {
-    const c = await browser.newContext({ baseURL: base, httpCredentials: gate });
+    // Real Railway browsers enter through the form. Basic remains a separate API compatibility path.
+    const c = await browser.newContext({
+      baseURL: base,
+      ...(railway ? {} : { httpCredentials: gate }),
+    });
     contexts.push(c);
     return c;
   };
@@ -69,55 +74,77 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
   }
   try {
     await test.step('TLS gate and unauthenticated access fail closed', async () => {
-      const anonymous = await request.newContext({ baseURL: base, httpCredentials: undefined });
+      const perimeter = await request.newContext({ baseURL: base, httpCredentials: gate });
       try {
-        expect((await anonymous.get('/')).status()).toBe(401);
-        if (railway) {
-          expect(await (await anonymous.get('/api/health')).json()).toEqual({ ok: true });
-          for (const path of [
-            '/api/config',
-            '/api/state',
-            '/assets/missing.js',
-            '/api/health?details=1',
-          ])
-            expect((await anonymous.get(path)).status()).toBe(401);
+        const anonymous = await request.newContext({ baseURL: base, httpCredentials: undefined });
+        try {
+          expect((await anonymous.get('/')).status()).toBe(401);
+          if (railway) {
+            expect(await (await anonymous.get('/api/health')).json()).toEqual({ ok: true });
+            for (const path of [
+              '/api/config',
+              '/api/state',
+              '/assets/missing.js',
+              '/api/health?details=1',
+            ])
+              expect((await anonymous.get(path)).status()).toBe(401);
+            for (const origin of [undefined, 'https://wrong-school.example'])
+              expect(
+                (
+                  await anonymous.post('/access', {
+                    headers: origin ? { Origin: origin } : {},
+                    form: { code: gate.password },
+                    maxRedirects: 0,
+                  })
+                ).status(),
+              ).toBe(403);
+            expect(
+              (
+                await anonymous.get('/api/config', {
+                  headers: { Cookie: '__Host-pixel_access=9999999999999.' + '0'.repeat(64) },
+                })
+              ).status(),
+            ).toBe(401);
+          }
+        } finally {
+          await anonymous.dispose();
         }
-      } finally {
-        await anonymous.dispose();
-      }
-      expect((await teacher.request.get('/api/state')).status()).toBe(401);
-      const response = await teacher.request.get('/');
-      expect(response.headers()['strict-transport-security']).toContain('max-age=31536000');
-      expect(response.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
-      expect(
-        (await teacher.request.post('/api/demo', { headers, data: { role: 'MASTER' } })).status(),
-      ).toBe(404);
-      expect(
-        (
-          await teacher.request.post('/api/login', {
-            headers: { ...headers, Origin: 'not-an-origin' },
-            data: {},
-          })
-        ).status(),
-      ).toBe(403);
-      expect(
-        (
-          await teacher.request.post('/api/login', {
-            headers: { ...headers, Origin: base.replace('https:', 'http:') },
-            data: {},
-          })
-        ).status(),
-      ).toBe(403);
-      expect((await teacher.request.post('/api/login', { data: {} })).status()).toBe(403);
-      if (railway)
+        expect((await perimeter.get('/api/state')).status()).toBe(401);
+        const response = await perimeter.get('/');
+        expect(response.headers()['strict-transport-security']).toContain('max-age=31536000');
+        expect(response.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
+        expect(
+          (await perimeter.post('/api/demo', { headers, data: { role: 'MASTER' } })).status(),
+        ).toBe(404);
         expect(
           (
-            await teacher.request.post('/api/login', {
-              headers: { ...headers, 'Content-Type': 'application/json' },
-              data: '{malformed',
+            await perimeter.post('/api/login', {
+              headers: { ...headers, Origin: 'not-an-origin' },
+              data: {},
             })
           ).status(),
-        ).toBe(400);
+        ).toBe(403);
+        expect(
+          (
+            await perimeter.post('/api/login', {
+              headers: { ...headers, Origin: base.replace('https:', 'http:') },
+              data: {},
+            })
+          ).status(),
+        ).toBe(403);
+        expect((await perimeter.post('/api/login', { data: {} })).status()).toBe(403);
+        if (railway)
+          expect(
+            (
+              await perimeter.post('/api/login', {
+                headers: { ...headers, 'Content-Type': 'application/json' },
+                data: '{malformed',
+              })
+            ).status(),
+          ).toBe(400);
+      } finally {
+        await perimeter.dispose();
+      }
     });
 
     let invitation = '',
@@ -127,6 +154,27 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
     await test.step('two independent password accounts complete the actual UI flow', async () => {
       await masterPage.goto('/');
       if (railway) {
+        await expect(masterPage.getByRole('heading', { name: '교실 접근' })).toBeVisible();
+        const accessAudit = await new AxeBuilder({ page: masterPage })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+          .analyze();
+        expect(accessAudit.violations).toEqual([]);
+        mkdirSync(evidenceDir, { recursive: true });
+        for (const viewport of [
+          { width: 1366, height: 768 },
+          { width: 390, height: 844 },
+        ]) {
+          await masterPage.setViewportSize(viewport);
+          await expect(masterPage.getByRole('button', { name: '계속하기' })).toBeInViewport();
+          expect(
+            await masterPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+          ).toBe(true);
+          await masterPage.screenshot({
+            path: `${evidenceDir}/entrance-${viewport.width}x${viewport.height}.png`,
+            fullPage: true,
+          });
+        }
+        await masterPage.setViewportSize({ width: 1440, height: 1000 });
         await masterPage.getByLabel('공용 접근 비밀번호').fill('incorrect-access-code');
         await masterPage.getByRole('button', { name: '계속하기' }).click();
         await expect(masterPage.getByRole('alert')).toContainText('다시 확인');
@@ -379,14 +427,14 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
         .getByRole('button', { name: '프로젝트 지도' })
         .click();
       const masterModal = masterPage.getByRole('dialog');
-      await masterModal.getByRole('button', { name: 'MASTER 피드백', exact: true }).click();
+      await masterModal.getByRole('button', { name: /^MASTER 피드백(?: \d+)?$/ }).click();
       await masterModal.getByLabel('기술 지도 주제').selectOption('DB 설계');
       await masterModal
         .getByRole('textbox', { name: 'MASTER 피드백 내용' })
         .fill('저장 후 다시 조회하는 작은 흐름부터 검증해 보세요.');
       await masterModal.getByRole('button', { name: '피드백 남기기' }).click();
       await expect(modal).toContainText('운영 검증 데이터 서비스');
-      await modal.getByRole('button', { name: 'MASTER 피드백', exact: true }).click();
+      await modal.getByRole('button', { name: /^MASTER 피드백(?: \d+)?$/ }).click();
       await expect(modal).toContainText('저장 후 다시 조회하는 작은 흐름');
       await expect
         .poll(async () =>
