@@ -518,6 +518,7 @@ export default function App() {
                         </button>
                       </div>
                     </div>
+                    <div className="classroom-school-sign">성동자이리버뷰 안전보건팀</div>
                     <Suspense
                       fallback={<div className="game-placeholder">교실을 불러오고 있어요…</div>}
                     >
