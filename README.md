@@ -33,9 +33,9 @@ v0.2는 **30명 이상 수용하는 확장 교실**, 기술 구성·맞춤 로�
 
 v0.3은 동시 편집 보호·파일/피드백/알림의 원자적 저장, 모바일 터치 교실, 상담 우선순위와 프로젝트 다음 행동, 디자인 토큰·모달·접근성을 보완했습니다. [최종 보고서](V03_FINAL_REPORT.md), [디자인 전후 비교](V03_DESIGN_COMPARISON.md), [검증 기록](V03_TEST_REPORT.md)을 확인하세요. 외부 공개 서비스나 Supabase 전환 완료 버전은 아닙니다.
 
-v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. **외부 배포 URL은 아직 없습니다.**
+v0.4는 비공개 학교 배포 점검·학교 전체 AI 사용 한도·v0.3 DB 업그레이드/롤백 보존·독립 네트워크 클라이언트·모바일/노트북 조건 검사를 추가합니다. [릴리스 보고서](V04_RELEASE_REPORT.md), [배포 방식 결정](deploy/ARCHITECTURE_DECISION.md), [실제 두 컴퓨터 인수 절차](deploy/RELEASE_CHECKLIST.md)를 확인하세요. 당시 외부 배포는 미완료였으며 현재 상태는 아래 v0.5를 참고하세요.
 
-v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. **Railway 계정 연결과 비공개 프로젝트·500MB 볼륨 초안은 준비됐지만, 배포 적용이 승인되지 않아 실제 배포와 외부 HTTPS URL은 미완료입니다.** 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
+v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·비특권 실행·안전한 최초 DB 초기화/복원 설정과 운영 QA를 추가합니다. [Railway 운영 절차](deploy/railway/README.md), [검증/차단 요인 보고서](V05_RAILWAY_REPORT.md)를 확인하세요. **2026-11-10 실제 Railway 배포는 SUCCESS입니다: <https://pixel-class-private-test.up.railway.app>.** 단일 인스턴스와 `/app/data` 500MB 영구 Volume이 실행 중입니다. 공용 접근 암호를 입력한 뒤 계정 로그인/학생 초대를 이용합니다. 현재 Codex의 네트워크 정책 때문에 외부 두 계정 HTTPS/WSS·재배포 보존 인수는 미완료이며 공개 운영은 보류합니다. 비밀 Seal과 백업·비용 경보 설정도 남아 있습니다. 기존 Compose와 디자인·학교 데이터 구조를 유지합니다.
 
 ## 할 수 있는 일
 
@@ -134,7 +134,7 @@ NODE_ENV=production DEMO_MODE=false DATABASE_PATH=/persistent/school.sqlite \
 
 프로덕션 모드는 Express가 `dist/`를 직접 제공합니다. 정확한 `PUBLIC_ORIGIN`, Secure 쿠키, 명시적인 지속 DB 경로가 없으면 시작을 거부합니다. 최초 MASTER 키는 32자 이상이며 서버 전용 파일 secret으로도 읽습니다. 프로덕션에서는 데모 로그인 API가 비활성화됩니다. HTTP 예외는 `ALLOW_INSECURE_LOCALHOST=true`와 루프백 호스트/출처를 모두 지정한 자동 테스트에만 허용합니다.
 
-[deploy/README.md](deploy/README.md)에 접근 암호로 보호된 Docker/Compose/Caddy 운영 절차와 백업·복원·AI 연결 방법이 있습니다. 실제 로컬 컨테이너 HTTPS에서 MASTER/학생 계정, 데이터 보존과 복원을 검증했습니다. 외부 배포 URL은 아직 없습니다. 기본 외부 포트는 루프백에만 바인딩하며 실제 호스트에서 도메인·접근 제한을 확인해야 합니다.
+[deploy/README.md](deploy/README.md)에 접근 암호로 보호된 Docker/Compose/Caddy 운영 절차와 백업·복원·AI 연결 방법이 있습니다. 실제 로컬 컨테이너 HTTPS에서 MASTER/학생 계정, 데이터 보존과 복원을 검증했습니다. 현재 Railway 배포 상태와 외부 검증 제한은 [STATUS.md](STATUS.md)에 기록합니다. Compose의 기본 외부 포트는 루프백에만 바인딩하며 실제 호스트에서 도메인·접근 제한을 확인해야 합니다.
 
 현재 서버는 **지속적인 디스크와 WebSocket을 지원하는 단일 Node.js 호스트**가 필요합니다. HTTPS 역방향 프록시 뒤에서 `COOKIE_SECURE=true`, `PUBLIC_ORIGIN=https://실제-도메인`을 설정하고 WebSocket 업그레이드를 전달하세요. 단일 프로세스용 메모리 요청 제한과 로컬 디스크 저장이므로 여러 인스턴스로 그대로 복제하지 마세요.
 

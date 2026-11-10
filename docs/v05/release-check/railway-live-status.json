@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-11-10T04:39:55.539Z",
+  "scope": "Railway OAuth metadata and bounded logs; no direct public HTTPS/WSS acceptance",
+  "projectId": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+  "environment": {
+    "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "name": "private-test"
+  },
+  "service": {
+    "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "name": "pixel-class",
+    "state": "live"
+  },
+  "source": {
+    "repo": "dhdh09080/pixel-class",
+    "branch": "deploy/railway-private-test",
+    "commitSha": "1b85bd108485bec7f26aa038084d252fe3611cfc"
+  },
+  "deployment": {
+    "id": "9b0ae91c-fe82-46c5-8258-c8b2c3513922",
+    "status": "SUCCESS",
+    "createdAt": "2026-11-10T02:50:26.710Z",
+    "url": null
+  },
+  "volumes": [
+    {
+      "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+      "name": "school-data",
+      "mountPath": "/app/data",
+      "sizeMB": 500,
+      "region": "sfo",
+      "state": "live"
+    }
+  ],
+  "domains": {
+    "serviceDomains": [
+      {
+        "id": "60975d72-e9db-48cd-a1fc-1b2e09fe5cf1",
+        "domain": "pixel-class-private-test.up.railway.app",
+        "targetPort": 8080
+      }
+    ],
+    "customDomains": []
+  },
+  "tcpProxies": [],
+  "stagedChangeCount": 0,
+  "variables": {
+    "valuesRedacted": true,
+    "sealedVariableNames": [],
+    "openAIKeyOrModelNamesPresent": false
+  },
+  "externalAcceptance": {
+    "complete": false,
+    "reason": "Current managed environment still restricts hostname; direct CONNECT403 despite user's saved allowlist update."
+  },
+  "preservedExistingData": true,
+  "remoteDatabaseContentsInspected": false,
+  "metricsSummary": {
+    "windowHours": 1,
+    "samples": 61,
+    "memoryUsageGB": {
+      "current": 0.092942336,
+      "maximum": 0.093073408
+    },
+    "memoryLimitGB": 0.99999744,
+    "diskUsageGB": 0.03350528,
+    "cpuUsageRawMaximum": 0.0013695,
+    "cpuLimitRaw": 2,
+    "limitations": "Not a load test or database/volume fullness measurement; CPU units left raw."
+  }
+}
