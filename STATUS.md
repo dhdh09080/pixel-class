@@ -1,8 +1,8 @@
 # Pixel Class v0.6 수업 운영 현황
 
-2026-11-10 KST. **캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정 변경은 서버76·브라우저40·운영2 = **118/118 로컬 검사 통과**, 아직 Railway에 반영되지 않았습니다.** [변경 보고서](CHARACTER_STUDIO_REPORT.md).
+2026-11-10 KST. **캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정 변경은 **PR #10 main 병합 완료(`6493895`), 로컬·GitHub CI 모두118/118 통과. Railway는 소스 변경1건을 준비했으나 적용 도구가 승인을 거절해 아직 이전 버전입니다.**** [변경 보고서](CHARACTER_STUDIO_REPORT.md).
 
-2026-11-10 KST. main의 v0.6 실행 소스가 Railway SUCCESS임을 후속 조회로 확인했습니다. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/
+2026-11-10 KST. 기존 v0.6 실행 소스(`67f84b5`)의 Railway SUCCESS를 확인했습니다. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/
 
 ## main에 구현된 수업 기능
 
@@ -59,3 +59,13 @@ Railway pixel-class/private-test, 단일 Express가 React/Phaser·API·WebSocket
 PR #9/main `67f84b5`, CI109개 성공. 사용자 승인 후 실제 복구 배포 `9e6e1f3c-dc8b-4f02-a061-63b57dfc7b12`에서 계정 인계·검증 백업이 적용됐습니다. 최종 배포 `fb44aa92-27bc-411d-83ad-8954010861cc`는 SUCCESS이며 공용 암호 일치와 비밀번호 미재변경을 확인했습니다. 같은 영구 Volume을 유지하고 일반 시작 명령을 복원했습니다. 두 비밀은 실제 sealed이며 대기 변경은 없습니다.
 
 접속 정보는 Git 밖 개인용0600 파일로 전달하며 실제 이메일·비밀번호·공용 암호는 Git/로그에 기록하지 않습니다. 외부 브라우저 두 계정/WSS 전체 인수와 외부 백업·비용 경보는 남아 있습니다. [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 실제 적용과 검증 범위를 기록합니다.
+
+## 캐릭터 스튜디오·교실·MASTER 이름 설정 — main 완료, Railway 적용 대기
+
+- [PR #10](https://github.com/dhdh09080/pixel-class/pull/10): head `c6ec00c3a25c2650bad9ea99d2184667a4f846e9`, main merge `6493895ba7a20f5e43846b29e4887a55769319ce`. [CI42781869277](https://github.com/dhdh09080/pixel-class/actions/runs/42781869277) SUCCESS: 서버76 + 브라우저40 + 운영2 = 118. 기존109개 검증 조건 유지.
+- 96×128 상세 레이어, 드롭다운 없는 외모 카드/색상, 모자/패턴/정장/드레스/티셔츠 등 의상, 4방향 미리보기. 교실은1120px/1배 텍스처에 미세 목재·가구·키보드·창문 디테일을 추가했습니다.
+- 교실 방향키의 페이지 스크롤과 모바일 하단 메뉴에 가리던 이동 패드를 수정했습니다. 실제 키보드·포인터·hit-test로 검사했습니다.
+- 기본 이름 **다희의 AI 교실**. MASTER는 **교실 제목 옆 연필 → 학교와 교실 이름** 또는 **⚙ 내 계정과 운영**에서 학교·기수·교실·학기를 저장합니다. 학생은 변경 불가, 다른 학교 격리, 새로고침·재시작 보존 검증 완료.
+- 실제 실행은 위 표의 기존 `67f84b5`/`fb44aa92…` 그대로입니다. 대기 patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`는 **Commit Sha `67f84b5` → `6493895` 한 필드만 변경**, destructive:false. 계정·DB·Volume·sealed 비밀·일반 시작 명령 `node scripts/start.mjs`는 변경하지 않았습니다.
+- Railway `accept_deploy`가 **“Cancelled — the user did not approve this action. No changes were made.”**로 거절했습니다. 다른 배포 경로로 우회하지 않았습니다. 사용자는 [Railway 프로젝트](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)의 **private-test → Review/Deploy**에서 이 소스 변경1건을 적용해야 합니다. 배포 SUCCESS 후 새로고침하면 새 UI를 확인할 수 있습니다. 현재 반영 완료로 보고하지 않습니다.
+- Codex 직접 HTTPS는 이번에도 CONNECT403/HTTP000으로 차단됐습니다. 로컬 두 계정·HTTPS/WSS 검증과 외부 실제 인수는 구분합니다. [변경 보고서/화면 비교](CHARACTER_STUDIO_REPORT.md).

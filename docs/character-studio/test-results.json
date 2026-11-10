@@ -25,5 +25,15 @@
     "scope": "local Docker, not an actual Railway deployment"
   },
   "total": 118,
-  "limitations": "Chromium and isolated synthetic accounts; no external production account test or physical device certification."
+  "limitations": "Chromium and isolated synthetic accounts; no external production account test or physical device certification.",
+  "githubCI": {
+    "runId": 42781869277,
+    "url": "https://github.com/dhdh09080/pixel-class/actions/runs/42781869277",
+    "conclusion": "success",
+    "testedHead": "c6ec00c3a25c2650bad9ea99d2184667a4f846e9",
+    "serverPassed": 76,
+    "browserPassed": 40,
+    "containerPassed": 2,
+    "browserDuration": "6.1 minutes"
+  }
 }

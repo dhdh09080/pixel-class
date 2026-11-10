@@ -53,3 +53,11 @@
 최종 소스 기준 서버76 + 브라우저40 + Compose1 + Railway 프로필1 = **118/118 통과**. `npm run test:e2e`는 TypeScript/Vite production build도 포함하며, 최종 브라우저 실행은4.8분입니다. [집계](docs/character-studio/test-results.json), [기기 감속 지표](docs/character-studio/device/), [운영 프로필 지표](docs/character-studio/operations/), [별도 화면 접근성](docs/character-studio/manual-review.json)을 보존했습니다. 기존109개 검사의 검증 조건을 유지하고, 드롭다운 관련 선택자만 새 카드에 맞췄습니다.
 
 로컬 Docker 검사는 Cloud 신뢰 CA를 임시 QA Dockerfile의 secret mount로 전달했으며 TLS 검증은 끄지 않았습니다. Railway용 실제 Dockerfile과 영구 Volume/변수/계정은 변경하지 않았습니다. GitHub CI·main 병합·실제 배포 소스는 STATUS.md와 PR에서 별도 확인합니다.
+
+## Git / CI / 실제 적용 상태
+
+[PR #10](https://github.com/dhdh09080/pixel-class/pull/10)을 CI 성공 후 main에 병합했습니다. feature head `c6ec00c`, merge `6493895ba7a20f5e43846b29e4887a55769319ce`. [GitHub CI42781869277](https://github.com/dhdh09080/pixel-class/actions/runs/42781869277)는 서버76·브라우저40(6.1분)·Compose1·Railway 프로필1 모두 성공입니다.
+
+실제 Railway는 기존 `67f84b5`/배포 `fb44aa92-27bc-411d-83ad-8954010861cc`를 실행 중입니다. private-test에 새 main 커밋 `6493895`로 바꾸는 소스 변경1건만 준비했습니다(patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`, destructive:false). Volume `/app/data`·DB·계정·변수·일반 시작 명령은 유지합니다.
+
+배포 적용 도구가 **“Cancelled — the user did not approve this action. No changes were made.”**로 거절했습니다. 따라서 서비스 반영은 대기 상태이며 대체 경로로 우회하지 않았습니다. [Railway 프로젝트](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)에서 private-test의 대기 소스 변경을 Deploy해야 실제 화면이 바뀝니다. 이번 직접 HTTPS 재검사도 CONNECT403/HTTP000으로 차단되어 외부 사용자 흐름 완료를 주장하지 않습니다.
