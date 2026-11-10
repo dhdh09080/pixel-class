@@ -37,7 +37,7 @@ export function entranceInvite(value: unknown) {
   return typeof value === 'string' && /^[A-Za-z0-9_-]{8,100}$/.test(value) ? value : '';
 }
 
-export function entrancePage(invite: string, error = '') {
+export function entrancePage(invite: string, error = '', reset = '') {
   return (
     /* html */ '<!doctype html>' +
     '<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -51,6 +51,9 @@ export function entrancePage(invite: string, error = '') {
     ' 화면으로 이동해요.</p>' +
     '<form action="/access" method="post"><input type="hidden" name="invite" value="' +
     invite +
+    '">' +
+    '<input type="hidden" name="reset" value="' +
+    entranceInvite(reset) +
     '">' +
     '<label for="code">공용 접근 비밀번호</label><input id="code" name="code" type="password" autocomplete="current-password" required maxlength="128" ' +
     (error ? 'aria-invalid="true" aria-describedby="error"' : '') +

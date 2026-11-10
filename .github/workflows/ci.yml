@@ -2,7 +2,8 @@ name: Pixel Class checks
 on:
   pull_request:
   push:
-    branches: [main, feature/pixel-class-v02]
+    branches:
+      [main, feature/pixel-class-v02, feature/classroom-teaching-day, deploy/railway-private-test]
 permissions:
   contents: read
 jobs:
@@ -32,3 +33,15 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+  live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify the actual Railway release and private entrance
+        run: node scripts/check-live.mjs

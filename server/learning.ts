@@ -1,6 +1,7 @@
 import type { Express, Request } from 'express';
 import { saveProject } from './projects.js';
 import { validateUpload } from './uploads.js';
+import { assertUploadCapacity } from './operations.js';
 import { z } from 'zod';
 import type { Member, Project, Entry } from '../shared/types.js';
 import {
@@ -176,6 +177,7 @@ export function registerLearningRoutes(app: Express, d: Deps) {
       .object({ fileName: z.string().min(1).max(150), content: z.string().max(7 * 1024 * 1024) })
       .parse(req.body);
     const { content, mime } = validateUpload(v.fileName, v.content);
+    assertUploadCapacity(p.schoolId, v.content);
     if ((p.attachments?.length || 0) >= 10)
       d.fail(400, '프로젝트당 최대 10개 파일을 보관할 수 있어요.');
     const attachment: Attachment = {
