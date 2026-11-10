@@ -8,7 +8,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { defaultAppearance } from '../shared/types.js';
 const dir = mkdtempSync(join(tmpdir(), 'pixel-teaching-'));
 const database = join(dir, 'school.sqlite'),
-  base = 'http://127.0.0.1:3018';
+  base = 'http://127.0.0.1:3030';
 let child: ChildProcess,
   teacher = '',
   student = '',
@@ -29,7 +29,7 @@ before(async () => {
   child = spawn(process.execPath, ['--import', 'tsx', 'server/index.ts'], {
     env: {
       ...process.env,
-      PORT: '3018',
+      PORT: '3030',
       NODE_ENV: 'test',
       DEMO_MODE: 'false',
       DATABASE_PATH: database,
