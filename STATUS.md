@@ -51,3 +51,9 @@ Railway pixel-class/private-test, 단일 Express가 React/Phaser·API·WebSocket
 | 공개 운영                | 이메일 검증/복구/MFA·외부 인수 미완료. 공개 운영 보류                                                                                                                        |
 
 [V05_RAILWAY_REPORT.md](V05_RAILWAY_REPORT.md)에 실제 ID·검증 결과·남은 설정·Git/CI를 기록합니다. [Railway 운영 지침](deploy/railway/README.md) · [기존 Compose](deploy/README.md).
+
+## MASTER 로그인 인계 — 적용 승인 대기
+
+PR #9의 오프라인 복구 도구를 main `67f84b5`에 병합했습니다. 전체109개 CI 통과. 기존 DB·사용자 ID·학교·학생 데이터를 유지하는 일회성 인계와 검증된 사전 백업을 준비했습니다. 실제 이메일·비밀번호·공용 암호는 Git에 기록하지 않습니다.
+
+Railway에 사용자 Seal2개와 소스/실행 명령 변경이 staged 상태입니다. 배포 적용 도구는 사용자 미승인으로 취소됐으며 기존 서비스가 실행 중입니다. **운영 MASTER 인계는 아직 완료되지 않았고 실제 백업/계정 변경도 미실행입니다.** [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 CI와 차단 사유를 기록합니다.

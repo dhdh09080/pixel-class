@@ -87,3 +87,7 @@ Railway 최근1시간 61개 표본에서 MEMORY_USAGE_GB 현재 약0.08675, 최�
 후속 플랫폼 조회에서 `main` @ `c7218ad`의 배포 `a427cac4-806c-4d0f-bf5f-75a8d655f7a2`가 이미 SUCCESS임을 확인했습니다. 500MB Volume ID·마운트·sfo 1개 인스턴스는 동일하고 pending 변경은 없습니다. 시작 로그에 Volume mount와 PRIVATE SCHOOL 준비가 보입니다. 따라서 승인된 배포를 중복 적용하거나 소스를 과거 커밋으로 되돌리지 않았습니다. 이번 PR은 해당 실행 코드에 테스트/문서만 추가하므로 재배포 없이도 앱 코드가 일치합니다.
 
 통합본의 새 로컬 증거는 [integrated-main](docs/v05/release-check/integrated-main/)에 따로 보관합니다. 노트북/모바일 준비 표본은 각각 약12.0초, RAF p95 약16.7ms, JS 오류0개이며 실물 기기 성능 인증은 아닙니다. 원래 v0.5 증거도 보존했습니다. 본 후보의 [통합 PR/Checks](https://github.com/dhdh09080/pixel-class/pulls?q=is%3Apr+head%3Arelease%2Fpixel-class-v05-live)에서 최종 head CI와 병합 상태를 확인할 수 있습니다. 실행 코드는 `c7218ad`와 동일하고 차이는 테스트·문서·QA 증거뿐입니다.
+
+## MASTER 계정 인계 후속 기록
+
+2026-11-10 KST. 기존 MASTER의 실제 로그인 정보 인계가 확인되지 않아 [PR #9](https://github.com/dhdh09080/pixel-class/pull/9)의 플랫폼 관리자용 오프라인 복구 도구를 main에 병합했습니다. [CI](https://github.com/dhdh09080/pixel-class/actions/runs/42769565895)109/109 성공. 공개 인증 경로는 추가하지 않으며, 원본 검증 백업과 같은 사용자/학교 보존, 이전 MASTER 세션만 철회, 재실행 시 이후 변경한 비밀번호 보존을 검사했습니다. 실제 배포 적용은 사용자 미승인 응답으로 취소돼 staged 상태이며, 기존 DB·키·계정은 변경하지 않았습니다. [상세 인계 기록](MASTER_HANDOFF.md)과 실제 서비스 상태를 구분합니다.
