@@ -370,3 +370,48 @@ test('backup is teacher-only, consistent, school-scoped and excludes live creden
   exported.close();
   assert.equal((await request('/state', 'GET', undefined, student)).res.status, 200);
 });
+
+test('deleting a material releases every saved version from the school storage budget', async () => {
+  const before = (await request('/operations')).data.usedBytes;
+  const value = {
+    title: '용량 검증 교안',
+    description: '교안',
+    category: '시작하기',
+    visibility: 'ACTIVE',
+    fileName: 'lesson.md',
+    content: Buffer.from('first lesson').toString('base64'),
+  };
+  assert.equal((await request('/materials', 'POST', value)).res.status, 200);
+  const material = (await request('/state')).data.materials.find(
+    (m: any) => m.title === value.title,
+  );
+  assert.equal(
+    (
+      await request('/materials', 'POST', {
+        ...value,
+        replaceId: material.id,
+        content: Buffer.from('second lesson').toString('base64'),
+      })
+    ).res.status,
+    200,
+  );
+  assert.ok((await request('/operations')).data.usedBytes > before);
+  assert.equal(
+    (await request(`/materials/${material.id}`, 'DELETE', undefined, student)).res.status,
+    403,
+  );
+  assert.equal((await request(`/materials/${material.id}`, 'DELETE')).res.status, 200);
+  assert.equal((await request('/operations')).data.usedBytes, before);
+  const fixture = new DatabaseSync(database);
+  assert.equal(
+    (
+      fixture
+        .prepare(
+          "SELECT count(*) AS n FROM records WHERE kind='material-version' AND json_extract(body,'$.materialId')=?",
+        )
+        .get(material.id) as any
+    ).n,
+    0,
+  );
+  fixture.close();
+});

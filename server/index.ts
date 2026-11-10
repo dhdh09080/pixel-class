@@ -984,7 +984,12 @@ app.get('/api/materials/:id/download', (req, res) => {
 });
 app.delete('/api/materials/:id', (req, res) => {
   const u = master(req);
-  remove('material', String(req.params.id), u.schoolId);
+  const materialId = String(req.params.id);
+  transaction(() => {
+    for (const version of list<Material & { materialId: string }>('material-version', u.schoolId))
+      if (version.materialId === materialId) remove('material-version', version.id, u.schoolId);
+    remove('material', materialId, u.schoolId);
+  });
   changed(u.schoolId);
   res.json({ ok: true });
 });
