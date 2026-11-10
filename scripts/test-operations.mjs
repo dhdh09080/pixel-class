@@ -100,6 +100,29 @@ try {
     } finally {
       docker(['volume', 'rm', volume], { capture: true });
     }
+    const ownerVolume = `${project}-owner`;
+    docker(['volume', 'create', ownerVolume], { capture: true });
+    try {
+      docker([
+        'run',
+        '--rm',
+        '--network',
+        'none',
+        '--user',
+        '0:0',
+        '--mount',
+        `type=volume,src=${ownerVolume},dst=/app/data`,
+        '--mount',
+        `type=bind,src=${join(process.cwd(), 'tests/fixtures/master-handoff-runtime.mjs')},dst=/run/owner-check.mjs,readonly`,
+        env.PIXEL_IMAGE,
+        'node',
+        '--import',
+        'tsx',
+        '/run/owner-check.mjs',
+      ]);
+    } finally {
+      docker(['volume', 'rm', ownerVolume], { capture: true });
+    }
   }
   writeFileSync(env.MASTER_BOOTSTRAP_FILE, bootstrap, { mode: 0o400 });
   const invalidBootstrap = join(dir, 'whitespace-bootstrap');
