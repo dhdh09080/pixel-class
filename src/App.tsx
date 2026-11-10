@@ -32,16 +32,19 @@ import {
 } from 'lucide-react';
 import type { AppState, Project, Member } from '../shared/types';
 import { progress } from '../shared/types';
+import { APP_RELEASE } from '../shared/release';
 import { api, fetchState, ApiError } from './api';
 import { Avatar, Status, Progress, CheckRow, Modal, Empty, date } from './components';
 import { ProjectCards, ProjectDetail, ProjectForm, type Mutate } from './Projects';
 import { MasterPage } from './Master';
 import { MaterialsPage } from './Materials';
+import { TeachingPage } from './Teaching';
+import { AccountPage } from './Account';
 import { CharacterEditor } from './CharacterEditor';
 import { Auth, type Config } from './Auth';
 import type { GameAction } from './game/scene';
 const Classroom = lazy(() => import('./game/Classroom'));
-type Page = 'classroom' | 'projects' | 'materials' | 'gallery' | 'master';
+type Page = 'classroom' | 'projects' | 'materials' | 'gallery' | 'master' | 'teaching' | 'account';
 type Overlay =
   | 'project'
   | 'newProject'
@@ -117,7 +120,8 @@ export default function App() {
       try {
         const c = await api<Config>('/config');
         setConfig(c);
-        if (new URLSearchParams(location.search).has('invite')) return;
+        if (['invite', 'reset'].some((key) => new URLSearchParams(location.search).has(key)))
+          return;
         try {
           applyState(await fetchState());
         } catch (e) {
@@ -322,6 +326,7 @@ export default function App() {
       icon: FolderKanban,
     },
     { key: 'materials', label: '자료실', icon: BookOpen },
+    { key: 'teaching', label: '수업과 과제', icon: CheckCircle2 },
     { key: 'gallery', label: '전시실', icon: Images },
     ...(me.role === 'MASTER' ? [{ key: 'master', label: '교무실', icon: Users }] : []),
   ];
@@ -431,6 +436,14 @@ export default function App() {
             >
               <LogOut size={17} />
             </button>
+            <button
+              className="icon-button"
+              aria-label="내 계정과 운영"
+              title="내 계정과 운영"
+              onClick={() => setPage('account')}
+            >
+              <Settings size={18} />
+            </button>
           </div>
         </header>
         <main className="main-content">
@@ -518,6 +531,7 @@ export default function App() {
                         </button>
                       </div>
                     </div>
+                    <div className="classroom-school-sign">성동자이리버뷰 안전보건팀</div>
                     <Suspense
                       fallback={<div className="game-placeholder">교실을 불러오고 있어요…</div>}
                     >
@@ -775,6 +789,10 @@ export default function App() {
               onOpen={openProject}
               onCreate={() => setOverlay('newProject')}
             />
+          ) : page === 'teaching' ? (
+            <TeachingPage key={me.id} state={state} onToast={onToast} />
+          ) : page === 'account' ? (
+            <AccountPage key={me.id} state={state} onToast={onToast} />
           ) : page === 'materials' ? (
             <MaterialsPage state={state} mutate={mutate} onToast={onToast} />
           ) : page === 'gallery' ? (
@@ -802,7 +820,7 @@ export default function App() {
                 <ArrowUpRight size={12} />
               </button>
             )}
-            <span>PIXEL CLASS v0.5</span>
+            <span>PIXEL CLASS v{APP_RELEASE}</span>
           </div>
         </div>
       </div>

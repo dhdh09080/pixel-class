@@ -1,25 +1,29 @@
-# Pixel Class v0.5 현황
+# Pixel Class v0.6 수업 운영 현황
 
-2026-11-09 KST. **Railway OAuth 연결·프로젝트와 배포 초안은 준비했습니다. 배포 적용이 승인되지 않아 실제 외부 배포와 URL은 아직 없습니다.** v0.4 기능·디자인·데이터·Compose를 유지합니다.
+2026-11-10 KST. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/
 
-| 항목                    | 실제 상태                                                                                                                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Git 기준                | v0.4 PR #3은 `42191e8`로 main 병합 완료. #1→#2→#3과 기존 main CI #28 성공 확인                                                                                                  |
-| v0.5                    | #4→#5 main 병합 `da25fe7`, CI #35·main #36 전체92개 성공. 500MB 현재 계정 한도와 Railway 초안 상태를 후속 문서에 반영                                                           |
-| Railway 프로젝트/서비스 | OAuth 연결 성공. 비공개 프로젝트 pixel-class `c46ee1d7-c441-4b23-a3f2-f1d349c9f504`, private-test 환경. 서비스 a64cd7e5-f18b-47ac-a714-d2322cca69e7은 staged-create·미실행      |
-| 실제 배포 URL/ID        | **없음 / 없음**                                                                                                                                                                 |
-| 배포 구조               | Railway HTTPS edge → Express 정적 React/Phaser·API·WSS 한 서비스 → `/app/data` SQLite WAL. scoped TypeScript IaC, replica1, health/restart/drain                                |
-| 실제 Volume             | school-data `2e639437-1dd9-4ba4-a078-976d2eb2136d` 500MB /app/data **초안**. 현재 플랜 max500MB 확인. 아직 provision/실제 마운트/DB 생성 없음                                   |
-| DB                      | SQLite 유지, 스키마 변경/기존 데이터 삭제 없음. Supabase Auth/Postgres/Storage/Realtime 실제 전환 없음                                                                          |
-| 인증                    | 비공개 HTTP/WSS 접근 암호·MASTER 부트스트랩 변수 **초안** 등록(원문 비공개). 실제 sealed 여부 미검증. 로컬 초대/세션/학교·역할·학적·프로젝트·파일 권한 검증, 외부 MASTER 미등록 |
-| 테스트                  | 기존86+신규6 = **92/92 로컬·CI #35/main #36 통과**. 서버56+브라우저34+Compose1+Railway 형태1. 역할 전환 지연 재현/회귀와 root 코드 읽기/쓰기 권한 강화 포함                     |
-| 실제 사용               | 별도 Chromium 두 세션: MASTER 초대→학생 외모/책상→이동/온라인→프로젝트→교안 업로드/다운로드→피드백/알림→재로그인/재생성/복원. 다른 IP 클라이언트2개의 HTTPS/WSS·채팅도 검사     |
-| 화면/성능               | Railway 형태 1366×768/390×844 화면, 기존5해상도/접근성, CPU4배 감속·80ms·1.5Mbps 노트북/모바일 에뮬레이션. 실물 기기/클라우드 용량 인증 아님                                    |
-| HTTPS/WSS               | 로컬 CA 체인/호스트명 검증 성공. 익명/틀린 접근 암호·유효 세션만 있는 WSS 차단. **Railway 공인 URL/외부 WSS 미검증**                                                            |
-| OpenAI                  | Railway 기본 AI_ENABLED=false. 키/모델 형태가 있어도 비활성/503. 활성화 시 학교 UTC 하루3회 이하·동시1개 강제. 실제 키·응답·품질·비용 평가 없음                                 |
-| 비용/관측               | 플랜 상향/실행 리소스 provision 없음. 1GB 요청은 현재 계정500MB 한도로 거부되어 조정. 실제 크레딧/요금·Usage 알림·지출 제한·원격 메모리/디스크·외부 백업 미설정                 |
-| 공개 운영               | 이메일 검증/복구/MFA·외부 인수 미완료. 초대된 소규모 비공개 테스트로만 준비, 공개 운영 보류                                                                                     |
+## 오늘 사용하는 기능
 
-[v0.5 Railway 보고서](V05_RAILWAY_REPORT.md) · [변수/배포/복원/비용 절차](deploy/railway/README.md) · [런타임 증거](docs/v05/runtime-check.json) · [기존 v0.4 보고서](V04_RELEASE_REPORT.md) · [기존 Compose 운영](deploy/README.md).
+- 공용 접근 암호 + 개인 계정, 학생별 1회용 초대와 1~30명 일괄 초대
+- 가입 중 4개 캐릭터 스타일 선택·세부 꾸미기·계정별 책상 자동 배정
+- MASTER의 학생·학적·프로젝트·질문·교안·공지 관리, 실시간 이동·채팅
+- 과제 대상과 한국 시간 마감 배정·연장·보관, 개인별 제출/재제출·지각 표시
+- 선생님의 미제출/제출/지각/확인 집계 및 피드백·보완 요청
+- 학생별 제출물과 복구 KEY의 권한·학교 격리, 오래된 제출/피드백 쓰기 충돌 차단
+- 본인 비밀번호 변경, 선생님의 학생 복구 링크(30분·1회·해시 저장), 이전 세션 철회
+- 학교 파일 총량 120MiB 및 디스크 여유 보호, 사용량 화면
+- 시작 시/6시간 간격 서버 백업, MASTER의 학교별 세션 제외 백업 다운로드
 
-다음 단계는 **배포 적용 승인 → 서비스/Volume 실제 생성 → HTTPS 도메인·PUBLIC_ORIGIN·실행 제한/비밀 보호 확인 → 외부 두 컴퓨터 인수**입니다. Railway accept-deploy가 사용자 미승인으로 취소되어 서비스·Volume·변수 초안만 저장돼 있습니다. 토큰/키를 채팅이나 Git에 입력하지 않습니다. 실제 성공 후에만 외부 URL과 배포 완료 상태를 갱신합니다.
+## 배포 구조
+
+Railway pixel-class/private-test, 단일 Express가 React/Phaser·API·WebSocket을 제공합니다. 500MB school-data Volume을 `/app/data`에 연결하고 SQLite WAL을 유지합니다. 기존 계정·학생 기록·DB를 초기화하지 않습니다. Dockerfile은 Railway가 지원하지 않는 secret mount 옵션을 사용하지 않습니다. main·배포용 브랜치·수업용 기능 브랜치의 CI를 실행하며 main에서는 실제 HTTPS 주소의 릴리스 헤더·health·비공개 접근 차단을 추가 검사합니다.
+
+현재 실행 중인 정확한 커밋과 배포 성공 여부는 [Railway](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)와 [GitHub CI](https://github.com/dhdh09080/pixel-class/actions)에서 확인합니다. 과거 V05_RAILWAY_REPORT.md의 승인 대기 기록은 당시 이력이며 현재 상태로 사용하지 않습니다.
+
+## 검증과 남은 범위
+
+수업용 기능 서버 통합 검사는 권한·학교 격리·마감·제출 충돌·단일 복구·세션 철회·일괄 초대·학교별 백업을 검사합니다. 실제 Chromium 별도 세션으로 가입·모바일 캐릭터 선택·과제 배정→제출→피드백→계정 복구→같은 캐릭터/제출 복원을 검사하며, 기존 전체 회귀·컨테이너 운영 검사를 보존합니다. 최종 실행 결과와 실제 배포 증거는 수업 배포 보고서에 기록합니다.
+
+이메일 확인·이메일 자동 복구·MFA·외부 자동 백업·실제 AI 연결·Windows 앱은 제공하지 않습니다. 현재 서버 백업은 같은 디스크에 있으므로 PC 다운로드를 함께 사용합니다. AI는 비활성이며 비용이 발생하는 새 서비스나 요금제 상향을 추가하지 않습니다.
+
+[교육 시작 순서](README.md#오늘-교육-시작하기-v06)

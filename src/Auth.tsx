@@ -18,12 +18,13 @@ export function Auth({
   embedded?: boolean;
 }) {
   const queryKey = new URLSearchParams(location.search).get('invite') || '';
+  const resetKey = new URLSearchParams(location.search).get('reset') || '';
   const [mode, setMode] = useState(
-      config.bootstrap ? 'bootstrap' : queryKey ? 'register' : 'login',
+      resetKey ? 'recover' : config.bootstrap ? 'bootstrap' : queryKey ? 'register' : 'login',
     ),
     [email, setEmail] = useState(''),
     [password, setPassword] = useState(''),
-    [key, setKey] = useState(queryKey),
+    [key, setKey] = useState(resetKey || queryKey),
     [name, setName] = useState(''),
     [appearance, setAppearance] = useState<Appearance>(defaultAppearance),
     [customize, setCustomize] = useState(false),
@@ -34,8 +35,21 @@ export function Auth({
     setError('');
     setBusy(true);
     try {
-      await api(`/${mode}`, 'POST', { email, password, key, name, appearance });
+      await api(mode === 'recover' ? '/account/recover' : `/${mode}`, 'POST', {
+        email,
+        password,
+        key,
+        name,
+        appearance,
+      });
       history.replaceState(null, '', location.pathname);
+      if (mode === 'recover') {
+        setMode('login');
+        setPassword('');
+        setKey('');
+        onToast('비밀번호를 재설정했어요. 새 비밀번호로 로그인해 주세요.');
+        return;
+      }
       sessionStorage.removeItem('pixel-signed-out');
       onSuccess();
     } catch (e) {
@@ -48,23 +62,26 @@ export function Auth({
   return (
     <div className={`auth-shell ${embedded ? 'embedded' : ''}`}>
       <div className="auth-brand">
-        <div className="brand-mark">
-          P<span />
+        <div className="auth-terminal">
+          <div className="auth-terminal-bar">
+            <span aria-hidden="true">&gt;_</span> pixel-class / workspace
+          </div>
+          <div className="auth-terminal-body">
+            <p className="auth-kicker">AI LEARNING WORKSPACE</p>
+            <strong>PIXEL CLASS</strong>
+            <p className="auth-team">성동자이리버뷰 안전보건팀</p>
+            <div className="auth-pixel-people" aria-hidden="true">
+              <Avatar appearance={defaultAppearance} size={112} />
+              <Avatar
+                appearance={{ ...defaultAppearance, hairstyle: 1, hair: '#925b32', accessory: 1 }}
+                size={112}
+              />
+            </div>
+            <p className="auth-terminal-status">
+              <i /> PROJECTS · SUBMISSIONS · FEEDBACK
+            </p>
+          </div>
         </div>
-        <strong>PIXEL CLASS</strong>
-        <p>
-          Learn AI.
-          <br />
-          Build Your Own Service.
-        </p>
-        <div className="auth-pixel-people">
-          <Avatar appearance={defaultAppearance} size={160} />
-          <Avatar
-            appearance={{ ...defaultAppearance, hairstyle: 1, hair: '#925b32', accessory: 1 }}
-            size={160}
-          />
-        </div>
-        <span>내 아이디어가 자라는 작은 학교</span>
       </div>
       <div className="auth-content">
         {customize ? (
@@ -94,20 +111,24 @@ export function Auth({
           </>
         ) : (
           <>
-            <p className="eyebrow">WELCOME, MAKER</p>
+            <p className="eyebrow">{config.demo ? 'LOCAL WORKSPACE' : '02 / 02 · ACCOUNT'}</p>
             <h1>
               {mode === 'bootstrap'
                 ? '우리 학교를 시작해요'
-                : mode === 'register'
-                  ? '새로운 시작을 환영해요'
-                  : '다시 만나 반가워요'}
+                : mode === 'recover'
+                  ? '비밀번호를 다시 설정해요'
+                  : mode === 'register'
+                    ? '새로운 시작을 환영해요'
+                    : '다시 만나 반가워요'}
             </h1>
             <p className="muted">
               {mode === 'bootstrap'
                 ? '서버에 설정한 부트스트랩 KEY로 최초 MASTER를 등록해요.'
-                : mode === 'register'
-                  ? 'MASTER에게 받은 초대 KEY로 입학해 보세요.'
-                  : '작은 아이디어가 자라는 교실로 들어가요.'}
+                : mode === 'recover'
+                  ? '선생님이 발급한 30분 유효 복구 KEY를 사용해요. 재설정하면 다른 기기는 로그아웃됩니다.'
+                  : mode === 'register'
+                    ? 'MASTER에게 받은 초대 KEY로 입학해 보세요.'
+                    : '교실 계정으로 로그인하세요. 선생님 계정은 접속 안내 파일에 있어요.'}
             </p>
             <div className="filter-tabs">
               <button
@@ -118,6 +139,16 @@ export function Auth({
                 }}
               >
                 로그인
+              </button>
+              <button
+                className={mode === 'recover' ? 'selected' : ''}
+                onClick={() => {
+                  setMode('recover');
+                  setKey(resetKey);
+                  setError('');
+                }}
+              >
+                비밀번호 복구
               </button>
               <button
                 className={mode === 'register' ? 'selected' : ''}
@@ -165,7 +196,20 @@ export function Auth({
                 void submit();
               }}
             >
-              {mode !== 'login' && (
+              {mode === 'recover' && (
+                <Field label="비밀번호 복구 KEY">
+                  <input
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    required
+                    type="password"
+                    autoComplete="off"
+                    maxLength={64}
+                  />
+                  <small>선생님에게 본인 확인 후 복구 링크를 요청해 주세요.</small>
+                </Field>
+              )}
+              {['register', 'bootstrap'].includes(mode) && (
                 <>
                   <Field label={mode === 'bootstrap' ? '부트스트랩 KEY' : '입학 초대 KEY'}>
                     <input
@@ -188,16 +232,18 @@ export function Auth({
                   </Field>
                 </>
               )}
-              <Field label="이메일">
-                <input
-                  required
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                />
-              </Field>
+              {mode !== 'recover' && (
+                <Field label="이메일">
+                  <input
+                    required
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                  />
+                </Field>
+              )}
               <Field
                 label="비밀번호"
                 hint={mode === 'login' ? undefined : '10자 이상으로 입력해 주세요.'}
@@ -213,6 +259,29 @@ export function Auth({
                   placeholder="비밀번호 입력"
                 />
               </Field>
+              {mode === 'register' && (
+                <fieldset className="character-presets">
+                  <legend>캐릭터 스타일 선택</legend>
+                  {[
+                    { ...defaultAppearance },
+                    { ...defaultAppearance, hairstyle: 1, accessory: 1 },
+                    { ...defaultAppearance, hairstyle: 2, hair: '#925b32', skin: '#c88b63' },
+                    { ...defaultAppearance, hairstyle: 1, hair: '#57362f', accessory: 2 },
+                  ].map((preset, i) => (
+                    <button
+                      type="button"
+                      key={i}
+                      className="character-preset"
+                      aria-label={`캐릭터 스타일 ${i + 1}`}
+                      aria-pressed={JSON.stringify(appearance) === JSON.stringify(preset)}
+                      onClick={() => setAppearance(preset)}
+                    >
+                      <Avatar appearance={preset} size={64} />
+                      <span>스타일 {i + 1}</span>
+                    </button>
+                  ))}
+                </fieldset>
+              )}
               {mode === 'register' && (
                 <button
                   type="button"
@@ -232,9 +301,11 @@ export function Auth({
                   ? '교실 문을 여는 중…'
                   : mode === 'login'
                     ? '교실 입장하기'
-                    : mode === 'register'
-                      ? '입학하고 교실 입장하기'
-                      : 'MASTER로 학교 시작하기'}
+                    : mode === 'recover'
+                      ? '새 비밀번호 저장'
+                      : mode === 'register'
+                        ? '입학하고 교실 입장하기'
+                        : 'MASTER로 학교 시작하기'}
                 <ArrowRight size={17} />
               </button>
             </form>

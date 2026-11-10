@@ -27,6 +27,7 @@ import { membershipLabels, progress } from '../shared/types';
 import { Avatar, Status, Progress, Field, date, Empty } from './components';
 import type { Mutate } from './Projects';
 import { nextDeskSlot } from '../shared/world';
+import { RecoveryControls, BatchInvites } from './Account';
 export function MasterPage({
   state,
   mutate,
@@ -130,6 +131,7 @@ export function MasterPage({
       />
       {tab === 'students' && (
         <>
+          <RecoveryControls state={state} onToast={onToast} />
           <div className="student-controls">
             <Field label="학생 이름 검색">
               <input
@@ -336,84 +338,92 @@ export function MasterPage({
         />
       )}
       {tab === 'invites' && (
-        <div className="invite-layout">
-          <div className="panel">
-            <h3>새로운 메이커를 초대해요</h3>
-            <p className="muted">초대 KEY는 한 번만 사용할 수 있고, 7일 동안 유효해요.</p>
-            <form
-              className="inline-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void issue();
-              }}
-            >
-              <input
-                aria-label="초대 이름"
-                placeholder="예: 현장 2팀 신규 교육생"
-                required
-                maxLength={60}
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-              />
-              <button className="button primary" disabled={busy}>
-                <Plus size={16} />
-                초대 발급
-              </button>
-            </form>
-            {invite && (
-              <div className="invite-result">
-                <strong>초대 KEY를 지금 복사해 주세요</strong>
-                <p>보안을 위해 KEY 원문은 다시 표시되지 않아요.</p>
-                <code>{invite.key}</code>
-                <div className="form-actions">
-                  <button className="button small secondary" onClick={() => void copy(invite.key)}>
-                    <Copy size={13} />
-                    KEY 복사
-                  </button>
-                  <button
-                    className="button small primary"
-                    onClick={() =>
-                      void copy(`${location.origin}/?invite=${encodeURIComponent(invite.key)}`)
-                    }
-                  >
-                    <Copy size={13} />
-                    입학 링크 복사
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="panel">
-            <h3>발급 내역</h3>
-            {!state.invitations.length && <p className="muted">발급한 초대장이 없어요.</p>}
-            {state.invitations
-              .slice()
-              .reverse()
-              .map((i) => (
-                <div className="invite-row" key={i.id}>
-                  <div>
-                    <strong>{i.label}</strong>
-                    <p>{date(i.expiresAt)}까지 유효</p>
-                  </div>
-                  <span className="membership">
-                    {i.revoked
-                      ? '취소됨'
-                      : i.usedAt
-                        ? '사용 완료'
-                        : Date.parse(i.expiresAt) < Date.now()
-                          ? '만료됨'
-                          : '입학 대기'}
-                  </span>
-                  {!i.usedAt && !i.revoked && (
+        <div>
+          <BatchInvites onToast={onToast} />
+          <div className="invite-layout">
+            <div className="panel">
+              <h3>새로운 메이커를 초대해요</h3>
+              <p className="muted">초대 KEY는 한 번만 사용할 수 있고, 7일 동안 유효해요.</p>
+              <form
+                className="inline-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void issue();
+                }}
+              >
+                <input
+                  aria-label="초대 이름"
+                  placeholder="예: 현장 2팀 신규 교육생"
+                  required
+                  maxLength={60}
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                />
+                <button className="button primary" disabled={busy}>
+                  <Plus size={16} />
+                  초대 발급
+                </button>
+              </form>
+              {invite && (
+                <div className="invite-result">
+                  <strong>초대 KEY를 지금 복사해 주세요</strong>
+                  <p>보안을 위해 KEY 원문은 다시 표시되지 않아요.</p>
+                  <code>{invite.key}</code>
+                  <div className="form-actions">
                     <button
-                      className="text-button danger-text"
-                      onClick={() => void mutate(`/invitations/${i.id}`, 'DELETE').catch(() => {})}
+                      className="button small secondary"
+                      onClick={() => void copy(invite.key)}
                     >
-                      초대 취소
+                      <Copy size={13} />
+                      KEY 복사
                     </button>
-                  )}
+                    <button
+                      className="button small primary"
+                      onClick={() =>
+                        void copy(`${location.origin}/?invite=${encodeURIComponent(invite.key)}`)
+                      }
+                    >
+                      <Copy size={13} />
+                      입학 링크 복사
+                    </button>
+                  </div>
                 </div>
-              ))}
+              )}
+            </div>
+            <div className="panel">
+              <h3>발급 내역</h3>
+              {!state.invitations.length && <p className="muted">발급한 초대장이 없어요.</p>}
+              {state.invitations
+                .slice()
+                .reverse()
+                .map((i) => (
+                  <div className="invite-row" key={i.id}>
+                    <div>
+                      <strong>{i.label}</strong>
+                      <p>{date(i.expiresAt)}까지 유효</p>
+                    </div>
+                    <span className="membership">
+                      {i.revoked
+                        ? '취소됨'
+                        : i.usedAt
+                          ? '사용 완료'
+                          : Date.parse(i.expiresAt) < Date.now()
+                            ? '만료됨'
+                            : '입학 대기'}
+                    </span>
+                    {!i.usedAt && !i.revoked && (
+                      <button
+                        className="text-button danger-text"
+                        onClick={() =>
+                          void mutate(`/invitations/${i.id}`, 'DELETE').catch(() => {})
+                        }
+                      >
+                        초대 취소
+                      </button>
+                    )}
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
       )}

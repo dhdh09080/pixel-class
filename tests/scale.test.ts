@@ -67,7 +67,16 @@ test('30 admissions expand the persisted classroom, retain corridors and synchro
         appearance: defaultAppearance,
       });
       assert.equal(added.res.status, 201, JSON.stringify(added.data));
-      cookies.push(added.res.headers.get('set-cookie')!.split(';')[0]);
+      const logged = await req('/login', {
+        email: `scale-${i}@example.com`,
+        password: 'scale-student-password',
+      });
+      assert.equal(
+        logged.res.status,
+        200,
+        'Classmates sharing one IP must each be able to sign in.',
+      );
+      cookies.push(logged.res.headers.get('set-cookie')!.split(';')[0]);
     }
     let state = (await req('/state', undefined, masterCookie)).data as AppState;
     assert.equal(state.desks.length, 30);

@@ -3,12 +3,25 @@ import { saveProject, ProjectConflict } from './projects.js';
 import { validateUpload, UploadError } from './uploads.js';
 import { allowedOrigin } from './config.js';
 import { privateAccess } from './private-access.js';
+import {
+  accessCookie,
+  accessDuration,
+  createAccessPass,
+  entranceInvite,
+  entrancePage,
+  validAccessCode,
+  validAccessPass,
+} from './entrance.js';
 import { isRailway } from './railway-volume.mjs';
 import { aiLimits, mentoringInput } from './ai-policy.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
 import { workLogSchema } from '../shared/validation.js';
+import { APP_RELEASE } from '../shared/release.js';
 import 'dotenv/config';
 import { registerLearningRoutes } from './learning.js';
+import { registerTeachingRoutes } from './teaching.js';
+import { registerAccountRoutes } from './accounts.js';
+import { CapacityError, assertUploadCapacity, scheduleBackups } from './operations.js';
 import { roomSize, allocateDesk } from './classroom.js';
 import express, { type Request, type Response, type NextFunction } from 'express';
 import { createServer } from 'node:http';
@@ -54,6 +67,7 @@ let shuttingDown = false;
 app.disable('x-powered-by');
 app.set('trust proxy', process.env.TRUST_PROXY_HOPS === '1' ? 1 : false);
 app.use((req, res, next) => {
+  res.setHeader('X-Pixel-Class-Release', APP_RELEASE);
   if (shuttingDown) {
     res.setHeader('Connection', 'close');
     return res
@@ -76,10 +90,26 @@ app.use((req, res, next) => {
   if (railway) {
     // Never cache gated assets at a shared edge. Only the minimal liveness probe is public.
     res.setHeader('Cache-Control', 'private, no-store');
+    const accessSecret = process.env.STAGING_ACCESS_KEY;
+    if (req.method === 'POST' && req.path === '/access') {
+      if (
+        !req.headers.origin ||
+        !allowedOrigin(req.headers.origin, req.headers.host, process.env.PUBLIC_ORIGIN)
+      )
+        return res.status(403).json({ error: '다른 출처의 요청은 허용하지 않습니다.' });
+      return next();
+    }
     if (
       !(req.method === 'GET' && req.url === '/api/health') &&
-      !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)
+      !privateAccess(req.headers.authorization, accessSecret) &&
+      !validAccessPass(req.headers.cookie, accessSecret)
     ) {
+      if (req.method === 'GET' && req.path === '/' && req.get('accept')?.includes('text/html'))
+        return res
+          .status(401)
+          .send(
+            entrancePage(entranceInvite(req.query.invite), '', entranceInvite(req.query.reset)),
+          );
       res.setHeader(
         'WWW-Authenticate',
         'Basic realm="Pixel Class private school", charset="UTF-8"',
@@ -170,6 +200,35 @@ function rate(key: string, max: number, ms = 15 * 60000) {
     limits.set(key, r);
   }
   if (++r.count > max) fail(429, '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.');
+}
+if (railway) {
+  app.post(
+    '/access',
+    express.urlencoded({ extended: false, limit: '2kb', parameterLimit: 3 }),
+    (req, res) => {
+      const invite = entranceInvite(req.body?.invite);
+      const reset = entranceInvite(req.body?.reset);
+      const secret = process.env.STAGING_ACCESS_KEY;
+      try {
+        rate('entrance:' + req.ip, 120);
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.status !== 429) throw error;
+        return res.status(429).send(entrancePage(invite, error.message, reset));
+      }
+      if (!secret || !validAccessCode(req.body?.code, secret))
+        return res
+          .status(401)
+          .send(entrancePage(invite, '공용 접근 비밀번호를 다시 확인해 주세요.', reset));
+      res.cookie(accessCookie, createAccessPass(secret), {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: accessDuration,
+      });
+      return res.redirect(303, reset ? '/?reset=' + reset : invite ? '/?invite=' + invite : '/');
+    },
+  );
 }
 const str = z.string().trim().max(4000);
 const credentialSchema = z.object({
@@ -349,8 +408,11 @@ app.post('/api/demo', (req, res) => {
   res.json({ ok: true });
 });
 app.post('/api/login', (req, res) => {
-  rate(`login:${req.ip}`, 15);
+  // Classmates commonly share one site/office NAT. Bound the source and the
+  // individual account separately so one class can sign in together.
+  rate(`login:${req.ip}`, 120);
   const c = credentialSchema.parse(req.body);
+  rate(`login-account:${digest(c.email)}`, 12);
   const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(c.email) as
     { password: string; body: string } | undefined;
   const [salt, expected] = (row?.password || '0:').split(':');
@@ -867,6 +929,7 @@ app.post('/api/materials', (req, res) => {
     })
     .parse(req.body);
   const { content: buffer, mime } = validateUpload(v.fileName, v.content, true);
+  assertUploadCapacity(u.schoolId, v.content);
   const old = v.replaceId ? get<Material>('material', v.replaceId, u.schoolId) : undefined;
   if (v.replaceId && !old) fail(404, '기존 자료를 찾을 수 없습니다.');
   const { replaceId: _, ...fields } = v;
@@ -924,7 +987,12 @@ app.get('/api/materials/:id/download', (req, res) => {
 });
 app.delete('/api/materials/:id', (req, res) => {
   const u = master(req);
-  remove('material', String(req.params.id), u.schoolId);
+  const materialId = String(req.params.id);
+  transaction(() => {
+    for (const version of list<Material & { materialId: string }>('material-version', u.schoolId))
+      if (version.materialId === materialId) remove('material-version', version.id, u.schoolId);
+    remove('material', materialId, u.schoolId);
+  });
   changed(u.schoolId);
   res.json({ ok: true });
 });
@@ -1043,6 +1111,18 @@ app.post('/api/projects/:id/ai', async (req, res) => {
   }
 });
 registerLearningRoutes(app, { active, master, project, fail, changed, notify: personalEvent });
+registerTeachingRoutes(app, { active, master, fail, changed });
+registerAccountRoutes(app, {
+  active,
+  master,
+  fail,
+  changed,
+  rate,
+  login,
+  closeUser: (userId) => {
+    for (const c of connections) if (c.userId === userId) c.ws.close(1008, 'password changed');
+  },
+});
 app.post('/api/events/read-all', (req, res) => {
   const u = auth(req);
   for (const e of list<PersonalEvent>('personal-event', u.schoolId).filter(
@@ -1093,12 +1173,17 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
   if (err instanceof ProjectConflict) return res.status(409).json({ error: err.message });
   if (err instanceof UploadError) return res.status(400).json({ error: err.message });
+  if (err instanceof CapacityError) return res.status(507).json({ error: err.message });
   // Exception messages can include request data or provider secrets. Do not log them.
   console.error('Pixel Class request failed.');
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });
 server.on('upgrade', (req, socket, head) => {
-  if (railway && !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY)) {
+  if (
+    railway &&
+    !privateAccess(req.headers.authorization, process.env.STAGING_ACCESS_KEY) &&
+    !validAccessPass(req.headers.cookie, process.env.STAGING_ACCESS_KEY)
+  ) {
     socket.end(
       'HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticate: Basic realm="Pixel Class private school"\r\n\r\n',
     );
@@ -1259,6 +1344,7 @@ function shutdown() {
 }
 process.once('SIGTERM', shutdown);
 process.once('SIGINT', shutdown);
+scheduleBackups();
 server.listen(Number(process.env.PORT || 3001), process.env.HOST || '127.0.0.1', () =>
   console.log(
     `Pixel Class API ready on port ${process.env.PORT || 3001} · ${demo ? 'LOCAL DEMO' : 'PRIVATE SCHOOL'}`,
