@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-11-11T21:27:00.273Z",
+  "scope": "Actual local canvas output, same pink dress/long hair/glasses look",
+  "native": [192, 256],
+  "worldSize": [55.199999999999996, 73.6],
+  "beforeImage": [192, 256],
+  "beforeVarying2x2Blocks": 0,
+  "afterVarying2x2Blocks": 2781,
+  "partialAlpha": 0,
+  "limitations": "Block variation proves real finer pixels, not aesthetic quality. Previous image was a nearest-neighbor 2x display of the 96x128 source."
+}

@@ -1,4 +1,4 @@
-import { CHARACTER_SCALE } from './character';
+import { CHARACTER_SCALE, CHARACTER_HEIGHT } from './character';
 import Phaser from 'phaser';
 import { placeNameplate, type LabelRect } from '../../shared/nameplates';
 import type { AppState, Member } from '../../shared/types';
@@ -12,7 +12,7 @@ import {
   type Point,
 } from '../../shared/world';
 import { characterCanvas, type Direction } from './character';
-import { worldCanvas, deskCanvas, robotCanvas } from './worldArt';
+import { worldCanvas, deskCanvas, robotCanvas, WORLD_ART_SCALE } from './worldArt';
 export type GameAction = {
   type: 'desk' | 'profile' | 'materials' | 'gallery' | 'ai' | 'notice';
   memberId?: string;
@@ -85,7 +85,7 @@ export class ClassroomScene extends Phaser.Scene {
     this.textures.addCanvas('world', worldCanvas(room.height));
     this.textures.addCanvas('desk', deskCanvas());
     this.textures.addCanvas('robot', robotCanvas());
-    this.worldImage = this.add.image(0, 0, 'world').setOrigin(0).setScale(1);
+    this.worldImage = this.add.image(0, 0, 'world').setOrigin(0).setScale(WORLD_ART_SCALE);
     this.cameras.main.setBounds(0, 0, room.width, room.height);
     this.input.on('wheel', (_p: unknown, _o: unknown, _x: number, y: number) => {
       if (this.enabled) {
@@ -126,7 +126,7 @@ export class ClassroomScene extends Phaser.Scene {
     label(107, 584, '잠깐, 쉬어가기');
     const npc = this.add
       .sprite(1002, 422, 'robot')
-      .setScale(1.3)
+      .setScale(1.3 * WORLD_ART_SCALE)
       .setOrigin(0.5, 1)
       .setDepth(422)
       .setInteractive({ useHandCursor: true });
@@ -228,7 +228,7 @@ export class ClassroomScene extends Phaser.Scene {
         const image = this.add
           .image(d.x, d.y + 58, 'desk')
           .setOrigin(0.5, 1)
-          .setScale(1)
+          .setScale(WORLD_ART_SCALE)
           .setDepth(d.y + 35)
           .setInteractive({ useHandCursor: true });
         const glow = this.highlight(image, d.x, d.y + 7, 134, 116);
@@ -618,7 +618,7 @@ export class ClassroomScene extends Phaser.Scene {
       const prefix = p.sprite.getData('prefix') as string;
       const frame =
         p.moving && !this.reducedMotion ? [0, 1, 0, 2][Math.floor(p.walkDistance / 18) % 4] : 0;
-      p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (128 * CHARACTER_SCALE) : 1);
+      p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (CHARACTER_HEIGHT * CHARACTER_SCALE) : 1);
       p.sprite.setTexture(p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`);
       p.sprite.setDepth(p.sprite.y - (p.seated ? 40 : 0));
       const visible = this.cameras.main.worldView.contains(p.sprite.x, p.sprite.y - 35);

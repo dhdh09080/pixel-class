@@ -8,7 +8,12 @@ import { once } from 'node:events';
 import { createHash, randomBytes } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { defaultAppearance } from '../shared/types.js';
-import { appearanceOptions, normalizeAppearance } from '../shared/appearance.js';
+import {
+  appearanceOptions,
+  appearanceColors,
+  normalizeAppearance,
+  appearancePresets,
+} from '../shared/appearance.js';
 import { appearanceSchema } from '../shared/appearance-schema.js';
 import { defaultSchoolSettings } from '../shared/school.js';
 const directory = mkdtempSync(join(tmpdir(), 'pixel-studio-api-'));
@@ -147,6 +152,21 @@ test('expanded appearance catalog validates every option, rejects unsafe data, a
         appearanceSchema.safeParse({ ...defaultAppearance, [key]: value }).success,
         false,
       );
+  }
+  for (const preset of appearancePresets) {
+    assert.equal(
+      appearanceSchema.safeParse({ ...defaultAppearance, ...preset.changes }).success,
+      true,
+    );
+    // Every curated color must have a visible selected swatch in the editor.
+    for (const [key, palette] of Object.entries(appearanceColors)) {
+      const color = preset.changes[key as keyof typeof appearanceColors];
+      if (color)
+        assert.ok(
+          (palette as readonly string[]).includes(color),
+          `${preset.name}: ${key} has no selectable swatch`,
+        );
+    }
   }
   for (const key of ['skin', 'helmetColor', 'outfitColor', 'accentColor'])
     assert.equal(

@@ -12,7 +12,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { defaultAppearance, type Appearance, type Member } from '../shared/types';
-import { appearanceOptions, appearanceColors, normalizeAppearance } from '../shared/appearance';
+import {
+  appearanceOptions,
+  appearanceColors,
+  normalizeAppearance,
+  appearancePresets,
+} from '../shared/appearance';
 import { type Direction } from './game/character';
 import { Button } from './ui';
 import { Avatar, Field } from './components';
@@ -196,6 +201,35 @@ export function CharacterEditor({
         <div className="studio-selections" key={category}>
           {category === 'hair' && (
             <>
+              <fieldset className="studio-option-group" disabled={busy}>
+                <legend>
+                  추천 스타일 <span>선택 후 세부 조정할 수 있어요</span>
+                </legend>
+                <div className="studio-presets">
+                  {appearancePresets.map((preset) => {
+                    const selected = Object.entries(preset.changes).every(
+                      ([key, value]) => a[key as keyof Appearance] === value,
+                    );
+                    return (
+                      <button
+                        type="button"
+                        key={preset.name}
+                        className={`studio-preset ${selected ? 'is-selected' : ''}`}
+                        aria-label={`스타일 프리셋: ${preset.name}`}
+                        aria-pressed={selected}
+                        onClick={() =>
+                          setA((previous) =>
+                            normalizeAppearance({ ...previous, ...preset.changes }),
+                          )
+                        }
+                      >
+                        <Avatar appearance={{ ...a, ...preset.changes }} size={100} decorative />
+                        <span>{preset.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
               {options('hairstyle')}
               {colors('hair')}
               {a.helmetStyle !== 1 && (

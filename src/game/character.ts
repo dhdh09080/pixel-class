@@ -1,9 +1,11 @@
 import { type Appearance } from '../../shared/types';
 import { normalizeAppearance } from '../../shared/appearance';
+import { hairArt } from './hairArt';
+import { garmentArt } from './garmentArt';
 export type Direction = 'down' | 'up' | 'left' | 'right';
-export const CHARACTER_WIDTH = 96;
-export const CHARACTER_HEIGHT = 128;
-export const CHARACTER_SCALE = 0.575;
+export const CHARACTER_WIDTH = 192;
+export const CHARACTER_HEIGHT = 256;
+export const CHARACTER_SCALE = 0.2875;
 const blend = (hex: string, target: string, ratio: number) =>
   '#' +
   [1, 3, 5]
@@ -30,32 +32,33 @@ export function characterCanvas(
   canvas.height = CHARACTER_HEIGHT;
   const c = canvas.getContext('2d')!;
   c.imageSmoothingEnabled = false;
+  c.scale(2, 2);
   const r = (x: number, y: number, w: number, h: number, color: string) => {
     c.fillStyle = color;
     c.fillRect(
-      Math.round(x),
-      Math.round(y),
-      Math.max(0, Math.round(w)),
-      Math.max(0, Math.round(h)),
+      Math.round(x * 2) / 2,
+      Math.round(y * 2) / 2,
+      Math.max(0, Math.round(w * 2) / 2),
+      Math.max(0, Math.round(h * 2) / 2),
     );
   };
   const oval = (x: number, y: number, w: number, h: number, color: string, ring = false) => {
-    for (let row = 0; row < h; row++) {
+    for (let row = 0; row < h; row += 0.5) {
       const inset = Math.round(
-        (w / 2) * (1 - Math.sqrt(Math.max(0, 1 - ((row + 0.5 - h / 2) / (h / 2)) ** 2))),
+        (w / 2) * (1 - Math.sqrt(Math.max(0, 1 - ((row + 0.25 - h / 2) / (h / 2)) ** 2))),
       );
       if (ring && row > 1 && row < h - 2) {
         r(x + inset, y + row, 1, 1, color);
         r(x + w - inset - 1, y + row, 1, 1, color);
-      } else r(x + inset, y + row, w - inset * 2, 1, color);
+      } else r(x + inset, y + row, w - inset * 2, 0.5, color);
     }
   };
   const round = (x: number, y: number, w: number, h: number, radius: number, color: string) => {
-    for (let row = 0; row < h; row++) {
+    for (let row = 0; row < h; row += 0.5) {
       const dy =
         row < radius ? radius - row - 0.5 : row >= h - radius ? row - (h - radius) + 0.5 : 0;
       const inset = dy ? Math.round(radius - Math.sqrt(Math.max(0, radius * radius - dy * dy))) : 0;
-      r(x + inset, y + row, w - inset * 2, 1, color);
+      r(x + inset, y + row, w - inset * 2, 0.5, color);
     }
   };
   const heart = (x: number, y: number, color: string) => {
@@ -94,25 +97,7 @@ export function characterCanvas(
   const width = [32, 28, 38, 30][a.body] ?? 32,
     x = 48 - width / 2,
     waist = seated ? 99 : a.body === 3 ? 100 : 104;
-  // Soft, curved hair behind the face and shoulders.
-  if ([1, 3, 8].includes(a.hairstyle)) {
-    round(18, 23, 60, a.hairstyle === 3 ? 65 : 73, 18, hairShade);
-    round(20, 29, 56, a.hairstyle === 3 ? 56 : 65, 16, hair);
-    for (const hx of [24, 71]) round(hx, 52, 2, 31, 1, hairLight);
-  }
-  if (a.hairstyle === 4) {
-    oval(66, 27, 19, 51, hairShade);
-    oval(68, 30, 15, 44, hair);
-    round(70, 36, 2, 23, 1, hairLight);
-    round(68, 29, 9, 5, 2, trim);
-  }
-  if (a.hairstyle === 5)
-    for (const hx of [9, 67]) {
-      oval(hx, 18, 20, 22, hairShade);
-      oval(hx + 2, 19, 16, 18, hair);
-      oval(hx + 5, 21, 7, 3, hairLight);
-      round(hx + 2, 35, 16, 4, 2, trim);
-    }
+  hairArt(c, a, true, back);
   // Stubby legs and pill-shaped shoes retain the original world foot anchor.
   const shoe =
     a.outfit === 3 ? '#82636d' : a.outfit === 1 || a.outfit === 4 ? '#e8e4d9' : '#465267';
@@ -222,6 +207,7 @@ export function characterCanvas(
     r(39, 79, 5, 4, clothLight);
     r(52, 79, 5, 4, clothLight);
   }
+  garmentArt(c, a, x, width, waist, back, step, seated);
   if (back) {
     round(x + 3, 79, width - 6, waist - 81, 4, cloth);
     if (a.outfit === 4) {
@@ -235,119 +221,74 @@ export function characterCanvas(
     r(x + 6, 82, width - 12, 1, clothLight);
     r(47, 83, 1, 13, clothShade);
   }
-  // A large circular head, full cheeks and low-set tiny features make a soft chibi face.
-  oval(17, 13, 62, 62, hairShade);
-  oval(19, 14, 58, 58, hair);
+  // Face is independent of the rear hair: no face/ear silhouette leaks in back views.
   if (!back) {
-    for (const ex of [18, 70]) {
-      oval(ex, 49, 8, 14, skinShade);
-      oval(ex + 2, 51, 4, 9, skin);
+    for (const ex of [20, 69]) {
+      oval(ex, 50, 7, 12, skinShade);
+      oval(ex + 1, 51, 5, 9, skin);
+      r(ex + 2, 54, 1, 4, blend(skin, '#a67d75', 0.2));
     }
-    oval(side ? 26 : 22, 30, 52, 46, skinShade);
-    oval(side ? 27 : 23, 30, 50, 44, skinLight);
+    oval(side ? 26 : 22, 30, 52, 46, blend(skin, '#ae7680', 0.25));
+    oval(side ? 27 : 23, 30, 50, 44, skin);
+    oval(side ? 29 : 25, 33, 45, 39, skinLight);
+    for (const bx of side ? [48] : [27, 64]) {
+      oval(bx - 1, 61, 10, 5, blend(skinLight, '#efabb7', 0.24));
+      oval(bx + 1, 62, 7, 3, blend(skinLight, '#e996ac', 0.22));
+    }
+    r(side ? 70 : 48, 62, 0.5, 1.5, skinShade);
+    r(side ? 69.5 : 47.5, 61, 0.5, 0.5, '#fff1d8');
   }
-  if (back) {
-    if (a.hairstyle === 1 || a.hairstyle === 3) {
-      const length = a.hairstyle === 1 ? 73 : 63;
-      round(18, 23, 60, length, 18, hairShade);
-      round(20, 24, 56, length - 3, 16, hair);
-    }
-    oval(19, 18, 58, 57, hair);
-    oval(27, 20, 37, 8, hairLight);
-    for (const hx of [26, 37, 57, 68]) round(hx, 36, 1, 28, 1, hairLight);
-    if (a.hairstyle === 2) r(29, 70, 38, 2, hairShade);
-    if (a.hairstyle === 9) {
-      oval(27, 61, 20, 12, hairShade);
-      oval(49, 60, 19, 11, hairShade);
-    }
-  } else {
-    // Rounded locks replace sharp zig-zag bangs. Highlights follow the hair's curves.
-    oval(19, 14, 58, 26, hair);
-    const fringe =
-      a.hairstyle === 2
-        ? [
-            [23, 30, 15, 14],
-            [34, 31, 14, 13],
-            [45, 31, 14, 13],
-            [56, 29, 16, 15],
-          ]
-        : a.hairstyle === 6
-          ? [
-              [22, 26, 24, 24],
-              [38, 25, 23, 20],
-              [54, 27, 18, 14],
-            ]
-          : a.hairstyle === 9
-            ? [
-                [21, 27, 18, 19],
-                [31, 25, 22, 23],
-                [49, 25, 20, 18],
-                [62, 29, 11, 14],
-              ]
-            : [
-                [21, 29, 18, 20],
-                [32, 28, 17, 19],
-                [44, 29, 17, 17],
-                [55, 28, 19, 21],
-              ];
-    for (const [hx, hy, hw, hh] of fringe) oval(hx, hy, hw, hh, hair);
-    if ([1, 3, 8].includes(a.hairstyle))
-      for (const hx of [20, 70]) round(hx, 38, 6, a.hairstyle === 3 ? 35 : 50, 3, hair);
-    if (a.hairstyle === 3) {
-      oval(18, 65, 12, 19, hair);
-      oval(66, 65, 12, 19, hair);
-    }
-    if (a.hairstyle === 8)
-      for (const hx of [19, 70]) {
-        for (let y = 61; y < 91; y += 6) {
-          oval(hx, y, 7, 9, hairShade);
-          oval(hx + 1, y, 5, 6, hair);
-        }
-        round(hx, 88, 7, 3, 1, trim);
-      }
-    if (a.hairstyle === 7)
-      for (const [hx, hy] of [
-        [16, 29],
-        [20, 18],
-        [31, 12],
-        [49, 12],
-        [65, 18],
-        [71, 31],
-      ]) {
-        oval(hx, hy, 12, 15, hair);
-        oval(hx + 2, hy + 2, 6, 3, hairLight);
-      }
-    if (a.hairstyle === 4) round(21, 43, 5, 19, 2, hair);
-    for (const [hx, hy] of [
-      [28, 25],
-      [36, 22],
-      [56, 24],
-    ]) {
-      round(hx, hy, 2, 7, 1, hairLight);
-      r(hx + 2, hy + 1, 2, 1, hairLight);
-    }
-    const eyeY = 54,
-      eyes = side ? [59] : [33, 57];
+  hairArt(c, a, false, back);
+  if (!back) {
+    const eyeY = 53,
+      eyes = side ? [58] : [31, 55];
     for (let i = 0; i < eyes.length; i++) {
       const ex = eyes[i],
         wink = a.expression === 5 && i === eyes.length - 1;
       if (a.eyeShape === 1 || wink) {
-        r(ex + 1, eyeY + 2, 4, 1, ink);
-        r(ex, eyeY + 3, 1, 2, ink);
-        r(ex + 5, eyeY + 3, 1, 2, ink);
+        for (let dx = 0; dx < 9; dx += 0.5)
+          r(ex + dx, eyeY + 3 + (dx - 4) ** 2 / 12, 0.5, 0.7, ink);
       } else {
-        const eh = a.eyeShape === 3 ? 5 : a.eyeShape === 2 ? 7 : 8,
-          ew = a.eyeShape === 2 ? 7 : 6;
-        round(ex, eyeY, ew, eh, 3, ink);
-        round(ex + 1, eyeY + 1, ew - 2, eh - 2, 2, a.eyes);
-        r(ex + 1, eyeY + 1, 2, 2, '#fff7e9');
-        r(ex + 2, eyeY + eh - 2, ew - 3, 1, blend(a.eyes, '#ffe5bc', 0.25));
+        const eh =
+          a.eyeShape === 3
+            ? 6
+            : a.eyeShape === 2
+              ? 11
+              : a.eyeShape === 4
+                ? 12
+                : a.eyeShape === 5
+                  ? 11
+                  : 10;
+        const ew = a.eyeShape === 2 || a.eyeShape === 4 || a.eyeShape === 5 ? 12 : 10;
+        const ey = eyeY + (a.eyeShape === 3 ? 3 : 0);
+        c.beginPath();
+        c.moveTo(ex, ey + 2);
+        c.quadraticCurveTo(ex + ew / 2, ey - 2, ex + ew, ey + 2);
+        c.quadraticCurveTo(ex + ew, ey + eh, ex + ew / 2, ey + eh);
+        c.quadraticCurveTo(ex, ey + eh, ex, ey + 2);
+        c.fillStyle = '#fff5e6';
+        c.fill();
+        const ix = ex + (side ? 4 : 3),
+          iw = ew > 10 ? 7 : 6;
+        oval(ix, ey + 0.5, iw, eh - 0.5, blend(a.eyes, '#26253c', 0.45));
+        oval(ix + 0.5, ey + 2, iw - 1, eh - 3, a.eyes);
+        oval(ix + 1, ey + eh - 4, iw - 2, 3, blend(a.eyes, '#d6efdf', 0.38));
+        round(ix + 2, ey + 2, 2, Math.max(2, eh - 4), 1, '#302b3c');
+        r(ix + 1, ey + 1.5, 1.5, 1.5, '#fffdf3');
+        r(ix + 4.5, ey + eh - 3, 0.5, 1, '#fff5db');
         if (a.eyeShape === 4) {
-          r(ex + 4, eyeY + 4, 1, 2, '#fff7e9');
-          r(ex + 3, eyeY + 5, 3, 1, '#fff7e9');
+          r(ix + 4, ey + 5, 0.5, 2, '#fffdf3');
+          r(ix + 3.5, ey + 5.5, 1.5, 0.5, '#fffdf3');
         }
-        if (a.eyeShape === 5) r(ex + (i ? 5 : -1), eyeY - 1, 2, 1, ink);
-        if (a.eyeShape === 3) r(ex, eyeY, 6, 1, skinShade);
+        c.beginPath();
+        c.moveTo(ex - 0.5, ey + 2);
+        c.quadraticCurveTo(ex + ew / 2, ey - 1.5, ex + ew + 0.5, ey + 2);
+        c.lineWidth = a.eyeShape === 5 ? 1.2 : 0.85;
+        c.strokeStyle = ink;
+        c.stroke();
+        r(ex + (i ? ew : -1), ey + 1, 1.5, 0.5, ink);
+        r(ex + 2, ey + eh, ew - 3, 0.5, blend(skin, '#a67283', 0.25));
+        if (a.eyeShape === 5) r(ex + (i ? ew - 0.5 : -1), ey, 1.5, 0.5, ink);
       }
       const by = a.expression === 2 || a.brows === 1 ? 49 : 50,
         brow = blend(hair, skinLight, 0.3);
@@ -405,8 +346,8 @@ export function characterCanvas(
       }
     if (a.accessory === 1) {
       const rim = blend(hair, '#e6cbb2', 0.48);
-      for (const ex of eyes) oval(ex - 3, eyeY - 2, 12, 13, rim, true);
-      if (!side) r(42, eyeY + 3, 12, 1, rim);
+      for (const ex of eyes) oval(ex - 2, eyeY - 1, 14, 14, rim, true);
+      if (!side) r(43, eyeY + 4, 10, 0.5, rim);
     }
     if (a.accessory === 2) star(side ? 70 : 67, 59, '#f6d997');
     if (a.accessory === 3) for (const bx of side ? [48] : [26, 64]) oval(bx, 61, 9, 5, '#e6aaa7');
@@ -461,6 +402,16 @@ export function characterCanvas(
       r(22, 43, 52, 1, shade);
       r(45, hy + 2, 3, 23, light);
     }
+    if (a.helmetStyle === 0) {
+      c.strokeStyle = blend(hat, '#b5b7a4', 0.28);
+      c.lineWidth = 0.5;
+      c.beginPath();
+      c.moveTo(25, 35);
+      c.bezierCurveTo(21, 19, 33, 9, 42, 8);
+      c.stroke();
+      r(24, 39, 0.5, 2, light);
+      r(72, 39, 0.5, 2, shade);
+    }
     if (a.helmetStyle === 2) {
       round(22, 36, 52, 6, 3, shade);
       round(46, 7, 5, 6, 2, shade);
@@ -470,5 +421,10 @@ export function characterCanvas(
       round(side ? 58 : 29, 39, side ? 29 : 42, 5, 2, hat);
     }
   }
+  // Remove fractional edge coverage after rasterizing curves onto the fine native grid.
+  const pixels = c.getImageData(0, 0, CHARACTER_WIDTH, CHARACTER_HEIGHT);
+  for (let at = 3; at < pixels.data.length; at += 4)
+    pixels.data[at] = pixels.data[at] >= 128 ? 255 : 0;
+  c.putImageData(pixels, 0, 0);
   return canvas;
 }
