@@ -238,13 +238,20 @@ export function characterCanvas(
   // A large circular head, full cheeks and low-set tiny features make a soft chibi face.
   oval(17, 13, 62, 62, hairShade);
   oval(19, 14, 58, 58, hair);
-  for (const ex of [18, 70]) {
-    oval(ex, 49, 8, 14, skinShade);
-    oval(ex + 2, 51, 4, 9, skin);
+  if (!back) {
+    for (const ex of [18, 70]) {
+      oval(ex, 49, 8, 14, skinShade);
+      oval(ex + 2, 51, 4, 9, skin);
+    }
+    oval(side ? 26 : 22, 30, 52, 46, skinShade);
+    oval(side ? 27 : 23, 30, 50, 44, skinLight);
   }
-  oval(side ? 26 : 22, 30, 52, 46, skinShade);
-  oval(side ? 27 : 23, 30, 50, 44, skinLight);
   if (back) {
+    if (a.hairstyle === 1 || a.hairstyle === 3) {
+      const length = a.hairstyle === 1 ? 73 : 63;
+      round(18, 23, 60, length, 18, hairShade);
+      round(20, 24, 56, length - 3, 16, hair);
+    }
     oval(19, 18, 58, 57, hair);
     oval(27, 20, 37, 8, hairLight);
     for (const hx of [26, 37, 57, 68]) round(hx, 36, 1, 28, 1, hairLight);
