@@ -1,6 +1,7 @@
 import type { Appearance } from './types';
 /** Versioned server-origin events shared by web and the future Tauri client. */
 type Payloads = {
+  'competition.updated': { competitionId: string; name: string; kind: string; preview: string };
   'project.question.answered': {
     projectId: string;
     questionId: string;

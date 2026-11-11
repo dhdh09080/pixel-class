@@ -48,6 +48,22 @@ export async function copyDatabase(source, destination, { invalidateSessions = f
     if (invalidateSessions) {
       const restored = new DatabaseSync(destination);
       try {
+        if (
+          restored
+            .prepare(
+              "SELECT 1 FROM sqlite_master WHERE type='table' AND name='competition_judge_sessions'",
+            )
+            .get()
+        )
+          restored.exec('DELETE FROM competition_judge_sessions;');
+        if (
+          restored
+            .prepare(
+              "SELECT 1 FROM sqlite_master WHERE type='table' AND name='competition_judge_passes'",
+            )
+            .get()
+        )
+          restored.exec('DELETE FROM competition_judge_passes;');
         restored.exec('DELETE FROM sessions; PRAGMA wal_checkpoint(TRUNCATE);');
       } finally {
         restored.close();

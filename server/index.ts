@@ -23,6 +23,12 @@ import 'dotenv/config';
 import { registerLearningRoutes } from './learning.js';
 import { registerTeachingRoutes } from './teaching.js';
 import { registerAccountRoutes } from './accounts.js';
+import {
+  registerCompetitionRoutes,
+  competitionClassroomState,
+  isPublicCompetitionRequest,
+} from './competitions.js';
+import { publicCompetitionAsset } from './competition-domain.js';
 import { CapacityError, assertUploadCapacity, scheduleBackups } from './operations.js';
 import { roomSize, allocateDesk } from './classroom.js';
 import express, { type Request, type Response, type NextFunction } from 'express';
@@ -30,6 +36,7 @@ import { createServer } from 'node:http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createHash, randomBytes, timingSafeEqual, scryptSync } from 'node:crypto';
 import { resolve } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { z } from 'zod';
 import {
   db,
@@ -83,7 +90,7 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === 'production') {
     res.setHeader(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
     );
     if (process.env.COOKIE_SECURE === 'true')
       res.setHeader('Strict-Transport-Security', 'max-age=31536000');
@@ -103,6 +110,7 @@ app.use((req, res, next) => {
     }
     if (
       !(req.method === 'GET' && req.url === '/api/health') &&
+      !isPublicCompetitionRequest(req.method, req.path) &&
       !privateAccess(req.headers.authorization, accessSecret) &&
       !validAccessPass(req.headers.cookie, accessSecret)
     ) {
@@ -126,7 +134,17 @@ app.use((req, res, next) => {
     return res.status(403).json({ error: '다른 출처의 요청은 허용하지 않습니다.' });
   next();
 });
-app.use(express.json({ limit: '8mb' }));
+// Two independently capped 5 MiB competition files may be uploaded together.
+const standardJson = express.json({ limit: '8mb' });
+const competitionUploadJson = express.json({ limit: '14mb' });
+const publicCompetitionJson = express.json({ limit: '16kb' });
+app.use((req, res, next) =>
+  (req.path.startsWith('/api/public/competitions/')
+    ? publicCompetitionJson
+    : req.method === 'PUT' && /^\/api\/competitions\/[^/]+\/entry$/.test(req.path)
+      ? competitionUploadJson
+      : standardJson)(req, res, next),
+);
 class HttpError extends Error {
   constructor(
     public status: number,
@@ -534,6 +552,7 @@ app.get('/api/state', (req, res) => {
   const isActive = u.status === 'ACTIVE';
   res.json({
     me: u,
+    ...competitionClassroomState(u),
     school: schoolSettings(u.schoolId),
     members: isActive ? members(u.schoolId) : [u],
     projects: list<Project>('project', u.schoolId)
@@ -1132,6 +1151,7 @@ app.post('/api/projects/:id/ai', async (req, res) => {
 });
 registerLearningRoutes(app, { active, master, project, fail, changed, notify: personalEvent });
 registerTeachingRoutes(app, { active, master, fail, changed });
+registerCompetitionRoutes(app, { active, master, fail, changed, notify: personalEvent, rate });
 registerAccountRoutes(app, {
   active,
   master,
@@ -1177,6 +1197,34 @@ app.get('/api/health', (_req, res) => {
 });
 app.use('/api', (_req, res) => res.status(404).json({ error: '요청한 기능을 찾을 수 없습니다.' }));
 if (process.env.NODE_ENV === 'production') {
+  const publicBundleCache = new Map<string, string>();
+  // Only this public bundle prefix bypasses the entrance, never school APIs or /assets.
+  app.get('/competition-assets/:asset', (req, res) => {
+    if (!isPublicCompetitionRequest('GET', req.path)) return res.status(404).end();
+    const asset = String(req.params.asset),
+      file = resolve('dist/assets', asset);
+    if (!existsSync(file)) return res.status(404).end();
+    if (asset.endsWith('.js') || asset.endsWith('.css')) {
+      let body = publicBundleCache.get(asset);
+      if (!body) {
+        body = publicCompetitionAsset(readFileSync(file, 'utf8'));
+        publicBundleCache.set(asset, body);
+      }
+      return res.type(asset.endsWith('.js') ? 'application/javascript' : 'text/css').send(body);
+    }
+    return res.sendFile(file);
+  });
+  app.get('/competition/:id', (req, res, next) => {
+    if (!isPublicCompetitionRequest('GET', req.path)) return next();
+    return res
+      .type('html')
+      .send(
+        readFileSync(resolve('dist/index.html'), 'utf8').replaceAll(
+          '/assets/',
+          '/competition-assets/',
+        ),
+      );
+  });
   app.use(express.static(resolve('dist')));
   app.get('/{*path}', (_req, res) => res.sendFile(resolve('dist/index.html')));
 }

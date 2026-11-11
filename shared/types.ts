@@ -50,6 +50,7 @@ export const defaultAppearance: Appearance = {
 export type Member = {
   id: string;
   schoolId: string;
+  classId?: string;
   name: string;
   role: Role;
   status: Membership;
@@ -147,6 +148,8 @@ export type History = {
   createdAt: string;
 };
 export type AppState = {
+  classes?: import('./competitions').SchoolClass[];
+  competitionEvent?: import('./competitions').CompetitionClassroomEvent;
   school?: import('./school').SchoolSettings;
   me: Member;
   members: Member[];

@@ -30,6 +30,7 @@ import {
   Check,
   X,
   Mail,
+  Trophy,
 } from 'lucide-react';
 import type { AppState, Project, Member } from '../shared/types';
 import { progress } from '../shared/types';
@@ -46,7 +47,20 @@ import { CharacterEditor } from './CharacterEditor';
 import { Auth, type Config } from './Auth';
 import type { GameAction } from './game/scene';
 const Classroom = lazy(() => import('./game/Classroom'));
-type Page = 'classroom' | 'projects' | 'materials' | 'gallery' | 'master' | 'teaching' | 'account';
+const CompetitionsPage = lazy(() =>
+  import('./Competitions').then((module) => ({ default: module.CompetitionsPage })),
+);
+const PublicCompetition = lazy(() => import('./PublicCompetition'));
+import './competition.css';
+type Page =
+  | 'classroom'
+  | 'projects'
+  | 'materials'
+  | 'gallery'
+  | 'master'
+  | 'teaching'
+  | 'account'
+  | 'competitions';
 type Overlay =
   | 'project'
   | 'newProject'
@@ -59,6 +73,22 @@ type Overlay =
   | 'auth'
   | null;
 export default function App() {
+  const competitionRoute = location.pathname.match(/^\/competition\/([A-Za-z0-9_-]+)\/?$/);
+  if (competitionRoute)
+    return (
+      <Suspense
+        fallback={
+          <div className="competition-empty" role="status">
+            경진대회를 불러오고 있어요…
+          </div>
+        }
+      >
+        <PublicCompetition id={competitionRoute[1]} />
+      </Suspense>
+    );
+  return <SchoolApp />;
+}
+function SchoolApp() {
   const [state, setState] = useState<AppState | null>(null),
     [config, setConfig] = useState<Config | null>(null),
     [loading, setLoading] = useState(true),
@@ -118,6 +148,18 @@ export default function App() {
     }
   }, [applyState, resetAccountUi]);
   useEffect(() => {
+    if (!state?.competitionEvent) return;
+    const update = () => {
+      if (!document.hidden) void load();
+    };
+    const timer = setInterval(update, 60000);
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, [state?.competitionEvent?.id, load]);
+  useEffect(() => {
     void (async () => {
       try {
         const c = await api<Config>('/config');
@@ -175,6 +217,10 @@ export default function App() {
     setOverlay('project');
   }, []);
   const action = useCallback((a: GameAction) => {
+    if (a.type === 'competition') {
+      setPage('competitions');
+      return;
+    }
     if (a.type === 'materials') {
       setPage('materials');
       return;
@@ -291,7 +337,7 @@ export default function App() {
     feedback.filter((f) => f.createdAt > readAt).length +
     (state.events || []).filter(
       (e) =>
-        ['project.question.answered', 'help.requested'].includes(e.type) &&
+        ['project.question.answered', 'help.requested', 'competition.updated'].includes(e.type) &&
         !e.readAt &&
         e.createdAt > readAt,
     ).length;
@@ -330,6 +376,7 @@ export default function App() {
     { key: 'materials', label: '자료실', icon: BookOpen },
     { key: 'teaching', label: '수업과 과제', icon: CheckCircle2 },
     { key: 'gallery', label: '전시실', icon: Images },
+    { key: 'competitions', label: '경진대회', icon: Trophy },
     ...(me.role === 'MASTER' ? [{ key: 'master', label: '교무실', icon: Users }] : []),
   ];
   return (
@@ -349,7 +396,7 @@ export default function App() {
             CLASS
           </small>
         </button>
-        <nav>
+        <nav aria-label="주요 메뉴 · 작은 화면에서는 옆으로 이동할 수 있어요">
           {navs.map((n) => (
             <button
               className={`nav-item ${page === n.key ? 'active' : ''}`}
@@ -805,6 +852,16 @@ export default function App() {
             />
           ) : page === 'teaching' ? (
             <TeachingPage key={me.id} state={state} onToast={onToast} />
+          ) : page === 'competitions' ? (
+            <Suspense
+              fallback={
+                <div className="competition-empty" role="status">
+                  경진대회를 불러오고 있어요…
+                </div>
+              }
+            >
+              <CompetitionsPage key={me.id} state={state} onToast={onToast} onRefresh={load} />
+            </Suspense>
           ) : page === 'account' ? (
             <AccountPage
               key={me.id}
@@ -1012,6 +1069,33 @@ export default function App() {
         >
           <div className="notifications">
             {(state.events || [])
+              .filter((event) => event.type === 'competition.updated')
+              .slice()
+              .reverse()
+              .map(
+                (event) =>
+                  event.type === 'competition.updated' && (
+                    <button
+                      className="notification-feedback"
+                      key={event.id}
+                      onClick={() => {
+                        markRead();
+                        setPage('competitions');
+                        close();
+                      }}
+                    >
+                      <span className="notice-type">
+                        <Trophy size={13} />
+                        경진대회 소식
+                      </span>
+                      <p>
+                        {event.payload.name} · {event.payload.preview}
+                      </p>
+                      <small>{date(event.createdAt)}</small>
+                    </button>
+                  ),
+              )}
+            {(state.events || [])
               .filter((e) => e.type === 'help.requested')
               .slice()
               .reverse()
@@ -1092,9 +1176,11 @@ export default function App() {
                 </small>
               </button>
             ))}
-            {!latestNotice && !feedback.length && (
-              <Empty icon={<Bell />} title="새로운 소식을 기다리고 있어요" />
-            )}
+            {!latestNotice &&
+              !feedback.length &&
+              !(state.events || []).some((event) => event.type === 'competition.updated') && (
+                <Empty icon={<Bell />} title="새로운 소식을 기다리고 있어요" />
+              )}
             <button
               className="button secondary"
               onClick={() => {
