@@ -42,7 +42,13 @@
 
 ## 실행 상태
 
-구현/검증 중입니다. 최종 로컬·CI·main 커밋 및 실제 Railway 적용 여부를 마감 때 갱신합니다. 기존 배포 승인 차단을 우회하지 않고 DB·Volume·비밀·계정은 보존합니다.
+**최종 CI120/120 성공, main 병합 완료.** [PR #12](https://github.com/dhdh09080/pixel-class/pull/12), source head `4a647cafbe4ede07b664f48a3a481da7f283373a`, main merge `cb36f6184b199abe7a836eb28bb5f2237458f837`. [CI43103896234](https://github.com/dhdh09080/pixel-class/actions/runs/43103896234)는 서버76·브라우저42(6.4분)·Compose1·Railway 프로필1 모두 성공입니다. 기존118개 조건을 유지하고 신규2개를 추가했습니다.
+
+로컬 전체42개도5.3분에 통과했고, 마지막 추천 색상 수정은 서버76개와 관련 실제 UI 검사로 재확인했습니다. 최종 전체 회귀는 수정 후 커밋으로 CI에서 실행했습니다. [검증 집계](docs/fine-pixels/test-results.json) · [실제 미세 픽셀 비교0→2781블록](docs/fine-pixels/native-evidence.json) · [대기/걷기/앉기 프레임](docs/fine-pixels/movement-sheet.png). 단순 확대와 미적 만족은 구분합니다.
+
+실제 URL은 https://pixel-class-private-test.up.railway.app/ 이지만, 활성 배포는 여전히 기존 `67f84b5` / `fb44aa92-27bc-411d-83ad-8954010861cc` SUCCESS입니다. 대기 소스를58f2de9에서 **cb36f61 미세 도트 버전**으로 교체했습니다. patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`, 서비스1개·표시4필드 중 repo/branch 동일·image 빈 값이며 실제로 달라지는 값은 commitSha1개입니다. destructive:false, 변수/Volume/시작 명령/DB/계정 변경 없음.
+
+이전 Railway `accept_deploy` 요청은 **“Cancelled — the user did not approve this action. No changes were made.”**로 거절됐습니다. 이번에는 대기 소스만 갱신했으며 승인 차단을 우회하거나 적용을 재시도하지 않았습니다. 실제 반영은 [Railway 프로젝트](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)의 private-test Review/Deploy 대기입니다. 아직 새 버전 배포 완료로 보고하지 않습니다.
 
 ## 자체 품질 평가
 

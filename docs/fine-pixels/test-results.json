@@ -1,0 +1,64 @@
+{
+  "scope": "Fine pixel art release; synthetic local accounts only",
+  "sourceHead": "4a647cafbe4ede07b664f48a3a481da7f283373a",
+  "mainMerge": "cb36f6184b199abe7a836eb28bb5f2237458f837",
+  "githubCI": {
+    "runId": 43103896234,
+    "url": "https://github.com/dhdh09080/pixel-class/actions/runs/43103896234",
+    "conclusion": "success",
+    "serverPassed": 76,
+    "browserPassed": 42,
+    "composePassed": 1,
+    "railwayProfilePassed": 1,
+    "totalPassed": 120,
+    "browserDuration": "6.4 minutes",
+    "composeDuration": "28.9 seconds",
+    "railwayProfileDuration": "28.1 seconds"
+  },
+  "local": {
+    "serverPassed": 76,
+    "fullBrowserBeforePaletteCorrection": {
+      "source": "214dcf59fef0cf7dbf43fd8f5e5229c158a43904",
+      "passed": 42,
+      "duration": "5.3 minutes"
+    },
+    "paletteRegression": {
+      "before": "New palette assertion failed for lavender helmet color",
+      "fix": "Use existing #f7f6ed helmet swatch",
+      "after": "76 server tests plus targeted preset UI test passed; selected swatch verified"
+    },
+    "focusedCharacter": {
+      "passed": 7,
+      "note": "Included in browser suite, not counted twice"
+    },
+    "manualAxe": {
+      "violations": 0,
+      "pageErrors": 0,
+      "views": ["face", "body", "headwear", "clothes", "mobile clothes"]
+    }
+  },
+  "native": {
+    "character": [192, 256],
+    "worldAt700Height": [2240, 1400],
+    "desk": [264, 232],
+    "robot": [96, 112],
+    "worldCharacterSize": [55.2, 73.6],
+    "beforeVarying2x2Blocks": 0,
+    "afterVarying2x2Blocks": 2781,
+    "partialCharacterAlphaPixels": 0
+  },
+  "deployment": {
+    "liveCommit": "67f84b5d957ca6eed65745b73400adbf3bc0ef00",
+    "liveDeployment": "fb44aa92-27bc-411d-83ad-8954010861cc",
+    "stagedCommit": "cb36f6184b199abe7a836eb28bb5f2237458f837",
+    "stagedPatch": "94f0b81b-cc4b-4d2a-b863-c40682e872b9",
+    "destructive": false,
+    "applied": false,
+    "reason": "Prior Railway accept_deploy declined as not approved; this task updated the staged source only."
+  },
+  "limitations": [
+    "CI container HTTPS/WSS is isolated, not live external acceptance.",
+    "CPU/network emulation is not physical-device certification.",
+    "Native block variation proves finer pixels, not aesthetic satisfaction."
+  ]
+}
