@@ -375,7 +375,35 @@ export function playerHair(
     return;
   }
   p.layer((q) => {
-    if ([1, 3, 7, 10, 11, 15, 17].includes(a.hairstyle)) {
+    // A rear head is a complete hair-covered volume, not the front bangs alone.
+    // Its rounded base touches the collar for every short style and walking frame.
+    if (back) {
+      q.oval(14, 28 + bob, 33, 27, base);
+      q.rect(42, 37 + bob, 3, 12, dark);
+    }
+    if (a.hairstyle === 10) {
+      q.poly(
+        offset([
+          [13, 32],
+          [11, 41],
+          [12, 51],
+          [10, 58],
+          [13, 62],
+          [17, 58],
+          [17, 40],
+        ]),
+        base,
+      );
+      q.line(
+        offset([
+          [13, 40],
+          [14, 49],
+          [12, 57],
+        ]),
+        light,
+      );
+    }
+    if ([1, 3, 7, 11, 15, 17].includes(a.hairstyle)) {
       const end = [3, 11].includes(a.hairstyle) ? 58 : 73;
       q.poly(
         offset([
@@ -558,7 +586,7 @@ export function playerHair(
           ]),
           dark,
         );
-      if ([1, 7, 10, 15, 17].includes(a.hairstyle))
+      if ([1, 7, 15, 17].includes(a.hairstyle))
         q.poly(
           offset([
             [17, 43],

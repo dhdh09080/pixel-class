@@ -169,6 +169,7 @@ test('every visual catalog option renders distinct pixels, with matching logical
     const seated = characterCanvas(defaultAppearance, 'up', 0, true);
     // A rear view must not expose the front face through the hair's lower curve.
     // An unmistakable red skin fixture separates face pixels from hair/hat colors.
+    const rearHeadGaps: number[] = [];
     const rearFacePixels = appearanceOptions.hairstyle.map((_: string, hairstyle: number) => {
       const sprite = characterCanvas(
         { ...defaultAppearance, skin: '#ff0000', helmetStyle: 1, hairstyle },
@@ -183,12 +184,17 @@ test('every visual catalog option renders distinct pixels, with matching logical
           const at = (y * CHARACTER_WIDTH + x) * 4;
           if (pixels[at] > pixels[at + 1] * 2 && pixels[at] > pixels[at + 2] * 2) count++;
         }
+      let gaps = 0;
+      for (let y = 43; y < 55; y++)
+        for (let x = 29; x < 34; x++) if (!pixels[(y * CHARACTER_WIDTH + x) * 4 + 3]) gaps++;
+      rearHeadGaps.push(gaps);
       return count;
     });
     return {
       counts,
       poses,
       rearFacePixels,
+      rearHeadGaps,
       seated: [seated.width, seated.height],
       logicalHeight: CHARACTER_HEIGHT * CHARACTER_SCALE,
     };
@@ -196,6 +202,7 @@ test('every visual catalog option renders distinct pixels, with matching logical
   for (const [key, [unique, expected]] of Object.entries(result.counts))
     expect(unique, key).toBe(expected);
   expect(result.rearFacePixels).toEqual(Array(result.counts.hairstyle[1]).fill(0));
+  expect(result.rearHeadGaps).toEqual(Array(result.counts.hairstyle[1]).fill(0));
   expect(result.poses).toHaveLength(12);
   for (const pose of result.poses) expect(pose).toEqual([60, 80]);
   expect(result.seated).toEqual([60, 80]);
