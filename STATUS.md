@@ -1,5 +1,7 @@
 # Pixel Class v0.6 수업 운영 현황
 
+2026-11-11 KST. 캐릭터를 둥근 머리·볼, 작은 눈과 얇은 원형 안경, 부드러운 앞머리와 의상 실루엣으로 다시 다듬었습니다. 기존 외모 값·계정·데이터는 유지합니다. 실제 Railway 반영은 아직 대기이며 [새 모습과 검증](ROUND_CHARACTER_REPORT.md)을 구분해서 확인합니다.
+
 2026-11-10 KST. **캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정 변경은 **PR #10 main 병합 완료(`6493895`), 로컬·GitHub CI 모두118/118 통과. Railway는 소스 변경1건을 준비했으나 적용 도구가 승인을 거절해 아직 이전 버전입니다.**** [변경 보고서](CHARACTER_STUDIO_REPORT.md).
 
 2026-11-10 KST. 기존 v0.6 실행 소스(`67f84b5`)의 Railway SUCCESS를 확인했습니다. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/

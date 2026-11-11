@@ -162,14 +162,32 @@ test('every visual catalog option renders distinct pixels, with matching logical
         poses.push([sprite.width, sprite.height]);
       }
     const seated = characterCanvas(defaultAppearance, 'up', 0, true);
+    // A rear view must not expose the front face through the hair's lower curve.
+    // An unmistakable red skin fixture separates face pixels from hair/hat colors.
+    const rearFacePixels = appearanceOptions.hairstyle.map((_: string, hairstyle: number) => {
+      const sprite = characterCanvas(
+        { ...defaultAppearance, skin: '#ff0000', helmetStyle: 1, hairstyle },
+        'up',
+      );
+      const pixels = sprite.getContext('2d')!.getImageData(0, 0, 96, 128).data;
+      let count = 0;
+      for (let y = 44; y < 70; y++)
+        for (let x = 24; x < 72; x++) {
+          const at = (y * 96 + x) * 4;
+          if (pixels[at] > pixels[at + 1] * 2 && pixels[at] > pixels[at + 2] * 2) count++;
+        }
+      return count;
+    });
     return {
       counts,
       poses,
+      rearFacePixels,
       seated: [seated.width, seated.height],
       logicalHeight: 128 * CHARACTER_SCALE,
     };
   });
   for (const [unique, expected] of Object.values(result.counts)) expect(unique).toBe(expected);
+  expect(result.rearFacePixels).toEqual(Array(10).fill(0));
   expect(result.poses).toHaveLength(12);
   for (const pose of result.poses) expect(pose).toEqual([96, 128]);
   expect(result.seated).toEqual([96, 128]);
