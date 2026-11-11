@@ -180,8 +180,9 @@ try {
     await ended;
   }
   report.finishedAt = new Date().toISOString();
-  mkdirSync('docs/v03/qa', { recursive: true });
-  writeFileSync('docs/v03/qa/realtime-load.json', JSON.stringify(report, null, 2) + '\n');
+  const output = process.env.QA_OUTPUT_DIR || 'docs/v03/qa';
+  mkdirSync(output, { recursive: true });
+  writeFileSync(join(output, 'realtime-load.json'), JSON.stringify(report, null, 2) + '\n');
   console.log(
     JSON.stringify({
       passed: report.passed,

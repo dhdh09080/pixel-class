@@ -9,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const base = process.env.OPS_BASE_URL!;
 const railway = process.env.OPS_DEPLOYMENT_PROFILE === 'railway';
-const evidenceDir = railway ? 'docs/v05' : 'docs/operations';
+const evidenceDir = process.env.QA_OUTPUT_DIR || (railway ? 'docs/v05' : 'docs/operations');
 const headers = { 'X-Pixel-Class': '1', Origin: base };
 const gate = {
   username: process.env.OPS_ACCESS_USER!,
@@ -105,6 +105,62 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
                 })
               ).status(),
             ).toBe(401);
+            // The external judge entrance is a narrow exception to the real Railway gate.
+            // Loading an unknown contest must still load the public lazy bundle safely.
+            const contest = '/competition/11111111-1111-4111-8111-111111111111';
+            const entrance = await anonymous.get(contest);
+            expect(entrance.status()).toBe(200);
+            const html = await entrance.text();
+            expect(html).toContain('/competition-assets/');
+            expect(html).not.toContain('src="/assets/');
+            const assets = [...html.matchAll(/["'](\/competition-assets\/[^"']+)["']/g)].map(
+              (m) => m[1],
+            );
+            expect(assets.length).toBeGreaterThan(1);
+            for (const asset of assets) expect((await anonymous.get(asset)).status()).toBe(200);
+            const publicContext = await browser.newContext({ baseURL: base });
+            contexts.push(publicContext);
+            const publicPage = await publicContext.newPage();
+            const privateRequests: string[] = [],
+              failedAssets: string[] = [],
+              publicErrors: string[] = [];
+            publicPage.on('request', (r) => {
+              if (/\/api\/(?:config|state)(?:\?|$)/.test(r.url()))
+                privateRequests.push(new URL(r.url()).pathname);
+            });
+            publicPage.on('response', (r) => {
+              if (r.url().includes('/competition-assets/') && r.status() >= 400)
+                failedAssets.push(new URL(r.url()).pathname);
+            });
+            publicPage.on('pageerror', (e) => publicErrors.push(e.message));
+            await publicPage.goto(contest);
+            await expect(publicPage.locator('.competition-public')).toBeVisible();
+            await expect(publicPage.getByText('확인이 필요해요', { exact: true })).toBeVisible();
+            expect(privateRequests).toEqual([]);
+            expect(failedAssets).toEqual([]);
+            expect(publicErrors).toEqual([]);
+            expect((await publicContext.request.get('/api/state')).status()).toBe(401);
+            mkdirSync(evidenceDir, { recursive: true });
+            writeFileSync(
+              join(evidenceDir, 'competition-gate.json'),
+              JSON.stringify(
+                {
+                  checkedAt: new Date().toISOString(),
+                  environment:
+                    'isolated Docker Railway profile, real volume and HTTPS gate; not the internet deployment',
+                  publicEntrance: entrance.status(),
+                  rewrittenAssets: assets.length,
+                  lazyComponentLoaded: true,
+                  privateRequests,
+                  failedAssets,
+                  publicErrors,
+                  schoolStateStatus: 401,
+                },
+                null,
+                2,
+              ) + '\n',
+            );
+            await publicPage.close();
           }
         } finally {
           await anonymous.dispose();
@@ -732,9 +788,10 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
         true,
       );
       expect(new Set(results.map((value) => value.clientAddress)).size).toBe(2);
-      mkdirSync(railway ? 'docs/v05' : 'docs/v04', { recursive: true });
+      const networkDir = process.env.QA_OUTPUT_DIR || (railway ? 'docs/v05' : 'docs/v04');
+      mkdirSync(networkDir, { recursive: true });
       writeFileSync(
-        `${railway ? 'docs/v05' : 'docs/v04'}/network-peers.json`,
+        `${networkDir}/network-peers.json`,
         JSON.stringify(
           {
             capturedAt: new Date().toISOString(),
