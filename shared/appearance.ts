@@ -172,7 +172,7 @@ export const appearancePresets: { name: string; changes: Partial<Appearance> }[]
       expression: 0,
       accessory: 0,
       helmetStyle: 2,
-      helmetColor: '#ded4bd',
+      helmetColor: '#f7f6ed',
       helmetPattern: 0,
       outfit: 7,
       outfitColor: '#7d74a4',

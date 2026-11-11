@@ -229,7 +229,11 @@ test('art-directed presets preserve skin and body, stay drafts until saved and r
   });
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
   dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: '스타일 프리셋: 미드나잇 테일러', exact: true }).click();
+  await dialog.getByRole('button', { name: '스타일 프리셋: 라벤더 웨이브', exact: true }).click();
+  await dialog.getByRole('button', { name: '모자', exact: true }).click();
+  await expect(
+    dialog.getByRole('button', { name: '모자 색상 #f7f6ed', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
   await dialog.getByRole('button', { name: '취소', exact: true }).click();
   expect((await (await context.request.get('/api/state')).json()).me.appearance).toEqual(saved);
   // Return this shared demo identity to its original look for unrelated regression flows.
