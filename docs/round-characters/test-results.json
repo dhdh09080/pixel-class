@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-11 KST",
+  "scope": "rounded renderer, isolated local synthetic accounts",
+  "server": {
+    "command": "npm test",
+    "passed": 76,
+    "failed": 0
+  },
+  "browser": {
+    "command": "npm run test:e2e",
+    "passed": 40,
+    "failed": 0,
+    "duration": "4.5 minutes"
+  },
+  "additionalFocused": {
+    "command": "npx playwright test tests/character-studio.spec.ts",
+    "passed": 5,
+    "note": "Included in full 40, not counted twice"
+  },
+  "manualAxe": {
+    "views": ["face", "body", "headwear", "clothes", "mobile clothes"],
+    "violations": 0,
+    "pageErrors": 0
+  },
+  "directionSheet": {
+    "views": 8,
+    "partialAlphaPixels": 0,
+    "note": "Actual canvas renderer, no image blur or anti-aliased curves"
+  },
+  "localContainer": "Not rerun; no server/config/dependency changes. Existing Compose and Railway profile checks run in CI.",
+  "githubCI": {
+    "runId": 42990499455,
+    "url": "https://github.com/dhdh09080/pixel-class/actions/runs/42990499455",
+    "state": "success",
+    "testedHead": "5fa213f78043a4a537f8ff0869ed0faf259e26c5",
+    "serverPassed": 76,
+    "browserPassed": 40,
+    "containerPassed": 2,
+    "totalPassed": 118,
+    "browserDuration": "4.4 minutes",
+    "composeDuration": "21.9 seconds",
+    "railwayProfileDuration": "25.2 seconds"
+  },
+  "rearFaceRegression": {
+    "command": "npx playwright test tests/character-studio.spec.ts -g 'every visual catalog'",
+    "beforeFix": "failed: rear facial skin detected for all 10 hair styles",
+    "beforeCounts": [6, 6, 6, 6, 6, 6, 6, 6, 6, 4],
+    "afterFix": "passed: no rear facial skin for all 10 hair styles",
+    "afterCounts": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "note": "Additional assertion in an existing test; total test count unchanged."
+  }
+}

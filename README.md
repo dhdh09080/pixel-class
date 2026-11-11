@@ -4,7 +4,7 @@
 
 건설현장 팀원들이 AI로 자신만의 서비스를 만드는 픽셀 메타버스 학교입니다. 교실에서 걷고, 자기 책상을 열어 프로젝트를 진행하고, MASTER에게 질문과 피드백을 주고받습니다. 주요 UI는 한국어입니다.
 
-![다희의 AI 교실](docs/character-studio/classroom-1440.png)
+![다희의 AI 교실](docs/round-characters/classroom-laptop-viewport.png)
 
 ## 빠르게 실행하기
 

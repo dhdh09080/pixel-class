@@ -1,8 +1,8 @@
 # Pixel Class v0.6 수업 운영 현황
 
-2026-11-11 KST. 캐릭터를 둥근 머리·볼, 작은 눈과 얇은 원형 안경, 부드러운 앞머리와 의상 실루엣으로 다시 다듬었습니다. 기존 외모 값·계정·데이터는 유지합니다. 실제 Railway 반영은 아직 대기이며 [새 모습과 검증](ROUND_CHARACTER_REPORT.md)을 구분해서 확인합니다.
+2026-11-11 KST. **둥근 캐릭터 PR #11 main 병합 완료(`58f2de9`), CI118/118 통과. 실제 Railway는 기존67f84b5이고, 배포 대기 소스를 새 둥근 버전58f2de9로 갱신했습니다.** 이전 도구 승인 거절 때문에 적용은 재시도하지 않았습니다. 둥근 머리·볼, 작은 눈·얇은 원형 안경과 부드러운 실루엣으로 수정했으며 저장 외모·계정·데이터는 유지합니다. [새 모습·검사·배포 상태](ROUND_CHARACTER_REPORT.md).
 
-2026-11-10 KST. **캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정 변경은 **PR #10 main 병합 완료(`6493895`), 로컬·GitHub CI 모두118/118 통과. Railway는 소스 변경1건을 준비했으나 적용 도구가 승인을 거절해 아직 이전 버전입니다.**** [변경 보고서](CHARACTER_STUDIO_REPORT.md).
+2026-11-10 이력(최신 상태는 위11일 기록 우선). 캐릭터 스튜디오·교실 입력/아트·MASTER 이름 설정은 PR #10으로 main에 병합했습니다(`6493895`). 당시 로컬·GitHub CI118/118 통과, Railway 적용은 승인 거절로 대기였습니다. [당시 보고서](CHARACTER_STUDIO_REPORT.md).
 
 2026-11-10 KST. 기존 v0.6 실행 소스(`67f84b5`)의 Railway SUCCESS를 확인했습니다. 비공개 학교 주소: https://pixel-class-private-test.up.railway.app/
 
@@ -62,7 +62,7 @@ PR #9/main `67f84b5`, CI109개 성공. 사용자 승인 후 실제 복구 배포
 
 접속 정보는 Git 밖 개인용0600 파일로 전달하며 실제 이메일·비밀번호·공용 암호는 Git/로그에 기록하지 않습니다. 외부 브라우저 두 계정/WSS 전체 인수와 외부 백업·비용 경보는 남아 있습니다. [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 실제 적용과 검증 범위를 기록합니다.
 
-## 캐릭터 스튜디오·교실·MASTER 이름 설정 — main 완료, Railway 적용 대기
+## 2026-11-10 이력: 캐릭터 스튜디오·교실·MASTER 이름 설정
 
 - [PR #10](https://github.com/dhdh09080/pixel-class/pull/10): head `c6ec00c3a25c2650bad9ea99d2184667a4f846e9`, main merge `6493895ba7a20f5e43846b29e4887a55769319ce`. [CI42781869277](https://github.com/dhdh09080/pixel-class/actions/runs/42781869277) SUCCESS: 서버76 + 브라우저40 + 운영2 = 118. 기존109개 검증 조건 유지.
 - 96×128 상세 레이어, 드롭다운 없는 외모 카드/색상, 모자/패턴/정장/드레스/티셔츠 등 의상, 4방향 미리보기. 교실은1120px/1배 텍스처에 미세 목재·가구·키보드·창문 디테일을 추가했습니다.
@@ -71,3 +71,9 @@ PR #9/main `67f84b5`, CI109개 성공. 사용자 승인 후 실제 복구 배포
 - 실제 실행은 위 표의 기존 `67f84b5`/`fb44aa92…` 그대로입니다. 대기 patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`는 **Commit Sha `67f84b5` → `6493895` 한 필드만 변경**, destructive:false. 계정·DB·Volume·sealed 비밀·일반 시작 명령 `node scripts/start.mjs`는 변경하지 않았습니다.
 - Railway `accept_deploy`가 **“Cancelled — the user did not approve this action. No changes were made.”**로 거절했습니다. 다른 배포 경로로 우회하지 않았습니다. 사용자는 [Railway 프로젝트](https://railway.com/project/c46ee1d7-c441-4b23-a3f2-f1d349c9f504)의 **private-test → Review/Deploy**에서 이 소스 변경1건을 적용해야 합니다. 배포 SUCCESS 후 새로고침하면 새 UI를 확인할 수 있습니다. 현재 반영 완료로 보고하지 않습니다.
 - Codex 직접 HTTPS는 이번에도 CONNECT403/HTTP000으로 차단됐습니다. 로컬 두 계정·HTTPS/WSS 검증과 외부 실제 인수는 구분합니다. [변경 보고서/화면 비교](CHARACTER_STUDIO_REPORT.md).
+
+## 2026-11-11 둥근 캐릭터 최종 검증
+
+[PR #11](https://github.com/dhdh09080/pixel-class/pull/11), head5fa213f / main merge58f2de9. [CI42990499455](https://github.com/dhdh09080/pixel-class/actions/runs/42990499455)는 서버76·브라우저40·운영2 = 118개 성공입니다. 기존 검사 조건을 유지하고 뒷머리에 얼굴색이 새지 않는 재현 검사를 추가했습니다. 로컬 최종 브라우저40개도 성공(4.5분), 모든 카탈로그의 선택/저장과4방향·앉기·30명·5해상도·접근성·감속 검사 포함입니다.
+
+대기 patch94f0b81b…는 서비스1개의 소스를58f2de9로 갱신했습니다. 표시4필드 중 repo/branch는 같은 값, image는 빈 값이며 commitSha만 실제 변경됩니다. destructive:false, 변수/Volume/시작 명령 변경 없음. 실제 활성 배포는 fb44aa92…/67f84b5 그대로입니다. 이전 accept_deploy의 미승인 거절을 우회하지 않았으며 실제 적용은 Railway Review/Deploy 대기입니다. [전후 화면·증거](ROUND_CHARACTER_REPORT.md).
