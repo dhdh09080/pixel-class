@@ -8,7 +8,7 @@ import { once } from 'node:events';
 import { createHash, randomBytes } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { defaultAppearance } from '../shared/types.js';
-import { appearanceOptions, normalizeAppearance } from '../shared/appearance.js';
+import { appearanceOptions, normalizeAppearance, appearancePresets } from '../shared/appearance.js';
 import { appearanceSchema } from '../shared/appearance-schema.js';
 import { defaultSchoolSettings } from '../shared/school.js';
 const directory = mkdtempSync(join(tmpdir(), 'pixel-studio-api-'));
@@ -148,6 +148,11 @@ test('expanded appearance catalog validates every option, rejects unsafe data, a
         false,
       );
   }
+  for (const preset of appearancePresets)
+    assert.equal(
+      appearanceSchema.safeParse({ ...defaultAppearance, ...preset.changes }).success,
+      true,
+    );
   for (const key of ['skin', 'helmetColor', 'outfitColor', 'accentColor'])
     assert.equal(
       appearanceSchema.safeParse({ ...defaultAppearance, [key]: 'url(javascript:bad)' }).success,

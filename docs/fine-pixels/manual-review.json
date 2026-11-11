@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-11-11T21:22:30.439Z",
+  "environment": "isolated local QA, synthetic demo accounts",
+  "audits": [
+    {
+      "category": "얼굴",
+      "viewport": "1440x900",
+      "violations": []
+    },
+    {
+      "category": "체형",
+      "viewport": "1440x900",
+      "violations": []
+    },
+    {
+      "category": "모자",
+      "viewport": "1440x900",
+      "violations": []
+    },
+    {
+      "category": "의상",
+      "viewport": "1440x900",
+      "violations": []
+    },
+    {
+      "category": "의상",
+      "viewport": "390x844",
+      "violations": []
+    }
+  ],
+  "errors": []
+}

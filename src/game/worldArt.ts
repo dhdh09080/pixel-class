@@ -1,9 +1,12 @@
+export const WORLD_ART_SCALE = 0.5;
 export function worldCanvas(height = 700) {
   const h = height / 2;
   const canvas = document.createElement('canvas');
-  canvas.width = 1120;
-  canvas.height = height;
+  canvas.width = 2240;
+  canvas.height = height * 2;
   const c = canvas.getContext('2d')!;
+  c.scale(2, 2);
+  c.imageSmoothingEnabled = false;
   const r = (x: number, y: number, w: number, h: number, color: string) => {
     c.fillStyle = color;
     c.fillRect(x * 2, y * 2, w * 2, h * 2);
@@ -38,17 +41,29 @@ export function worldCanvas(height = 700) {
   c.beginPath();
   c.rect(24, 206, 1072, height - 242);
   c.clip();
-  for (let y = 213; y < height - 37; y += 16)
-    for (let x = 28; x < 1093; x += 43) {
-      const seed = (x * 13 + y * 7) % 19;
-      c.fillStyle = seed % 3 ? '#e5cba4' : '#bd9e77';
-      c.fillRect(x + seed, y + (seed % 5), 9 + seed, 1);
+  // Quiet grain clusters stay inside individual boards; avoid uniform scratch noise.
+  for (let row = 0; row < Math.ceil((h - 112) / 16); row++) {
+    const yy = 202 + row * 32;
+    for (let col = 0; col < 11; col++) {
+      const xx = 28 + col * 104 + (row % 2 ? 52 : 0),
+        seed = (row * 19 + col * 7) % 23;
+      c.fillStyle = '#c5a981';
+      c.fillRect(xx + 6, yy, 90, 0.5);
+      c.fillStyle = '#dfc39a';
+      for (let j = 0; j < 2; j++) {
+        const gx = xx + 8 + ((seed * 3 + j * 23) % 47),
+          gy = yy + 9 + j * 9;
+        c.fillRect(gx, gy, 18 + seed, 0.5);
+        c.fillRect(gx + 4, gy + 1, 12 + seed, 0.5);
+      }
       if (seed % 5 === 0) {
-        c.fillRect(x + 14, y + 5, 5, 1);
-        c.fillRect(x + 13, y + 6, 1, 2);
-        c.fillRect(x + 14, y + 8, 5, 1);
+        c.fillStyle = '#c4a77e';
+        c.fillRect(xx + 50, yy + 17, 6, 0.5);
+        c.fillRect(xx + 49, yy + 18, 1, 1);
+        c.fillRect(xx + 50, yy + 19, 6, 0.5);
       }
     }
+  }
   c.restore();
   r(12, 100, 536, 6, '#bd9e76');
   r(0, 0, 12, h, '#93ad92');
@@ -130,6 +145,30 @@ export function worldCanvas(height = 700) {
   r(57, 246, 20, 19, '#84a686');
   r(32, 242, 5, 27, '#62876e');
   r(77, 242, 5, 27, '#62876e');
+  c.fillStyle = '#60816d';
+  c.beginPath();
+  c.roundRect(66, 462, 96, 80, 9);
+  c.fill();
+  c.fillStyle = '#80a286';
+  c.beginPath();
+  c.roundRect(70, 467, 88, 20, 6);
+  c.fill();
+  for (const xx of [71, 114]) {
+    c.fillStyle = xx === 71 ? '#93af91' : '#89a98c';
+    c.beginPath();
+    c.roundRect(xx, 492, 39, 37, 5);
+    c.fill();
+    c.strokeStyle = '#b1c4a3';
+    c.lineWidth = 0.5;
+    c.beginPath();
+    c.roundRect(xx + 2, 494, 35, 33, 4);
+    c.stroke();
+  }
+  c.fillStyle = '#62876e';
+  c.beginPath();
+  c.roundRect(64, 486, 11, 50, 4);
+  c.roundRect(153, 486, 11, 50, 4);
+  c.fill();
   r(38, 271, 4, 5, '#725b44');
   r(72, 271, 4, 5, '#725b44');
   r(85, 250, 18, 19, '#795f48');
@@ -179,18 +218,97 @@ export function worldCanvas(height = 700) {
   }
   c.fillStyle = '#dce5cd';
   for (let x = 400; x < 715; x += 37) c.fillRect(x, 52 + (x % 7), 13, 1);
+  for (const wx of [98, 848]) {
+    c.fillStyle = '#faf9e7';
+    c.fillRect(wx + 3, 41, 140, 0.5);
+    c.fillRect(wx + 3, 41, 0.5, 107);
+    c.fillStyle = '#8fae9f';
+    c.fillRect(wx + 12, 144, 128, 0.5);
+    for (let j = 0; j < 3; j++) {
+      c.fillStyle = j % 2 ? '#c2deda' : '#e3f0df';
+      c.fillRect(wx + 22 + j * 4, 56 + j * 2, 0.5, 24 - j * 3);
+    }
+    c.fillStyle = '#c4cbb3';
+    c.fillRect(wx - 3, 158, 150, 0.5);
+    c.fillRect(wx + 4, 162, 136, 0.5);
+  }
+  c.fillStyle = '#a47a50';
+  c.fillRect(379, 37, 0.5, 105);
+  c.fillRect(377, 148, 355, 0.5);
+  c.fillStyle = '#e8ca97';
+  c.fillRect(376, 35, 355, 0.5);
+  c.fillRect(376, 35, 0.5, 108);
+  c.fillStyle = '#60846b';
+  for (let j = 0; j < 7; j++) c.fillRect(404 + j * 41, 52 + (j % 3) * 11, 8 + (j % 4) * 6, 0.5);
   return canvas;
   function plant(x: number, y: number) {
-    r(x - 8, y + 15, 17, 5, '#aa956f');
-    r(x - 6, y + 8, 13, 13, '#be8762');
-    r(x - 8, y + 7, 17, 4, '#d4a17a');
-    r(x - 1, y - 7, 3, 15, '#5b8260');
-    r(x - 12, y - 12, 10, 8, '#6f9d65');
-    r(x + 3, y - 14, 10, 9, '#739e66');
-    r(x - 7, y - 19, 11, 10, '#85af72');
-    r(x - 10, y - 7, 11, 7, '#577e54');
-    r(x + 1, y - 5, 12, 7, '#638b59');
-    r(x - 3, y - 15, 5, 8, '#9bbf7e');
+    c.save();
+    c.translate(x * 2, y * 2);
+    c.fillStyle = '#9d8465';
+    c.beginPath();
+    c.ellipse(3, 40, 20, 4, 0, 0, Math.PI * 2);
+    c.fill();
+    c.strokeStyle = '#527e57';
+    c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(0, 21);
+    c.quadraticCurveTo(2, -5, -1, -28);
+    c.stroke();
+    const leaves = [
+      [-2, -27, -20, -36, 24, 14],
+      [-1, -17, 7, -33, 24, 15],
+      [-1, -11, -27, -18, 27, 15],
+      [1, -1, 8, -15, 26, 16],
+      [-1, -23, -9, -43, 20, 17],
+    ];
+    for (const [sx, sy, lx, ly, w, h] of leaves) {
+      c.strokeStyle = '#658c5d';
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(sx, sy + 10);
+      c.lineTo(lx + w / 2, ly + h / 2);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(lx, ly + h * 0.7);
+      c.bezierCurveTo(lx - 2, ly, lx + w * 0.7, ly - 4, lx + w, ly + h * 0.15);
+      c.bezierCurveTo(lx + w, ly + h, lx + w * 0.35, ly + h + 2, lx, ly + h * 0.7);
+      c.fillStyle = '#709969';
+      c.fill();
+      c.strokeStyle = '#adc48b';
+      c.lineWidth = 0.5;
+      c.beginPath();
+      c.moveTo(lx + 3, ly + h * 0.65);
+      c.quadraticCurveTo(lx + w * 0.45, ly + h * 0.25, lx + w - 3, ly + h * 0.2);
+      c.stroke();
+      c.strokeStyle = '#8bb174';
+      c.beginPath();
+      c.moveTo(lx + w * 0.45, ly + h * 0.45);
+      c.lineTo(lx + w * 0.4, ly + 2);
+      c.moveTo(lx + w * 0.65, ly + h * 0.35);
+      c.lineTo(lx + w * 0.72, ly + h - 2);
+      c.stroke();
+    }
+    c.beginPath();
+    c.moveTo(-13, 17);
+    c.lineTo(13, 17);
+    c.lineTo(10, 39);
+    c.quadraticCurveTo(0, 43, -10, 39);
+    c.closePath();
+    c.fillStyle = '#b78061';
+    c.fill();
+    c.fillStyle = '#d7a581';
+    c.beginPath();
+    c.ellipse(0, 17, 16, 4, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#726a4d';
+    c.beginPath();
+    c.ellipse(0, 16.5, 12, 2, 0, 0, Math.PI * 2);
+    c.fill();
+    c.fillStyle = '#e6bc98';
+    c.fillRect(-10, 22, 1, 12);
+    c.fillStyle = '#9c6e54';
+    c.fillRect(9, 23, 0.5, 12);
+    c.restore();
   }
   function desk(x: number, y: number, teacher = false) {
     const w = teacher ? 84 : 56;
@@ -210,9 +328,11 @@ export function worldCanvas(height = 700) {
 }
 export function deskCanvas() {
   const canvas = document.createElement('canvas');
-  canvas.width = 132;
-  canvas.height = 116;
+  canvas.width = 264;
+  canvas.height = 232;
   const c = canvas.getContext('2d')!;
+  c.scale(2, 2);
+  c.imageSmoothingEnabled = false;
   const r = (x: number, y: number, w: number, h: number, col: string) => {
     c.fillStyle = col;
     c.fillRect(x * 2, y * 2, w * 2, h * 2);
@@ -265,13 +385,44 @@ export function deskCanvas() {
   c.fillStyle = '#f4d8ab';
   c.fillRect(12, 23, 106, 1);
   c.fillRect(17, 29, 1, 19);
+  // Beveled veneer, monitor glass, key caps and upholstery use native 1px details.
+  c.fillStyle = '#f2d5a5';
+  c.fillRect(10, 21.5, 112, 0.5);
+  c.fillRect(10, 22, 0.5, 34);
+  c.fillStyle = '#aa8058';
+  c.fillRect(10, 60, 112, 0.5);
+  c.fillRect(120, 24, 0.5, 35);
+  c.fillStyle = '#b78f66';
+  for (let j = 0; j < 4; j++) c.fillRect(16 + j * 25, 40 + (j % 2) * 6, 12 + j, 0.5);
+  c.fillStyle = '#c6d8c9';
+  c.fillRect(47, 4, 40, 0.5);
+  c.fillRect(47, 4, 0.5, 25);
+  c.fillStyle = '#4d7772';
+  c.fillRect(45, 31, 46, 0.5);
+  c.fillRect(89, 7, 0.5, 24);
+  c.fillStyle = '#e0eddd';
+  c.fillRect(51, 7, 0.5, 13);
+  c.fillRect(53, 8, 0.5, 10);
+  for (let row = 0; row < 3; row++)
+    for (let col = 0; col < 10; col++) {
+      c.fillStyle = '#faf6e5';
+      c.fillRect(51 + col * 3.5, 49 + row * 1.5, 2.5, 0.5);
+      c.fillStyle = '#859984';
+      c.fillRect(51 + col * 3.5, 49.5 + row * 1.5, 2.5, 0.5);
+    }
+  c.fillStyle = '#b9cdb2';
+  for (let j = 0; j < 8; j++) c.fillRect(49 + j * 4, 88.5, 0.5, 1);
+  c.fillStyle = '#496b5c';
+  c.fillRect(46, 95, 45, 0.5);
   return canvas;
 }
 export function robotCanvas() {
   const c = document.createElement('canvas');
-  c.width = 48;
-  c.height = 56;
+  c.width = 96;
+  c.height = 112;
   const g = c.getContext('2d')!;
+  g.scale(2, 2);
+  g.imageSmoothingEnabled = false;
   const r = (x: number, y: number, w: number, h: number, col: string) => {
     g.fillStyle = col;
     g.fillRect(x, y, w, h);
@@ -293,5 +444,21 @@ export function robotCanvas() {
   r(36, 35, 5, 12, '#bfb8db');
   r(15, 49, 7, 5, '#7f7b9e');
   r(28, 49, 7, 5, '#7f7b9e');
+  r(11, 8, 26, 0.5, '#eeeaf7');
+  r(10.5, 10, 0.5, 22, '#e4def3');
+  r(37, 10, 0.5, 22, '#a39cbe');
+  r(13, 12, 22, 0.5, '#7f839c');
+  r(14, 13, 0.5, 11, '#b0b7cb');
+  for (const ex of [15, 28]) {
+    r(ex, 16.5, 5, 0.5, '#e5f8cb');
+    r(ex + 1, 18, 1, 2, '#efffdd');
+    r(ex + 4, 18, 0.5, 3, '#8fb386');
+  }
+  r(18, 38, 13, 0.5, '#f5effc');
+  for (let i = 0; i < 4; i++) r(19 + i * 3, 45, 1.5, 0.5, '#777494');
+  r(9, 37, 0.5, 7, '#e4def3');
+  r(36, 37, 0.5, 7, '#e4def3');
+  r(16, 50, 5, 0.5, '#aaa5c7');
+  r(29, 50, 5, 0.5, '#aaa5c7');
   return c;
 }
