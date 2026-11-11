@@ -93,7 +93,7 @@ for (const width of [1440, 390])
       width: image.naturalWidth,
       height: image.naturalHeight,
     }));
-    expect(dimensions).toEqual({ width: 192, height: 256 });
+    expect(dimensions).toEqual({ width: 60, height: 80 });
     await dialog.getByRole('button', { name: '캐릭터 오른쪽으로 돌리기' }).click();
     await expect(preview).not.toHaveAttribute('src', src!);
     await dialog.getByRole('button', { name: '캐릭터 왼쪽으로 돌리기' }).click();
@@ -117,8 +117,8 @@ for (const width of [1440, 390])
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
-    mkdirSync('docs/character-studio', { recursive: true });
-    await page.screenshot({ path: `docs/character-studio/after-${width}.png`, fullPage: true });
+    mkdirSync('docs/player-wardrobe/e2e', { recursive: true });
+    await page.screenshot({ path: `docs/player-wardrobe/e2e/after-${width}.png`, fullPage: true });
     await dialog.getByRole('button', { name: '이 모습으로 저장하기', exact: true }).click();
     await expect(dialog).not.toBeVisible();
     await page.reload();
@@ -128,7 +128,10 @@ for (const width of [1440, 390])
     expect(state.me.appearance.hairstyle).toBe(8);
     expect(state.me.appearance.helmetStyle).toBe(1);
     expect(state.me.appearance.outfitColor).toBe('#a85e73');
-    await page.screenshot({ path: `docs/character-studio/classroom-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `docs/player-wardrobe/e2e/classroom-${width}.png`,
+      fullPage: true,
+    });
   });
 
 test('every visual catalog option renders distinct pixels, with matching logical character dimensions in every pose', async ({
@@ -175,8 +178,8 @@ test('every visual catalog option renders distinct pixels, with matching logical
         .getContext('2d')!
         .getImageData(0, 0, CHARACTER_WIDTH, CHARACTER_HEIGHT).data;
       let count = 0;
-      for (let y = 88; y < 140; y++)
-        for (let x = 48; x < 144; x++) {
+      for (let y = 32; y < 51; y++)
+        for (let x = 15; x < 45; x++) {
           const at = (y * CHARACTER_WIDTH + x) * 4;
           if (pixels[at] > pixels[at + 1] * 2 && pixels[at] > pixels[at + 2] * 2) count++;
         }
@@ -190,11 +193,12 @@ test('every visual catalog option renders distinct pixels, with matching logical
       logicalHeight: CHARACTER_HEIGHT * CHARACTER_SCALE,
     };
   });
-  for (const [unique, expected] of Object.values(result.counts)) expect(unique).toBe(expected);
-  expect(result.rearFacePixels).toEqual(Array(10).fill(0));
+  for (const [key, [unique, expected]] of Object.entries(result.counts))
+    expect(unique, key).toBe(expected);
+  expect(result.rearFacePixels).toEqual(Array(result.counts.hairstyle[1]).fill(0));
   expect(result.poses).toHaveLength(12);
-  for (const pose of result.poses) expect(pose).toEqual([192, 256]);
-  expect(result.seated).toEqual([192, 256]);
+  for (const pose of result.poses) expect(pose).toEqual([60, 80]);
+  expect(result.seated).toEqual([60, 80]);
   expect(result.logicalHeight).toBeCloseTo(64 * 1.15);
 });
 
@@ -247,7 +251,7 @@ test('art-directed presets preserve skin and body, stay drafts until saved and r
   ).toBeTruthy();
 });
 
-test('fine native art adds real half-size details while preserving world and desk footprints', async ({
+test('low-resolution native sprites use a bounded solid palette while preserving world and desk footprints', async ({
   page,
 }) => {
   await open(page);
@@ -282,7 +286,10 @@ test('fine native art adds real half-size details while preserving world and des
           )
             blocks++;
         }
-      return { blocks, partial };
+      const colors = new Set<string>();
+      for (let at = 0; at < data.length; at += 4)
+        if (data[at + 3]) colors.add(`${data[at]},${data[at + 1]},${data[at + 2]}`);
+      return { blocks, partial, colors: colors.size };
     };
     return {
       character: [character.width, character.height],
@@ -305,7 +312,7 @@ test('fine native art adds real half-size details while preserving world and des
         }).toDataURL(),
     };
   });
-  expect(result.character).toEqual([192, 256]);
+  expect(result.character).toEqual([60, 80]);
   expect(result.logical[0]).toBeCloseTo(55.2);
   expect(result.logical[1]).toBeCloseTo(73.6);
   expect(result.world).toEqual([2240, 1400]);
@@ -313,9 +320,60 @@ test('fine native art adds real half-size details while preserving world and des
   expect(result.worldLogical).toEqual([1120, 700]);
   expect(result.desk).toEqual([264, 232]);
   expect(result.deskLogical).toEqual([132, 116]);
-  expect(result.characterDetails.blocks).toBeGreaterThan(300);
+  expect(result.characterDetails.colors).toBeLessThanOrEqual(32);
+  expect(result.characterDetails.colors).toBeGreaterThan(12);
   expect(result.worldDetails.blocks).toBeGreaterThan(100);
   expect(result.deskDetails.blocks).toBeGreaterThan(30);
   expect(result.characterDetails.partial).toBe(0);
   expect(result.deterministic).toBe(true);
+});
+
+test('occupational wardrobe changes only clothes and headwear, with draft cancellation and refresh persistence', async ({
+  page,
+  context,
+}) => {
+  await open(page);
+  const original = (await (await context.request.get('/api/state')).json()).me.appearance;
+  await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  let dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: '의상', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: /^직업 코디:/ })).toHaveCount(17);
+  await dialog.getByRole('button', { name: '직업 코디: 우주비행사', exact: true }).click();
+  await expect(
+    dialog.getByRole('button', { name: '직업 코디: 우주비행사', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  expect((await (await context.request.get('/api/state')).json()).me.appearance).toEqual(original);
+  await dialog.getByRole('button', { name: '이 모습으로 저장하기', exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await page.reload();
+  await expect(page.locator('canvas')).toBeVisible();
+  const saved = (await (await context.request.get('/api/state')).json()).me.appearance;
+  expect(saved).toMatchObject({ outfit: 21, helmetStyle: 10 });
+  for (const key of [
+    'hairstyle',
+    'hair',
+    'skin',
+    'eyes',
+    'eyeShape',
+    'body',
+    'brows',
+    'mouth',
+    'expression',
+    'accessory',
+  ])
+    expect(saved[key]).toEqual(original[key]);
+  await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: '의상', exact: true }).click();
+  await dialog.getByRole('button', { name: '직업 코디: 셰프', exact: true }).click();
+  await dialog.getByRole('button', { name: '취소', exact: true }).click();
+  expect((await (await context.request.get('/api/state')).json()).me.appearance).toEqual(saved);
+  expect(
+    (
+      await context.request.patch('/api/me', {
+        headers: { 'X-Pixel-Class': '1' },
+        data: { appearance: original },
+      })
+    ).ok(),
+  ).toBeTruthy();
 });
