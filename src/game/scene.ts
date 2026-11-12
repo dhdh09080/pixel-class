@@ -780,7 +780,6 @@ export const gameConfig = (
     },
     scene,
     render: { antialias: false },
-    fps: { target: 60, limit: 60 },
     audio: { noAudio: true },
   };
 };
