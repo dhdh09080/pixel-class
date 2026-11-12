@@ -1,0 +1,43 @@
+{
+  "measuredAt": "2026-11-12T00:39:30.301Z",
+  "sourceCommit": "2359d1b67dc2fddfde540bb06c656a7cae07e478",
+  "conditions": "Same synthetic accounts, Chromium CPU4x,80ms latency,1.5Mbps down/0.75Mbps up,browser cache disabled; emulation, not physical hardware",
+  "rows": [
+    {
+      "profile": "office-laptop",
+      "beforeReadyMs": 13940,
+      "afterReadyMs": 5669,
+      "reductionPercent": 59.3,
+      "beforeCadence": {
+        "frames": 234,
+        "durationMs": 5240.700000000001,
+        "p95FrameMs": 16.80000000000291,
+        "meanFrameMs": 22.39615384615385
+      },
+      "afterCadence": {
+        "frames": 261,
+        "durationMs": 5023.000000000373,
+        "p95FrameMs": 16.80000000000109,
+        "meanFrameMs": 19.24521072797078
+      }
+    },
+    {
+      "profile": "mobile",
+      "beforeReadyMs": 13897,
+      "afterReadyMs": 6077,
+      "reductionPercent": 56.3,
+      "beforeCadence": {
+        "frames": 301,
+        "durationMs": 5001.799999999999,
+        "p95FrameMs": 16.799999999999272,
+        "meanFrameMs": 16.6172757475083
+      },
+      "afterCadence": {
+        "frames": 299,
+        "durationMs": 5000.899999999256,
+        "p95FrameMs": 16.799999999999272,
+        "meanFrameMs": 16.72541806019818
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "completedAt": "2026-11-12T00:48:52.849260+00:00",
+  "sourceCommit": "2359d1b67dc2fddfde540bb06c656a7cae07e478",
+  "checks": {
+    "server": {
+      "passed": 119,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 48,
+      "failed": 0,
+      "evidence": "Clean latest-code local run:48 passed (7.4m); latest CI48 passed"
+    },
+    "railwayProfile": {
+      "passed": 1,
+      "failed": 0
+    },
+    "compose": {
+      "passed": 1,
+      "failed": 0
+    },
+    "total": 169,
+    "format": {
+      "passed": true,
+      "scope": "Final documentation and captures; local npm run format:check"
+    }
+  },
+  "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/43128330692",
+  "preservedHistoricalArtifacts": 13,
+  "externalDeploymentVerified": false,
+  "limitations": [
+    "Cloud ENOSPC failures are documented; clean full browser rerun passed",
+    "Local Docker verified all 40 runtime sources plus built client (51 files); identical dependency base; CI builds original full Dockerfile",
+    "Actual Railway deploy blocked by approval review; direct HTTPS/WSS CONNECT403"
+  ]
+}

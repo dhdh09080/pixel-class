@@ -1,0 +1,111 @@
+{
+  "startedAt": "2026-11-11T23:29:38.921Z",
+  "kind": "30 automated authenticated WebSocket clients, 10Hz movement; not 30 rendered browsers or notebook FPS",
+  "requestedSeconds": 60,
+  "sent": 17640,
+  "receivedByObserver": 17316,
+  "samples": [
+    {
+      "label": "warm",
+      "rssMiB": 122.52,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 0,
+      "receivedByObserver": 0
+    },
+    {
+      "label": "tick-100",
+      "rssMiB": 224.22,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 3000,
+      "receivedByObserver": 2801
+    },
+    {
+      "label": "tick-200",
+      "rssMiB": 259.06,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 6000,
+      "receivedByObserver": 5793
+    },
+    {
+      "label": "tick-300",
+      "rssMiB": 292.54,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 9000,
+      "receivedByObserver": 8735
+    },
+    {
+      "label": "tick-400",
+      "rssMiB": 296.61,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 12000,
+      "receivedByObserver": 11705
+    },
+    {
+      "label": "tick-500",
+      "rssMiB": 301.59,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 15000,
+      "receivedByObserver": 14674
+    },
+    {
+      "label": "end",
+      "rssMiB": 301.6,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 17640,
+      "receivedByObserver": 17316
+    }
+  ],
+  "passed": true,
+  "latencyMs": {
+    "p50": 17.85,
+    "p95": 61.64,
+    "max": 310.44,
+    "samples": 17316
+  },
+  "actualSeconds": 61.02,
+  "deliveryRatio": 0.98163,
+  "socketsAfterClose": 0,
+  "finishedAt": "2026-11-11T23:30:46.104Z"
+}

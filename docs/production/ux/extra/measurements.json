@@ -1,0 +1,76 @@
+{
+  "capturedAt": "2026-11-11T23:42:21.283Z",
+  "environment": "isolated local demo, synthetic records",
+  "results": [
+    {
+      "view": "feedback",
+      "width": 1366,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "questions",
+      "width": 1366,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "submission",
+      "width": 1366,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "ai-unconfigured",
+      "width": 1366,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "notifications",
+      "width": 1366,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "feedback",
+      "width": 390,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "questions",
+      "width": 390,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "submission",
+      "width": 390,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "ai-unconfigured",
+      "width": 390,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "view": "notifications",
+      "width": 390,
+      "violations": [],
+      "errors": [],
+      "overflow": false
+    }
+  ]
+}
