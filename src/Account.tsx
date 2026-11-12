@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { OperationsPanel } from './OperationsPanel';
 import type { AppState } from '../shared/types';
 import { Field } from './components';
 import { api } from './api';
 import { defaultSchoolSettings, type SchoolSettings } from '../shared/school';
-type Usage = { usedBytes: number; limitBytes: number; freeBytes: number; backupAt: string | null };
-const mb = (n: number) => (n / 1024 / 1024).toFixed(1);
 export function AccountPage({
   state,
   onToast,
@@ -19,15 +18,7 @@ export function AccountPage({
   const [current, setCurrent] = useState(''),
     [password, setPassword] = useState(''),
     [again, setAgain] = useState('');
-  const [busy, setBusy] = useState(false),
-    [usage, setUsage] = useState<Usage>(),
-    [error, setError] = useState('');
-  useEffect(() => {
-    if (state.me.role === 'MASTER')
-      void api<Usage>('/operations')
-        .then(setUsage)
-        .catch((e) => setError(e.message));
-  }, [state.me.id, state.me.role]);
+  const [busy, setBusy] = useState(false);
   return (
     <section className="teaching-page">
       <div className="page-section-title">
@@ -144,61 +135,7 @@ export function AccountPage({
           </button>
         </form>
       </div>
-      {state.me.role === 'MASTER' && (
-        <div className="panel">
-          <h2>학교 저장 공간과 백업</h2>
-          {error && <p role="alert">{error}</p>}
-          {usage && (
-            <>
-              <p>
-                첨부파일 {mb(usage.usedBytes)} / {mb(usage.limitBytes)} MB
-              </p>
-              <progress
-                max={usage.limitBytes}
-                value={usage.usedBytes}
-                aria-label="학교 첨부파일 저장 공간"
-              />
-              {usage.usedBytes > usage.limitBytes * 0.8 && (
-                <p role="alert">
-                  저장 공간의 80% 이상을 사용했어요. 불필요한 첨부파일을 정리해 주세요.
-                </p>
-              )}
-              <p className="muted">
-                최근 서버 백업:{' '}
-                {usage.backupAt
-                  ? new Date(usage.backupAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
-                  : '아직 없음'}
-              </p>
-            </>
-          )}
-          <p className="muted">
-            운영 서버는 시작 시와 6시간마다 검증된 백업 한 개를 보관해요. 같은 서버의 백업이므로
-            PC에도 내려받아 안전하게 보관해 주세요. 백업에는 비공개 교육 기록이 포함됩니다.
-          </p>
-          <div className="form-actions">
-            <button
-              className="button secondary"
-              disabled={busy}
-              onClick={() => {
-                setBusy(true);
-                void api<Usage>('/operations/backup', 'POST')
-                  .then((v) => {
-                    setUsage(v);
-                    setError('');
-                    onToast('서버 백업을 만들었어요.');
-                  })
-                  .catch((e) => setError(e.message))
-                  .finally(() => setBusy(false));
-              }}
-            >
-              지금 서버 백업
-            </button>
-            <a className="button primary" href="/api/operations/backup" download>
-              학교 백업 내려받기
-            </a>
-          </div>
-        </div>
-      )}
+      {state.me.role === 'MASTER' && <OperationsPanel key={state.me.id} onToast={onToast} />}
     </section>
   );
 }

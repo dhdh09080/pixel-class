@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-11-12T17:45:41.036Z",
+  "passed": true,
+  "sourceCommit": "79f2363ac71524f0fc24fa99273212b5f3700492",
+  "environment": "read-only probe of the frozen local production build used in the six-context soak",
+  "externalDeployment": false,
+  "entryAsset": "/competition-assets/index-Dsx7D9se.js",
+  "featureAsset": "/competition-assets/PublicCompetition-CjRcizL0.js"
+}

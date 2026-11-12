@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-11-12T16:35:06.271Z",
+  "method": "Actual native renderer; edge metric is a clipping diagnostic, not a visual quality score.",
+  "tested": 4440,
+  "combinations": 370,
+  "filledBoundaryCases": 0,
+  "edgeCases": []
+}

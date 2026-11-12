@@ -2253,3 +2253,62 @@ textarea:focus {
     gap: 4px;
   }
 }
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6, 24px);
+}
+.operations-grid section {
+  min-width: 0;
+}
+.operations-grid dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+}
+.operations-grid dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.operations-panel progress {
+  width: 100%;
+  accent-color: #4c6944;
+}
+.backup-checksum {
+  display: block;
+  overflow-wrap: anywhere;
+  padding: 12px 0;
+}
+.operations-backup-note {
+  padding: 16px;
+  margin: 16px 0;
+  background: #f2f1e4;
+  border: 1px solid #d9ddc7;
+  border-radius: 12px;
+  color: #304436;
+}
+.operations-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.operations-actions .button {
+  flex: 0 0 auto;
+  min-height: 44px;
+  white-space: normal;
+  text-align: center;
+}
+@media (max-width: 680px) {
+  .operations-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .operations-panel .competition-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .operations-actions .button {
+    width: 100%;
+  }
+}

@@ -1,10 +1,11 @@
 import { before, after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { createHash } from 'node:crypto';
 import { defaultAppearance } from '../shared/types.js';
 const dir = mkdtempSync(join(tmpdir(), 'pixel-teaching-'));
 const database = join(dir, 'school.sqlite'),
@@ -338,14 +339,45 @@ test('backup is teacher-only, consistent, school-scoped and excludes live creden
       'material',
       JSON.stringify({ id: 'foreign-secret', content: 'FOREIGN-SCHOOL-SECRET' }),
     );
+  fixture
+    .prepare('INSERT INTO records VALUES(?,?,?,?)')
+    .run(
+      'raw-backup-proof',
+      'other-school',
+      'password-recovery',
+      JSON.stringify({ id: 'raw-backup-proof', content: 'RECOVERY-RAW-PAGE-CANARY'.repeat(500) }),
+    );
   fixture.close();
   const result = await request('/operations/backup', 'POST', {});
   assert.equal(result.res.status, 200);
   assert.ok(result.data.backupAt);
+  assert.ok(
+    !readFileSync(join(dir, 'backups', 'latest.sqlite')).includes(
+      Buffer.from('RECOVERY-RAW-PAGE-CANARY'),
+    ),
+    'Deleted recovery bodies must not remain in backup free pages',
+  );
+  assert.equal(result.data.backup.state, 'verified');
+  assert.equal(result.data.backup.externallyStored, false);
+  assert.match(result.data.backup.sha256, /^[a-f0-9]{64}$/);
   const response = await fetch(base + '/api/operations/backup', { headers: { Cookie: teacher } });
   assert.equal(response.status, 200);
   const path = join(dir, 'export.sqlite');
   const bytes = Buffer.from(await response.arrayBuffer());
+  const exportStatus = await request('/operations');
+  assert.equal(exportStatus.data.lastExport.sha256, response.headers.get('x-backup-sha256'));
+  assert.ok(
+    response.headers.get('content-disposition')!.includes(exportStatus.data.lastExport.fileName),
+  );
+  assert.deepEqual(Object.keys(exportStatus.data.lastExport).sort(), [
+    'fileName',
+    'preparedAt',
+    'sha256',
+  ]);
+  assert.equal(
+    response.headers.get('x-backup-sha256'),
+    createHash('sha256').update(bytes).digest('hex'),
+  );
   writeFileSync(path, bytes);
   assert.ok(!bytes.includes(Buffer.from('FOREIGN-SCHOOL-SECRET')));
   const exported = new DatabaseSync(path);
@@ -369,6 +401,21 @@ test('backup is teacher-only, consistent, school-scoped and excludes live creden
   assert.equal((exported.prepare('PRAGMA quick_check').get() as any).quick_check, 'ok');
   exported.close();
   assert.equal((await request('/state', 'GET', undefined, student)).res.status, 200);
+});
+
+test('operations health is MASTER-only and backup verification does not expose secrets or other school quota', async () => {
+  assert.equal((await request('/operations/backup/verify', 'POST', {}, student)).res.status, 403);
+  assert.equal((await request('/operations', 'GET', undefined, '')).res.status, 401);
+  const result = await request('/operations/backup/verify', 'POST', {});
+  assert.equal(result.res.status, 200);
+  assert.equal(result.data.backup.state, 'verified');
+  assert.equal(result.data.runtime.database, 'sqlite');
+  assert.ok(result.data.runtime.rssBytes > 0);
+  assert.ok(result.data.runtime.databaseBytes > 0);
+  assert.equal(result.data.ai.usedToday, 0);
+  assert.ok(result.data.ai.dailyLimit > 0);
+  assert.ok(!JSON.stringify(result.data).includes('teacher-password-only'));
+  assert.ok(!JSON.stringify(result.data).includes(database));
 });
 
 test('deleting a material releases every saved version from the school storage budget', async () => {

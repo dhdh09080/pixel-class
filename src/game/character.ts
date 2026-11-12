@@ -270,11 +270,15 @@ export function characterCanvas(
           q.rect(11, 28 + bob, 37, 4, color);
           q.rect(28, 12 + bob, 3, 3, dark);
         }
-        if (hat === 3) q.rect(31, 33 + bob, 23, 3, color);
+        if (hat === 3) {
+          if (!back) q.rect(31, 33 + bob, 23, 3, color);
+          else q.rect(26, 31 + bob, 8, 2, light);
+        }
         if (hat === 7 || hat === 8) {
           q.rect(13, 28 + bob, 34, 4, ink);
-          q.rect(24, 32 + bob, 25, 3, ink);
-          if (hat === 7) {
+          if (!back) q.rect(24, 32 + bob, 25, 3, ink);
+          if (back) q.rect(26, 29 + bob, 9, 1, light);
+          else if (hat === 7) {
             q.rect(25, 27 + bob, 15, 1, trim);
             q.rect(28, 28 + bob, 9, 1, trim);
             q.rect(31, 26 + bob, 3, 4, trim);
@@ -303,8 +307,15 @@ export function characterCanvas(
           q.rect(13, 51 + bob, 33, 4, color);
           q.rect(13, 33 + bob, 2, 14, '#8fbbd1');
           q.rect(45, 34 + bob, 1, 12, '#8fbbd1');
+          if (back) {
+            q.rect(14, 33 + bob, 32, 19, color);
+            q.rect(17, 35 + bob, 4, 13, light);
+            q.rect(38, 36 + bob, 5, 14, dark);
+            q.rect(26, 41 + bob, 9, 5, dark);
+            q.rect(28, 42 + bob, 5, 1, light);
+          }
         }
-        if (hat === 6) {
+        if (hat === 6 && !back) {
           q.rect(22, 22 + bob, 16, 2, trim);
           q.rect(25, 24 + bob, 10, 4, trim);
         }
@@ -328,8 +339,10 @@ export function characterCanvas(
           color,
         );
         q.rect(18, 31 + bob, 25, 3, light);
-        q.rect(28, 25 + bob, 6, 2, trim);
-        q.rect(30, 23 + bob, 2, 6, trim);
+        if (!back) {
+          q.rect(28, 25 + bob, 6, 2, trim);
+          q.rect(30, 23 + bob, 2, 6, trim);
+        } else q.rect(26, 30 + bob, 9, 1, dark);
       } else if (hat === 11) {
         q.poly(
           [

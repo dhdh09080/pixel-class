@@ -212,6 +212,17 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
     await sp.getByRole('button', { name: '경진대회', exact: true }).click();
     await sp.getByRole('button', { name: '대회 자세히 보기' }).click();
     await expect(sp.getByText('제출 완료', { exact: true })).toBeVisible();
+    await sp.getByRole('button', { name: '제출 버전 비교', exact: true }).click();
+    const history = sp.getByRole('dialog');
+    await expect(history.getByText(/버전 1 → 버전 2/)).toBeVisible();
+    await expect(history.getByRole('heading', { name: '소개서 원본', exact: true })).toBeVisible();
+    await expect(history.locator('iframe').first()).toHaveAttribute('sandbox', '');
+    mkdirSync('docs/overnight/competition', { recursive: true });
+    await sp.setViewportSize({ width: 390, height: 844 });
+    expect(await sp.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await sp.screenshot({ path: 'docs/overnight/competition/history-390.png', fullPage: true });
+    await history.getByRole('button', { name: '닫기', exact: true }).click();
+    await sp.setViewportSize({ width: 1366, height: 768 });
     await sp.getByRole('button', { name: '공개 내용 미리보기' }).click();
     const preview = sp.getByRole('dialog').locator('iframe');
     await expect(preview).toHaveAttribute('sandbox', '');
@@ -314,6 +325,39 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
     await jp.getByRole('button', { name: '작품 살펴보기', exact: true }).click();
     await expect(jp.getByText('이미 평가한 작품이에요')).toBeVisible();
     await expect(jp.getByLabel('실용성')).toHaveCount(0);
+    await mp.reload();
+    await mp.getByRole('button', { name: '경진대회', exact: true }).click();
+    await mp.getByRole('button', { name: '대회 자세히 보기' }).click();
+    const reviews = mp.locator('.competition-score-reviews');
+    await reviews.locator('summary').click();
+    await expect(reviews.getByText('집계 포함', { exact: true })).toBeVisible();
+    await reviews.getByRole('button', { name: '집계에서 제외', exact: true }).click();
+    await mp
+      .getByRole('dialog')
+      .getByLabel('평가 검토 사유')
+      .fill('검토 과정에서 시험 평가를 제외합니다');
+    await mp
+      .getByRole('dialog')
+      .getByRole('button', { name: '사유 기록하고 제외', exact: true })
+      .click();
+    await expect(mp.getByRole('dialog')).toHaveCount(0);
+    await expect(reviews.getByText('집계 제외', { exact: true })).toBeVisible();
+    await expect(mp.locator('.competition-result')).toContainText('최소 심사 수 미달');
+    await reviews.getByRole('button', { name: '집계에 복원', exact: true }).click();
+    await mp
+      .getByRole('dialog')
+      .getByLabel('평가 검토 사유')
+      .fill('검토를 완료해 원래 평가를 복원합니다');
+    await mp
+      .getByRole('dialog')
+      .getByRole('button', { name: '사유 기록하고 복원', exact: true })
+      .click();
+    await expect(mp.getByRole('dialog')).toHaveCount(0);
+    await expect(mp.locator('.competition-result')).toContainText('91.00');
+    await mp.screenshot({
+      path: 'docs/overnight/competition/score-review-1366.png',
+      fullPage: true,
+    });
     const reused = await stranger.request.post(
       `/api/public/competitions/${competition.id}/judge-session`,
       { headers, data: { key: pass.key } },

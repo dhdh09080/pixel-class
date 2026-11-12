@@ -1245,6 +1245,18 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Pixel Class request failed.');
   res.status(500).json({ error: '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
 });
+const socketSessionCheck = db.prepare('SELECT 1 FROM sessions WHERE token_hash=? AND expires_at>?');
+const socketMovementSchema = z.object({
+  x: z.number().finite(),
+  y: z.number().finite(),
+  direction: z.enum(['up', 'down', 'left', 'right']),
+  moving: z.boolean(),
+  seated: z.boolean(),
+  trail: z
+    .array(z.object({ x: z.number().finite(), y: z.number().finite() }))
+    .max(32)
+    .optional(),
+});
 server.on('upgrade', (req, socket, head) => {
   if (
     railway &&
@@ -1319,26 +1331,9 @@ server.on('upgrade', (req, socket, head) => {
     ws.on('message', (raw) => {
       try {
         const live = userById(c.userId);
-        if (
-          live?.status !== 'ACTIVE' ||
-          !db
-            .prepare('SELECT 1 FROM sessions WHERE token_hash=? AND expires_at>?')
-            .get(c.sessionHash, Date.now())
-        )
+        if (live?.status !== 'ACTIVE' || !socketSessionCheck.get(c.sessionHash, Date.now()))
           return ws.close(1008);
-        const v = z
-          .object({
-            x: z.number().finite(),
-            y: z.number().finite(),
-            direction: z.enum(['up', 'down', 'left', 'right']),
-            moving: z.boolean(),
-            seated: z.boolean(),
-            trail: z
-              .array(z.object({ x: z.number().finite(), y: z.number().finite() }))
-              .max(32)
-              .optional(),
-          })
-          .parse(JSON.parse(raw.toString()));
+        const v = socketMovementSchema.parse(JSON.parse(raw.toString()));
         const t = Date.now();
         if (t - c.last < 45) return;
         const elapsed = Math.min(1000, t - (c.last || t - 1000));
@@ -1346,7 +1341,7 @@ server.on('upgrade', (req, socket, head) => {
           distance = 0;
         let safe = true;
         const desks = list<Desk>('desk', u.schoolId),
-          room = roomSize(u.schoolId);
+          room = roomSize(u.schoolId, desks);
         for (const point of [...(v.trail || []), { x: v.x, y: v.y }]) {
           distance += Math.hypot(point.x - previous.x, point.y - previous.y);
           if (distance > elapsed * 0.35 + 20) {

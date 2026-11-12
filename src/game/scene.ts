@@ -1,6 +1,6 @@
 import { CHARACTER_SCALE, CHARACTER_HEIGHT } from './character';
 import Phaser from 'phaser';
-import { placeNameplate, type LabelRect } from '../../shared/nameplates';
+import { NameplateLayoutCache } from '../../shared/nameplates';
 import type { AppState, Member } from '../../shared/types';
 import {
   WORLD,
@@ -56,6 +56,7 @@ export class ClassroomScene extends Phaser.Scene {
   layoutKey = '';
   worldHeight = 0;
   frameCount = 0;
+  nameplateLayout = new NameplateLayoutCache();
   competitionObjects: Phaser.GameObjects.GameObject[] = [];
   competitionKey = '';
   onAction: (action: GameAction) => void;
@@ -699,7 +700,6 @@ export class ClassroomScene extends Phaser.Scene {
       this.sentPosition = { x: me.sprite.x, y: me.sprite.y };
       this.onPosition(me.sprite.x, me.sprite.y);
     }
-    const labels: LabelRect[] = [];
     const priority = (p: Player) =>
       p.member.id === this.dataState.me.id
         ? 0
@@ -710,7 +710,8 @@ export class ClassroomScene extends Phaser.Scene {
             : this.dataState.online.includes(p.member.id)
               ? 3
               : 4;
-    for (const [key, p] of [...this.players].sort(([, a], [, b]) => priority(a) - priority(b))) {
+    const ordered = [...this.players].sort(([, a], [, b]) => priority(a) - priority(b));
+    for (const [key, p] of ordered) {
       if (key !== this.dataState.me.id) {
         const beforeX = p.sprite.x,
           beforeY = p.sprite.y;
@@ -718,35 +719,41 @@ export class ClassroomScene extends Phaser.Scene {
         p.sprite.y = Phaser.Math.Linear(p.sprite.y, p.ty, Math.min(1, delta * 0.012));
         p.walkDistance += Math.hypot(p.sprite.x - beforeX, p.sprite.y - beforeY);
       }
+    }
+    const camera = this.cameras.main,
+      scale = 1 / Math.max(0.8, camera.zoom);
+    const placements = this.nameplateLayout.layout(
+      ordered
+        .filter(([, p]) => camera.worldView.contains(p.sprite.x, p.sprite.y - 35))
+        .map(([id, p]) => ({
+          id,
+          anchor: {
+            x: p.sprite.x,
+            y: p.sprite.y - 84 - (p.seated ? 32 : 0),
+            width: p.name.width * scale,
+            height: p.name.height * scale,
+          },
+        })),
+      camera.worldView,
+    );
+    for (const [key, p] of ordered) {
       const prefix = p.sprite.getData('prefix') as string;
       const frame =
         p.moving && !this.reducedMotion ? [0, 1, 0, 2][Math.floor(p.walkDistance / 18) % 4] : 0;
       p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (CHARACTER_HEIGHT * CHARACTER_SCALE) : 1);
-      p.sprite.setTexture(p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`);
+      const texture = p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`;
+      if (p.sprite.texture.key !== texture) p.sprite.setTexture(texture);
       p.sprite.setDepth(p.sprite.y - (p.seated ? 40 : 0));
       const visible = this.cameras.main.worldView.contains(p.sprite.x, p.sprite.y - 35);
       p.sprite.setVisible(visible);
       p.shadow.setVisible(visible);
       p.name.setVisible(visible);
       p.dot.setVisible(visible);
-      const scale = 1 / Math.max(0.8, this.cameras.main.zoom);
       p.name.setScale(scale);
-      const placement = visible
-        ? placeNameplate(
-            {
-              x: p.sprite.x,
-              y: p.sprite.y - 84 - (p.seated ? 32 : 0),
-              width: p.name.width * scale,
-              height: p.name.height * scale,
-            },
-            labels,
-            this.cameras.main.worldView,
-          )
-        : undefined;
+      const placement = placements.get(key);
       p.name.setVisible(!!placement);
       p.dot.setVisible(!!placement);
       const labelY = placement?.y ?? p.sprite.y - 84;
-      if (placement) labels.push(placement);
       p.name.setPosition(placement?.x ?? p.sprite.x, labelY).setDepth(10000 + labelY);
       p.shadow.setPosition(p.sprite.x, p.sprite.y - 2).setDepth(p.sprite.y - 1);
       p.dot.setPosition(placement?.x ?? p.sprite.x, labelY - 8).setDepth(10001 + labelY);

@@ -26,3 +26,35 @@ export function placeNameplate(
   }
   return undefined;
 }
+
+/** Retain only the latest complete layout; a changed anchor/order/viewport invalidates it. */
+export class NameplateLayoutCache {
+  private key = '';
+  private result: ReadonlyMap<string, LabelRect | undefined> = new Map();
+  computations = 0;
+  hits = 0;
+  layout(items: { id: string; anchor: LabelRect }[], bounds: LabelBounds) {
+    const key = JSON.stringify([
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height,
+      items.map((i) => [i.id, i.anchor.x, i.anchor.y, i.anchor.width, i.anchor.height]),
+    ]);
+    if (key === this.key) {
+      this.hits++;
+      return this.result;
+    }
+    const occupied: LabelRect[] = [],
+      result = new Map<string, LabelRect | undefined>();
+    for (const item of items) {
+      const value = placeNameplate(item.anchor, occupied, bounds);
+      result.set(item.id, value);
+      if (value) occupied.push(value);
+    }
+    this.key = key;
+    this.result = result;
+    this.computations++;
+    return result;
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "observedAt": "2026-11-12T17:00:00Z",
+  "sourceCommit": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+  "windowHours": 24,
+  "note": "Platform measurements before this upgrade; not a bill estimate or volume utilization guarantee",
+  "service": {
+    "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "name": "pixel-class"
+  },
+  "environment": {
+    "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "name": "private-test"
+  },
+  "metrics": [
+    {
+      "measurement": "CPU_USAGE",
+      "current": 0.0007589933333333334,
+      "average": 0.0008409990311418677,
+      "min": 0,
+      "max": 0.005035586666666666,
+      "sampleCount": 289
+    },
+    {
+      "measurement": "MEMORY_USAGE_GB",
+      "current": 0.103948288,
+      "average": 0.11613515367232383,
+      "min": 0,
+      "max": 0.25037443657142855,
+      "sampleCount": 289
+    },
+    {
+      "measurement": "DISK_USAGE_GB",
+      "current": 0.037298176,
+      "average": 0.03655040797231839,
+      "min": 0,
+      "max": 0.037298176,
+      "sampleCount": 289
+    },
+    {
+      "measurement": "NETWORK_RX_GB",
+      "current": 0,
+      "average": 2.1253633217993085e-7,
+      "min": 0,
+      "max": 0.000015268,
+      "sampleCount": 289
+    },
+    {
+      "measurement": "NETWORK_TX_GB",
+      "current": 0,
+      "average": 4.6925605536332175e-7,
+      "min": 0,
+      "max": 0.000035904,
+      "sampleCount": 289
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-11-12T17:59:24.140Z",
+  "sourceCommit": "ef9116bef3977311b15f2badb8d5556e68347fd7",
+  "releaseHeader": "0.6.0",
+  "accepted": false,
+  "expectedRejectionVerified": true,
+  "reason": "The actual old production bundle lacks the new judge-progress feature, despite the same release header.",
+  "externalDeployment": false
+}

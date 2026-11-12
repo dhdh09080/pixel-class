@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-11-12T18:57:30.943Z",
+  "kind": "Read-only inspection and restore-to-new-file of the disposable six-account QA school after the execution environment terminated all processes",
+  "sourceCommit": "79f2363ac71524f0fc24fa99273212b5f3700492",
+  "sourceQuickCheck": "ok",
+  "foreignKeyViolations": 0,
+  "users": 6,
+  "projects": 1,
+  "privateAttachmentRecords": 1,
+  "liveSessionRowsInInterruptedSource": 6,
+  "restoredSessionRows": 0,
+  "projectBodiesPreservedExactly": true,
+  "restoredSha256": "a95297573ecf1fb750957273860ef76b24c1289efb6d491b16a84b149e6aafdc",
+  "operatingSchoolDatabaseTouched": false,
+  "passed": true
+}

@@ -30,8 +30,19 @@ export function playerClothes(
       const foot = seated ? 70 : 76 + move;
       q.rect(x, 64, 5, foot - 64, dress || shorts ? skin : dark);
       q.rect(x, 65, 1, Math.max(1, foot - 66), dress || shorts ? skinShadow : light);
-      q.rect(x - 1, foot, 7, 2, ink);
+      q.poly(
+        [
+          [x, foot],
+          [x + 5, foot],
+          [x + 6, foot + 1],
+          [x + 5, foot + 2],
+          [x - 1, foot + 2],
+          [x - 1, foot + 1],
+        ],
+        ink,
+      );
       q.rect(x, foot, 5, 1, a.outfit === 1 || a.outfit === 4 ? white : dark);
+      q.rect(x + 1, foot + 1, 3, 1, shade(main, '#fff3d5', 0.16));
     }
   });
   p.layer((q) => {
@@ -56,8 +67,10 @@ export function playerClothes(
         short = [1, 3, 11, 24].includes(a.outfit);
       q.rect(x, y, 4, short ? 5 : 8, main);
       q.rect(x, y, 1, short ? 4 : 7, light);
-      q.rect(x, y + (short ? 5 : 8), 4, 3, skin);
-      q.rect(x + 3, y + (short ? 5 : 8), 1, 2, skinShadow);
+      const handY = y + (short ? 5 : 8);
+      q.oval(x, handY, 4, 4, skin);
+      q.rect(x + 3, handY + 1, 1, 2, skinShadow);
+      q.rect(x + 1, handY + 1, 1, 1, shade(skin, '#fff1da', 0.2));
     }
     if (dress) {
       q.poly(

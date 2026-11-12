@@ -1,0 +1,11 @@
+{
+  "measuredAt": "2026-11-12T16:40:38.907Z",
+  "kind": "Single-process warm microbenchmark of stationary crowded nameplate layout only; not browser FPS, total CPU or cloud billing",
+  "iterations": 5000,
+  "characters": 30,
+  "beforeMs": 44.03302600000001,
+  "afterMs": 17.704799999999977,
+  "computations": 1,
+  "hits": 5000,
+  "reductionPercent": 59.8
+}

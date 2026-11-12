@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import https from 'node:https';
 import { randomBytes } from 'node:crypto';
+import { verifyPublicRelease } from './public-release-check.mjs';
 
 // Non-destructive checks: no accounts, invitations or school content are written.
 const base = 'https://pixel-class-private-test.up.railway.app';
@@ -93,6 +94,22 @@ assert.equal(showcase.status, 200, 'The new external showcase shell must be avai
 const showcaseHtml = await showcase.text();
 assert.match(showcaseHtml, /\/competition-assets\//);
 assert.doesNotMatch(showcaseHtml, /공용 접근 비밀번호/);
+let publicAssets;
+for (let attempt = 0; attempt < 24; attempt++) {
+  try {
+    // Fetch a fresh shell too: its hashed entry changes when a pinned release rolls out.
+    const shell = attempt
+      ? await fetch(base + '/competition/00000000-0000-4000-8000-000000000000', {
+          signal: AbortSignal.timeout(10000),
+        })
+      : undefined;
+    publicAssets = await verifyPublicRelease(base, shell ? await shell.text() : showcaseHtml);
+    break;
+  } catch (error) {
+    if (attempt === 23) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+}
 console.log(
   JSON.stringify({
     ok: true,
@@ -108,7 +125,9 @@ console.log(
       'anonymous WSS handshake rejected401',
       'anonymous login API blocked401',
       'new public competition shell200',
+      'current public judge-progress assets200',
     ],
+    publicAssets,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),

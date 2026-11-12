@@ -1,5 +1,13 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
+## 운영 개선 후보 — PR #14 검증 중
+
+[PR #14](https://github.com/dhdh09080/pixel-class/pull/14), 실행 코드 `79f2363ac71524f0fc24fa99273212b5f3700492`. 서버133·실제 브라우저51·두 Docker HTTPS 운영 프로필까지186개 검사와 빌드가 로컬 및 [CI43268948454](https://github.com/dhdh09080/pixel-class/actions/runs/43268948454)에서 통과했습니다. 동일 코드의2시간 검사는 실행 환경 재시작으로95분27초·642회 관측 뒤 중단됐습니다. 완료로 세지 않고 새1시간/6컨텍스트 검사를 진행 중입니다. 완료 전에는 최종 통과나 실제 배포 완료로 판정하지 않습니다. [이번 보고서](OVERNIGHT_OPERATIONS_REPORT.md).
+
+MASTER 운영 상태와 검증된 서버 백업·학교별 다운로드 체크섬, 본인/MASTER 제출 버전 비교, 원래 점수를 보존하는 MASTER 집계 제외/복원, 과거 KEY 복원 방지, 이름표·이동 처리 비용 개선과 캐릭터 뒷면 장비 수정을 추가합니다. 외부 자동 백업은 연결하지 않았으며 실제 계정의 외부 로그인·인증된 WSS101은 계속 미검증입니다.
+
+아래는 PR #13과 기존 실제 배포 이력이며 새 후보의 적용 완료를 의미하지 않습니다.
+
 검증 코드 **`fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`**, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13), [CI169개 성공](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405). 서버119·브라우저48·Compose1·Railway 운영 프로필1을 확인했습니다. 새 기능 구현과 실제 서비스 적용은 구분합니다.
 
 ## 실제 배포와 데이터 — 사용자 Deploy 적용 후 갱신

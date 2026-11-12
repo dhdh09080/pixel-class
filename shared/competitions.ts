@@ -141,6 +141,23 @@ export type CompetitionAudit = {
   detail: string;
   createdAt: string;
 };
+export type CompetitionVersionSummary = Pick<
+  CompetitionEntry,
+  'id' | 'revision' | 'title' | 'status' | 'submittedAt' | 'updatedAt'
+>;
+export type CompetitionScoreReview = {
+  id: string;
+  entryId: string;
+  title: string;
+  judgeLabel: string;
+  createdAt: string;
+  practicality: number;
+  usability: number;
+  completeness: number;
+  creativity: number;
+  comment: string;
+  review: { revision: number; excluded: boolean; reason: string; updatedAt: string | null };
+};
 export type CompetitionListResponse = {
   classes: SchoolClass[];
   competitions: Competition[];

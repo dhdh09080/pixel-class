@@ -3,7 +3,12 @@ import { scryptSync, randomBytes, createHash, timingSafeEqual } from 'node:crypt
 import { z } from 'zod';
 import type { Member } from '../shared/types.js';
 import { db, id, now, userById, hashPassword, put, get, remove, transaction } from './db.js';
-import { makeBackup, exportSchoolDatabase, storageStatus } from './operations.js';
+import {
+  makeBackup,
+  exportSchoolDatabase,
+  operationsStatus,
+  verifyLatestBackup,
+} from './operations.js';
 type Recovery = { id: string; userId: string; expiresAt: string; createdAt: string };
 type Dependencies = {
   active: (r: Request) => Member;
@@ -120,23 +125,41 @@ export function registerAccountRoutes(app: Express, d: Dependencies) {
   });
   app.get('/api/operations', (req, res) => {
     const u = d.master(req);
-    res.json(storageStatus(u.schoolId));
+    res.json(operationsStatus(u.schoolId));
   });
   app.post('/api/operations/backup', async (req, res) => {
     const u = d.master(req);
     d.rate('backup:' + u.id, 5);
     await makeBackup();
-    res.json(storageStatus(u.schoolId));
+    res.json(operationsStatus(u.schoolId));
+  });
+  app.post('/api/operations/backup/verify', async (req, res) => {
+    const u = d.master(req);
+    d.rate('backup-verify:' + u.id, 5);
+    try {
+      await verifyLatestBackup();
+    } catch {
+      d.fail(409, '백업을 검증하지 못했어요. 새 백업을 만들거나 운영 로그를 확인해 주세요.');
+    }
+    res.json(operationsStatus(u.schoolId));
   });
   app.get('/api/operations/backup', async (req, res) => {
     const u = d.master(req);
     d.rate('backup-download:' + u.id, 5);
     const exported = await exportSchoolDatabase(u.schoolId);
-    res.setHeader('Cache-Control', 'private, no-store');
-    res.download(
-      exported.file,
-      'pixel-class-private-' + new Date().toISOString().slice(0, 10) + '.sqlite',
-      () => exported.cleanup(),
+    const fileName =
+      'pixel-class-private-' +
+      new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) +
+      '-' +
+      id().slice(0, 8) +
+      '.sqlite';
+    put(
+      'backup-export',
+      { id: 'last-export:' + u.schoolId, fileName, sha256: exported.sha256, preparedAt: now() },
+      u.schoolId,
     );
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('X-Backup-SHA256', exported.sha256);
+    res.download(exported.file, fileName, () => exported.cleanup());
   });
 }

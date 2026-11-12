@@ -219,14 +219,24 @@ export default function PublicCompetition({ id }: { id: string }) {
     [message, setMessage] = useState(''),
     [selectedId, setSelectedId] = useState('');
   const activationStarted = useRef(false),
-    disposed = useRef(false);
+    disposed = useRef(false),
+    requestSequence = useRef(0),
+    reads = useRef(0);
   const reload = useCallback(async () => {
-    const next = await api<PublicCompetitionResponse>(
-      `/public/competitions/${encodeURIComponent(id)}`,
-    );
-    if (!disposed.current) {
-      setData(next);
-      setError('');
+    const sequence = ++requestSequence.current;
+    reads.current++;
+    try {
+      const next = await api<PublicCompetitionResponse>(
+        `/public/competitions/${encodeURIComponent(id)}`,
+      );
+      if (!disposed.current && sequence === requestSequence.current) {
+        setData(next);
+        setError('');
+      }
+    } catch (error) {
+      if (!disposed.current && sequence === requestSequence.current) throw error;
+    } finally {
+      reads.current--;
     }
   }, [id]);
   useEffect(() => {
@@ -259,12 +269,16 @@ export default function PublicCompetition({ id }: { id: string }) {
       }
     };
     void start();
-    const timer = setInterval(() => {
-      void reload().catch(() => {});
-    }, 60000);
+    const update = () => {
+      if (!document.hidden && !reads.current) void reload().catch(() => {});
+    };
+    const timer = setInterval(update, 60000);
+    document.addEventListener('visibilitychange', update);
     return () => {
       disposed.current = true;
+      requestSequence.current++;
       clearInterval(timer);
+      document.removeEventListener('visibilitychange', update);
       document.title = originalTitle;
     };
   }, [id, reload]);
@@ -289,6 +303,8 @@ export default function PublicCompetition({ id }: { id: string }) {
   };
   const selected = data?.entries.find((entry) => entry.id === selectedId);
   const scored = new Set(data?.judge?.scoredEntryIds || []);
+  const remaining = data?.entries.filter((entry) => !scored.has(entry.id)) || [];
+  const completed = data?.entries.filter((entry) => scored.has(entry.id)).length || 0;
   return (
     <div className="competition-public">
       <header className="competition-public-header">
@@ -352,13 +368,18 @@ export default function PublicCompetition({ id }: { id: string }) {
             {data.judge ? (
               <div className="competition-judging-status">
                 <ShieldCheck size={24} aria-hidden="true" />
-                <div style={{ flex: 1 }}>
+                <div className="competition-judge-summary">
                   <strong>{data.judge.label} · 심사 연결됨</strong>
                   <p>
-                    평가한 작품 {data.judge.scoredEntryIds.length}개 · 이 심사 권한은 학교 계정에
-                    접근할 수 없어요.
+                    평가한 작품 {completed} / {data.entries.length}개 · 남은 작품 {remaining.length}
+                    개 · 이 심사 권한은 학교 계정에 접근할 수 없어요.
                   </p>
                 </div>
+                {!!remaining.length && (
+                  <Button type="button" onClick={() => setSelectedId(remaining[0].id)}>
+                    다음 미평가 작품
+                  </Button>
+                )}
                 <Button
                   type="button"
                   aria-label="심사 연결 종료"

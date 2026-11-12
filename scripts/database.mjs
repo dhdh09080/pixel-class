@@ -2,6 +2,28 @@ import { DatabaseSync, backup } from 'node:sqlite';
 import { closeSync, openSync, mkdirSync, chmodSync, rmSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
+import { open } from 'node:fs/promises';
+import { constants } from 'node:fs';
+import { assertStandaloneSnapshot } from '../shared/snapshot-files.mjs';
+
+export async function databaseChecksum(path) {
+  assertStandaloneSnapshot(resolve(path));
+  const handle = await open(resolve(path), constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const before = await handle.stat();
+    if (!before.isFile()) throw new Error('Backup must be a regular file.');
+    const hash = createHash('sha256');
+    for await (const chunk of handle.createReadStream({ autoClose: false })) hash.update(chunk);
+    const after = await handle.stat();
+    if (before.size !== after.size || before.mtimeMs !== after.mtimeMs)
+      throw new Error('Backup changed while checking its checksum.');
+    assertStandaloneSnapshot(resolve(path));
+    return hash.digest('hex');
+  } finally {
+    await handle.close();
+  }
+}
 
 function inspect(db) {
   const quick = db.prepare('PRAGMA quick_check').all();
@@ -64,7 +86,23 @@ export async function copyDatabase(source, destination, { invalidateSessions = f
             .get()
         )
           restored.exec('DELETE FROM competition_judge_passes;');
-        restored.exec('DELETE FROM sessions; PRAGMA wal_checkpoint(TRUNCATE);');
+        if (
+          restored
+            .prepare('PRAGMA table_info(records)')
+            .all()
+            .some((column) => column.name === 'kind')
+        )
+          restored.exec("DELETE FROM records WHERE kind='password-recovery';");
+        if (
+          restored
+            .prepare('PRAGMA table_info(invitations)')
+            .all()
+            .some((column) => column.name === 'body')
+        )
+          restored.exec("UPDATE invitations SET body=json_set(body,'$.revoked',json('true'));");
+        restored.exec(
+          'DELETE FROM sessions; PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA wal_checkpoint(TRUNCATE);',
+        );
       } finally {
         restored.close();
       }
@@ -81,22 +119,39 @@ export async function copyDatabase(source, destination, { invalidateSessions = f
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const [command, source, destination] = process.argv.slice(2);
+  const [command, source, destination, expectedChecksum] = process.argv.slice(2);
   try {
     if (
       !source ||
       !['backup', 'restore', 'verify'].includes(command) ||
-      (command !== 'verify' && !destination)
+      (command !== 'verify' && (!destination || expectedChecksum !== undefined))
     )
       throw new Error(
         'Usage: node scripts/database.mjs backup|restore SOURCE NEW_DESTINATION, or verify DATABASE',
       );
+    if (
+      command === 'verify' &&
+      destination !== undefined &&
+      (destination !== '--sha256' || !/^[a-f0-9]{64}$/i.test(expectedChecksum || ''))
+    )
+      throw new Error('Usage: verify DATABASE [--sha256 EXPECTED_SHA256]');
+    if (command === 'verify') assertStandaloneSnapshot(resolve(source));
     const counts =
       command === 'verify'
         ? verifyDatabase(source)
         : await copyDatabase(source, destination, { invalidateSessions: command === 'restore' });
+    const sha256 = command === 'verify' ? await databaseChecksum(source) : undefined;
+    if (expectedChecksum && sha256 !== expectedChecksum.toLowerCase())
+      throw new Error('Backup SHA-256 does not match. Do not restore this file.');
     console.log(
-      JSON.stringify({ ok: true, command, counts, sessionsInvalidated: command === 'restore' }),
+      JSON.stringify({
+        ok: true,
+        command,
+        counts,
+        sha256,
+        checksumMatched: expectedChecksum ? true : undefined,
+        sessionsInvalidated: command === 'restore',
+      }),
     );
   } catch (error) {
     console.error(error.message);
