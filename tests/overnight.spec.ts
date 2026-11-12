@@ -96,6 +96,9 @@ test('external judge polling pauses in hidden tabs, deduplicates pending reads a
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }),
   );
   await page.clock.fastForward(120000);
+  // Fetch dispatch crosses the renderer/network boundary after virtual timers run.
+  // Observe a real quiet interval so an unconditional poll cannot pass by racing this assertion.
+  await page.waitForTimeout(250);
   expect(requests).toBe(1);
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
@@ -103,6 +106,7 @@ test('external judge polling pauses in hidden tabs, deduplicates pending reads a
   });
   await expect.poll(() => requests).toBe(2);
   await page.clock.fastForward(120000);
+  await page.waitForTimeout(250);
   expect(requests).toBe(2);
   release();
   await expect(page.getByText('재개한 응답 반영', { exact: true })).toBeVisible();
