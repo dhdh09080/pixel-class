@@ -1,0 +1,17 @@
+{
+  "sourceCommit": "09849413a40c33814aefdd0b541f300c7b031f4a",
+  "runtimeCommit": "79f2363ac71524f0fc24fa99273212b5f3700492",
+  "runId": 43268948454,
+  "url": "https://github.com/dhdh09080/pixel-class/actions/runs/43268948454",
+  "conclusion": "success",
+  "checks": {
+    "server": 133,
+    "browser": 51,
+    "composeHttps": 1,
+    "railwayLocalProfile": 1,
+    "total": 186
+  },
+  "liveJob": "skipped on pull requests; does not assert the new code is deployed",
+  "priorFailedRun": 43267760147,
+  "priorFailure": "Two fixture servers exceeded the existing8s readiness window during cold parallel startup. Re-running with two test-file processes passed; scenario assertions and multi-user concurrency were preserved."
+}

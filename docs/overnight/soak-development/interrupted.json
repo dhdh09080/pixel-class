@@ -1,0 +1,762 @@
+{
+  "sourceCommit": "abcb344d0d1aab9a09069737e20364cc1c4d2642",
+  "passed": false,
+  "status": "intentionally interrupted before final validation",
+  "reason": "Restart final two-hour run on the newer optimized runtime and restore hardening. This partial run is not counted as a completed soak.",
+  "checkpoints": [
+    {
+      "label": "warm",
+      "elapsedSeconds": 1,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 115.51,
+      "browserHeapMiB": [8.18, 8.26, 8.12, 8.1, 7.97, 7.71],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 6,
+        "closed": 0,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 6,
+      "rounds": 0,
+      "runtime": {
+        "uptimeSeconds": 17,
+        "rssBytes": 120541184,
+        "heapUsedBytes": 23317472,
+        "databaseBytes": 4096,
+        "walBytes": 457352,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-3",
+      "elapsedSeconds": 20,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 116.04,
+      "browserHeapMiB": [8.29, 8.61, 7.61, 8.25, 8.21, 8.17],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 9,
+        "closed": 3,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 7,
+      "rounds": 3,
+      "runtime": {
+        "uptimeSeconds": 36,
+        "rssBytes": 121065472,
+        "heapUsedBytes": 24313760,
+        "databaseBytes": 4096,
+        "walBytes": 482072,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-6",
+      "elapsedSeconds": 47,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 116.46,
+      "browserHeapMiB": [8.38, 8.64, 7.98, 8.32, 8.51, 7.58],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 12,
+        "closed": 6,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 8,
+      "rounds": 6,
+      "runtime": {
+        "uptimeSeconds": 63,
+        "rssBytes": 121589760,
+        "heapUsedBytes": 24714160,
+        "databaseBytes": 4096,
+        "walBytes": 506792,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-9",
+      "elapsedSeconds": 74,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 116.56,
+      "browserHeapMiB": [8.4, 8.73, 8.38, 7.58, 8.54, 7.94],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 15,
+        "closed": 9,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 9,
+      "rounds": 9,
+      "runtime": {
+        "uptimeSeconds": 90,
+        "rssBytes": 121589760,
+        "heapUsedBytes": 25578232,
+        "databaseBytes": 4096,
+        "walBytes": 531512,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-12",
+      "elapsedSeconds": 103,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 104.32,
+      "browserHeapMiB": [8.39, 7.62, 8.37, 7.99, 8.59, 8.37],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 18,
+        "closed": 12,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 10,
+      "rounds": 12,
+      "runtime": {
+        "uptimeSeconds": 119,
+        "rssBytes": 108826624,
+        "heapUsedBytes": 23784696,
+        "databaseBytes": 4096,
+        "walBytes": 556232,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-15",
+      "elapsedSeconds": 131,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 104.4,
+      "browserHeapMiB": [8.43, 7.99, 8.44, 8.38, 7.58, 8.37],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 21,
+        "closed": 15,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 11,
+      "rounds": 15,
+      "runtime": {
+        "uptimeSeconds": 147,
+        "rssBytes": 108957696,
+        "heapUsedBytes": 24631752,
+        "databaseBytes": 4096,
+        "walBytes": 580952,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-18",
+      "elapsedSeconds": 162,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 105,
+      "browserHeapMiB": [8.45, 8.42, 7.74, 8.38, 7.99, 8.43],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 24,
+        "closed": 18,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 12,
+      "rounds": 18,
+      "runtime": {
+        "uptimeSeconds": 178,
+        "rssBytes": 109481984,
+        "heapUsedBytes": 25019640,
+        "databaseBytes": 4096,
+        "walBytes": 605672,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-21",
+      "elapsedSeconds": 191,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 106.76,
+      "browserHeapMiB": [8.53, 8.41, 7.99, 8.44, 8.38, 7.8],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 27,
+        "closed": 21,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 13,
+      "rounds": 21,
+      "runtime": {
+        "uptimeSeconds": 207,
+        "rssBytes": 111185920,
+        "heapUsedBytes": 25871440,
+        "databaseBytes": 4096,
+        "walBytes": 655112,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-24",
+      "elapsedSeconds": 219,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 104.93,
+      "browserHeapMiB": [8.57, 8.49, 8.42, 7.58, 8.42, 7.99],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 30,
+        "closed": 24,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 14,
+      "rounds": 24,
+      "runtime": {
+        "uptimeSeconds": 235,
+        "rssBytes": 109535232,
+        "heapUsedBytes": 24327296,
+        "databaseBytes": 4096,
+        "walBytes": 679832,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-27",
+      "elapsedSeconds": 246,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 105.68,
+      "browserHeapMiB": [7.96, 7.49, 8.38, 7.98, 8.49, 8.42],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 33,
+        "closed": 27,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 15,
+      "rounds": 27,
+      "runtime": {
+        "uptimeSeconds": 262,
+        "rssBytes": 110321664,
+        "heapUsedBytes": 24904632,
+        "databaseBytes": 4096,
+        "walBytes": 704552,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-30",
+      "elapsedSeconds": 274,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 105.84,
+      "browserHeapMiB": [8.04, 7.92, 8.44, 8.38, 7.58, 8.37],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 36,
+        "closed": 30,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 16,
+      "rounds": 30,
+      "runtime": {
+        "uptimeSeconds": 291,
+        "rssBytes": 110321664,
+        "heapUsedBytes": 25970760,
+        "databaseBytes": 4096,
+        "walBytes": 729272,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-33",
+      "elapsedSeconds": 303,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 106.25,
+      "browserHeapMiB": [8, 8.38, 7.61, 8.4, 8.01, 8.45],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 39,
+        "closed": 33,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 17,
+      "rounds": 33,
+      "runtime": {
+        "uptimeSeconds": 320,
+        "rssBytes": 110714880,
+        "heapUsedBytes": 25966696,
+        "databaseBytes": 4096,
+        "walBytes": 766352,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-36",
+      "elapsedSeconds": 331,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 106.47,
+      "browserHeapMiB": [8.01, 8.37, 7.99, 8.47, 8.4, 7.6],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 42,
+        "closed": 36,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 18,
+      "rounds": 36,
+      "runtime": {
+        "uptimeSeconds": 348,
+        "rssBytes": 110845952,
+        "heapUsedBytes": 26263064,
+        "databaseBytes": 4096,
+        "walBytes": 791072,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-39",
+      "elapsedSeconds": 359,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 106.49,
+      "browserHeapMiB": [8.03, 8.44, 8.4, 7.78, 8.39, 7.96],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 45,
+        "closed": 39,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 19,
+      "rounds": 39,
+      "runtime": {
+        "uptimeSeconds": 375,
+        "rssBytes": 110845952,
+        "heapUsedBytes": 27076896,
+        "databaseBytes": 4096,
+        "walBytes": 815792,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-42",
+      "elapsedSeconds": 388,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 107.68,
+      "browserHeapMiB": [8.2, 7.77, 8.4, 7.99, 8.46, 8.39],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 48,
+        "closed": 42,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 20,
+      "rounds": 42,
+      "runtime": {
+        "uptimeSeconds": 405,
+        "rssBytes": 112156672,
+        "heapUsedBytes": 28065624,
+        "databaseBytes": 4096,
+        "walBytes": 865232,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-45",
+      "elapsedSeconds": 417,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 107.88,
+      "browserHeapMiB": [8.03, 8.02, 8.48, 8.41, 7.58, 8.36],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 51,
+        "closed": 45,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 21,
+      "rounds": 45,
+      "runtime": {
+        "uptimeSeconds": 433,
+        "rssBytes": 112418816,
+        "heapUsedBytes": 28787568,
+        "databaseBytes": 4096,
+        "walBytes": 889952,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-48",
+      "elapsedSeconds": 445,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 108.57,
+      "browserHeapMiB": [8.05, 8.43, 7.78, 8.4, 7.99, 8.43],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 54,
+        "closed": 48,
+        "peak": 6
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 22,
+      "rounds": 48,
+      "runtime": {
+        "uptimeSeconds": 462,
+        "rssBytes": 113205248,
+        "heapUsedBytes": 29115720,
+        "databaseBytes": 4096,
+        "walBytes": 914672,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-51",
+      "elapsedSeconds": 473,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 108.88,
+      "browserHeapMiB": [8.05, 8.41, 7.99, 8.48, 8.41, 7.65],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 57,
+        "closed": 51,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 23,
+      "rounds": 51,
+      "runtime": {
+        "uptimeSeconds": 489,
+        "rssBytes": 113467392,
+        "heapUsedBytes": 29310056,
+        "databaseBytes": 4096,
+        "walBytes": 939392,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-54",
+      "elapsedSeconds": 501,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.36,
+      "browserHeapMiB": [8.05, 8.49, 8.4, 7.61, 8.39, 7.93],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 60,
+        "closed": 54,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 24,
+      "rounds": 54,
+      "runtime": {
+        "uptimeSeconds": 517,
+        "rssBytes": 113991680,
+        "heapUsedBytes": 30227352,
+        "databaseBytes": 4096,
+        "walBytes": 964112,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-57",
+      "elapsedSeconds": 528,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.69,
+      "browserHeapMiB": [8.06, 7.82, 8.39, 7.99, 8.48, 8.37],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 63,
+        "closed": 57,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 25,
+      "rounds": 57,
+      "runtime": {
+        "uptimeSeconds": 545,
+        "rssBytes": 114384896,
+        "heapUsedBytes": 24415056,
+        "databaseBytes": 4096,
+        "walBytes": 988832,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-60",
+      "elapsedSeconds": 555,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.73,
+      "browserHeapMiB": [8.09, 8.01, 8.47, 8.37, 7.54, 8.37],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 66,
+        "closed": 60,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 26,
+      "rounds": 60,
+      "runtime": {
+        "uptimeSeconds": 572,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 25438672,
+        "databaseBytes": 4096,
+        "walBytes": 1013552,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-63",
+      "elapsedSeconds": 583,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.8,
+      "browserHeapMiB": [8.08, 8.45, 7.8, 8.39, 7.97, 8.46],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 69,
+        "closed": 63,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 27,
+      "rounds": 63,
+      "runtime": {
+        "uptimeSeconds": 600,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 26321472,
+        "databaseBytes": 4096,
+        "walBytes": 1075352,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-66",
+      "elapsedSeconds": 610,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.81,
+      "browserHeapMiB": [8.07, 8.44, 7.99, 8.46, 8.38, 7.61],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 72,
+        "closed": 66,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 28,
+      "rounds": 66,
+      "runtime": {
+        "uptimeSeconds": 626,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 26553952,
+        "databaseBytes": 4096,
+        "walBytes": 1100072,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-69",
+      "elapsedSeconds": 638,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.84,
+      "browserHeapMiB": [8.07, 8.52, 8.41, 7.58, 8.36, 7.96],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 75,
+        "closed": 69,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 29,
+      "rounds": 69,
+      "runtime": {
+        "uptimeSeconds": 654,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 27075720,
+        "databaseBytes": 4096,
+        "walBytes": 1124792,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-72",
+      "elapsedSeconds": 667,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.87,
+      "browserHeapMiB": [8.1, 7.64, 8.4, 7.98, 8.43, 8.38],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 78,
+        "closed": 72,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 30,
+      "rounds": 72,
+      "runtime": {
+        "uptimeSeconds": 683,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 27962152,
+        "databaseBytes": 4096,
+        "walBytes": 1149512,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-75",
+      "elapsedSeconds": 693,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.95,
+      "browserHeapMiB": [8.15, 8.03, 8.46, 8.41, 7.8, 8.38],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 81,
+        "closed": 75,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 31,
+      "rounds": 75,
+      "runtime": {
+        "uptimeSeconds": 709,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 28047944,
+        "databaseBytes": 4096,
+        "walBytes": 1174232,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-78",
+      "elapsedSeconds": 721,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 109.99,
+      "browserHeapMiB": [8.1, 8.38, 7.8, 8.39, 7.98, 8.45],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 84,
+        "closed": 78,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 32,
+      "rounds": 78,
+      "runtime": {
+        "uptimeSeconds": 737,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 29025392,
+        "databaseBytes": 4096,
+        "walBytes": 1198952,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-81",
+      "elapsedSeconds": 750,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 110,
+      "browserHeapMiB": [8.12, 8.43, 8, 8.45, 8.41, 7.85],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 87,
+        "closed": 81,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 33,
+      "rounds": 81,
+      "runtime": {
+        "uptimeSeconds": 766,
+        "rssBytes": 114515968,
+        "heapUsedBytes": 29183416,
+        "databaseBytes": 4096,
+        "walBytes": 1248392,
+        "database": "sqlite",
+        "instances": 1
+      }
+    },
+    {
+      "label": "round-84",
+      "elapsedSeconds": 777,
+      "serverPid": 13879,
+      "online": 6,
+      "serverRssMiB": 110.36,
+      "browserHeapMiB": [8.12, 8.49, 8.4, 7.8, 8.4, 7.97],
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 6,
+        "opened": 90,
+        "closed": 84,
+        "peak": 7
+      },
+      "browserSocketCloseEventsMayBeLostOnNavigation": 34,
+      "rounds": 84,
+      "runtime": {
+        "uptimeSeconds": 793,
+        "rssBytes": 114909184,
+        "heapUsedBytes": 29964056,
+        "databaseBytes": 4096,
+        "walBytes": 1273112,
+        "database": "sqlite",
+        "instances": 1
+      }
+    }
+  ]
+}

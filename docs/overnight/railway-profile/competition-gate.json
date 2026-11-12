@@ -1,0 +1,31 @@
+{
+  "checkedAt": "2026-11-12T17:20:40.598Z",
+  "environment": "isolated Docker Railway profile, real volume and HTTPS gate; not the internet deployment",
+  "publicEntrance": 200,
+  "rewrittenAssets": 3,
+  "compressedAssets": [
+    {
+      "asset": "/competition-assets/index-Dsx7D9se.js",
+      "identityBytes": 397323,
+      "brBytes": 120250,
+      "gzipBytes": 120259
+    },
+    {
+      "asset": "/competition-assets/jsx-runtime-DHXBON9B.js",
+      "identityBytes": 8432,
+      "brBytes": 3232,
+      "gzipBytes": 3189
+    },
+    {
+      "asset": "/competition-assets/index-BYcR6AUc.css",
+      "identityBytes": 117494,
+      "brBytes": 26098,
+      "gzipBytes": 24453
+    }
+  ],
+  "lazyComponentLoaded": true,
+  "privateRequests": [],
+  "failedAssets": [],
+  "publicErrors": [],
+  "schoolStateStatus": 401
+}

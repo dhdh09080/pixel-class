@@ -1,0 +1,7 @@
+{
+  "sourceCommit": "79f2363ac71524f0fc24fa99273212b5f3700492",
+  "imageTag": "pixel-class:overnight-79f2363",
+  "filesChecked": 56,
+  "differentFiles": [],
+  "note": "Full Dockerfile build; the local build-only proxy CA was mounted as a secret in the two npm install steps. Runtime tree hashes equal the frozen worktree, including dist."
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "Same 30 automated authenticated clients at 10Hz, requested300s, both shared the host with six-browser soak and full regression activity. Timing overlap is not a controlled billing or CPU benchmark.",
+  "beforeSource": "abcb344d0d1aab9a09069737e20364cc1c4d2642",
+  "afterSource": "79f2363ac71524f0fc24fa99273212b5f3700492",
+  "unchangedThresholds": {
+    "deliveryRatioGreaterThan": 0.98,
+    "p95LatencyLessThanMs": 500
+  },
+  "before": {
+    "passed": false,
+    "deliveryRatio": 0.93084,
+    "p95LatencyMs": 118.01,
+    "maxServerRssMiB": 326.84,
+    "actualSeconds": 301.3
+  },
+  "after": {
+    "passed": true,
+    "deliveryRatio": 0.98147,
+    "p95LatencyMs": 58.09,
+    "maxServerRssMiB": 162.93,
+    "actualSeconds": 301.3,
+    "socketsAfterClose": 0
+  },
+  "observedRssReductionPercent": 50.1
+}

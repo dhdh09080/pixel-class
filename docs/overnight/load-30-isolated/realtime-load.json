@@ -1,0 +1,423 @@
+{
+  "startedAt": "2026-11-12T17:29:22.393Z",
+  "kind": "30 automated authenticated WebSocket clients, 10Hz movement; not 30 rendered browsers or notebook FPS",
+  "requestedSeconds": 300,
+  "sent": 88410,
+  "receivedByObserver": 88290,
+  "samples": [
+    {
+      "label": "warm",
+      "rssMiB": 126.7,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 0,
+      "receivedByObserver": 0
+    },
+    {
+      "label": "tick-100",
+      "rssMiB": 144.61,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 3000,
+      "receivedByObserver": 2933
+    },
+    {
+      "label": "tick-200",
+      "rssMiB": 151.95,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 6000,
+      "receivedByObserver": 5933
+    },
+    {
+      "label": "tick-300",
+      "rssMiB": 158.99,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 9000,
+      "receivedByObserver": 8908
+    },
+    {
+      "label": "tick-400",
+      "rssMiB": 167.92,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 12000,
+      "receivedByObserver": 11908
+    },
+    {
+      "label": "tick-500",
+      "rssMiB": 173.9,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 15000,
+      "receivedByObserver": 14884
+    },
+    {
+      "label": "tick-600",
+      "rssMiB": 173.9,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 18000,
+      "receivedByObserver": 17884
+    },
+    {
+      "label": "tick-700",
+      "rssMiB": 175.67,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 21000,
+      "receivedByObserver": 20861
+    },
+    {
+      "label": "tick-800",
+      "rssMiB": 175.67,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 24000,
+      "receivedByObserver": 23861
+    },
+    {
+      "label": "tick-900",
+      "rssMiB": 175.67,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 27000,
+      "receivedByObserver": 26861
+    },
+    {
+      "label": "tick-1000",
+      "rssMiB": 175.68,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 30000,
+      "receivedByObserver": 29861
+    },
+    {
+      "label": "tick-1100",
+      "rssMiB": 175.68,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 33000,
+      "receivedByObserver": 32861
+    },
+    {
+      "label": "tick-1200",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 36000,
+      "receivedByObserver": 35861
+    },
+    {
+      "label": "tick-1300",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 39000,
+      "receivedByObserver": 38861
+    },
+    {
+      "label": "tick-1400",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 42000,
+      "receivedByObserver": 41861
+    },
+    {
+      "label": "tick-1500",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 45000,
+      "receivedByObserver": 44861
+    },
+    {
+      "label": "tick-1600",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 48000,
+      "receivedByObserver": 47861
+    },
+    {
+      "label": "tick-1700",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 51000,
+      "receivedByObserver": 50861
+    },
+    {
+      "label": "tick-1800",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 54000,
+      "receivedByObserver": 53850
+    },
+    {
+      "label": "tick-1900",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 57000,
+      "receivedByObserver": 56850
+    },
+    {
+      "label": "tick-2000",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 60000,
+      "receivedByObserver": 59850
+    },
+    {
+      "label": "tick-2100",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 63000,
+      "receivedByObserver": 62850
+    },
+    {
+      "label": "tick-2200",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 66000,
+      "receivedByObserver": 65850
+    },
+    {
+      "label": "tick-2300",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 69000,
+      "receivedByObserver": 68850
+    },
+    {
+      "label": "tick-2400",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 72000,
+      "receivedByObserver": 71850
+    },
+    {
+      "label": "tick-2500",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 75000,
+      "receivedByObserver": 74850
+    },
+    {
+      "label": "tick-2600",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 78000,
+      "receivedByObserver": 77850
+    },
+    {
+      "label": "tick-2700",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 81000,
+      "receivedByObserver": 80850
+    },
+    {
+      "label": "tick-2800",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 84000,
+      "receivedByObserver": 83850
+    },
+    {
+      "label": "tick-2900",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 87000,
+      "receivedByObserver": 86850
+    },
+    {
+      "label": "end",
+      "rssMiB": 175.43,
+      "serverSockets": {
+        "type": "qa-socket-count",
+        "active": 30,
+        "opened": 30,
+        "closed": 0,
+        "peak": 30
+      },
+      "sent": 88410,
+      "receivedByObserver": 88290
+    }
+  ],
+  "passed": true,
+  "latencyMs": {
+    "p50": 5.45,
+    "p95": 17.3,
+    "max": 199.1,
+    "samples": 88290
+  },
+  "actualSeconds": 301.13,
+  "deliveryRatio": 0.99864,
+  "socketsAfterClose": 0,
+  "finishedAt": "2026-11-12T17:34:27.116Z"
+}

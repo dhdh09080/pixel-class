@@ -1,0 +1,47 @@
+{
+  "measuredAt": "2026-11-12T17:26:49.737Z",
+  "kind": "Nine alternating warm rounds of stationary crowded label placement only; not FPS, total CPU or billing. Host may run other QA.",
+  "iterationsPerRound": 5000,
+  "characters": 30,
+  "rounds": [
+    {
+      "beforeMs": 46.864,
+      "afterMs": 17.053
+    },
+    {
+      "beforeMs": 42.962,
+      "afterMs": 18.772
+    },
+    {
+      "beforeMs": 52.87,
+      "afterMs": 15.745
+    },
+    {
+      "beforeMs": 42.488,
+      "afterMs": 19.205
+    },
+    {
+      "beforeMs": 46.886,
+      "afterMs": 17.507
+    },
+    {
+      "beforeMs": 51.344,
+      "afterMs": 17.081
+    },
+    {
+      "beforeMs": 52.094,
+      "afterMs": 35.867
+    },
+    {
+      "beforeMs": 67.559,
+      "afterMs": 34.191
+    },
+    {
+      "beforeMs": 64.485,
+      "afterMs": 28.478
+    }
+  ],
+  "medianBeforeMs": 51.344,
+  "medianAfterMs": 18.772,
+  "observedMedianReductionPercent": 63.4
+}
