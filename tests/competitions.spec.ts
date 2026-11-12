@@ -6,7 +6,11 @@ import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { defaultAppearance, emptyProject, type AppState } from '../shared/types';
-import type { Competition, CompetitionListResponse } from '../shared/competitions';
+import type {
+  Competition,
+  CompetitionDetailResponse,
+  CompetitionListResponse,
+} from '../shared/competitions';
 
 const base = 'http://127.0.0.1:3063';
 const dir = mkdtempSync(join(tmpdir(), 'pixel-competition-browser-'));
@@ -258,7 +262,7 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
     await expect
       .poll(
         async () =>
-          (await request<{ competition: Competition }>(master, `/competitions/${competition.id}`))
+          (await request<CompetitionDetailResponse>(master, `/competitions/${competition.id}`))
             .competition.state,
       )
       .toBe('JUDGING');
@@ -327,12 +331,19 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
     );
     await expect
       .poll(
-        async () =>
-          (await request<{ competition: Competition }>(master, `/competitions/${competition.id}`))
-            .competition.state,
+        async () => {
+          const latest = await request<CompetitionDetailResponse>(
+            master,
+            `/competitions/${competition.id}`,
+          );
+          return (
+            latest.competition.state === 'JUDGING_CLOSED' &&
+            Date.parse(latest.serverNow) >= Date.parse(latest.competition.resultsAt)
+          );
+        },
         { timeout: 30000 },
       )
-      .toBe('JUDGING_CLOSED');
+      .toBe(true);
     await request(master, `/competitions/${competition.id}/action`, 'POST', {
       action: 'publishResults',
       reason: '검증 완료 후 결과 발표',
@@ -538,5 +549,164 @@ test('public showcase and score confirmation fit five viewports, and idle classr
     await masterMobile.screenshot({ path: 'docs/competitions/master-390.png', fullPage: true });
   } finally {
     await Promise.all([master.close(), student.close(), mobile.close(), desktop.close()]);
+  }
+});
+
+test('MASTER can explicitly repair a moved participant and retains submitted-history participants', async ({
+  browser,
+}) => {
+  test.setTimeout(60000);
+  const master = await browser.newContext({ baseURL: base });
+  const moved = await browser.newContext({ baseURL: base });
+  const remaining = await browser.newContext({
+    baseURL: base,
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  try {
+    const config = await request<{ bootstrap: boolean }>(master, '/config');
+    await request(master, config.bootstrap ? '/bootstrap' : '/login', 'POST', {
+      ...(config.bootstrap ? { key, name: '경진대회 검증 선생님' } : {}),
+      email: 'competition-master@example.test',
+      password,
+    });
+    const ids: string[] = [];
+    for (const [context, name, email] of [
+      [moved, '반을 옮긴 참가 학생', 'roster-moved@example.test'],
+      [remaining, '원래 반의 참가 학생', 'roster-remaining@example.test'],
+    ] as const) {
+      const invite = await request<{ key: string }>(master, '/invitations', 'POST', {
+        label: '참가 명단 회귀 검증',
+      });
+      await request(context, '/register', 'POST', {
+        key: invite.key,
+        email,
+        password,
+        name,
+        appearance: defaultAppearance,
+      });
+      ids.push((await request<AppState>(context, '/state')).me.id);
+    }
+    const originalClass = await request<{ id: string }>(master, '/classes', 'POST', {
+      name: '참가 명단 검증반',
+    });
+    const nextClass = await request<{ id: string }>(master, '/classes', 'POST', {
+      name: '이동한 학생의 새 반',
+    });
+    await request(master, `/classes/${originalClass.id}/members`, 'PATCH', { memberIds: ids });
+    const now = Date.now();
+    const competition = await request<Competition>(master, '/competitions', 'POST', {
+      name: '참가 명단 정리 회귀 대회',
+      description: '반 이동 후 명단을 명시적으로 정리하고 기존 출품 기록을 보존해요.',
+      classId: originalClass.id,
+      participantIds: ids,
+      opensAt: new Date(now - 86400000).toISOString(),
+      submissionDueAt: new Date(now + 3600000).toISOString(),
+      judgingStartsAt: new Date(now + 7200000).toISOString(),
+      judgingEndsAt: new Date(now + 10800000).toISOString(),
+      resultsAt: new Date(now + 14400000).toISOString(),
+    });
+    await request(master, `/classes/${nextClass.id}/members`, 'PATCH', { memberIds: [ids[0]] });
+    const page = await master.newPage();
+    await page.goto('/');
+    await page.getByRole('button', { name: '경진대회', exact: true }).click();
+    await page
+      .locator('.competition-card')
+      .filter({ has: page.getByRole('heading', { name: competition.name, exact: true }) })
+      .getByRole('button', { name: '대회 자세히 보기' })
+      .click();
+    await page.getByRole('button', { name: '설정 수정', exact: true }).click();
+    const editor = page.getByRole('dialog');
+    await expect(editor.getByText('참가 명단을 확인해 주세요', { exact: true })).toBeVisible();
+    await expect(editor.getByRole('alert')).toContainText('반을 옮긴 참가 학생');
+    await expect(editor.getByRole('button', { name: '설정 저장', exact: true })).toBeDisabled();
+    await editor.getByRole('button', { name: '현재 반 참가 명단으로 정리', exact: true }).click();
+    await expect(editor.getByRole('button', { name: '설정 저장', exact: true })).toBeEnabled();
+    await editor.getByRole('button', { name: '설정 저장', exact: true }).click();
+    await expect(editor).toHaveCount(0);
+    const repaired = await request<CompetitionDetailResponse>(
+      master,
+      `/competitions/${competition.id}`,
+    );
+    expect(repaired.competition.participantIds).toEqual([ids[1]]);
+    const learner = await remaining.newPage();
+    await learner.goto('/');
+    await expect(learner.locator('canvas')).toBeVisible();
+    const down = learner.getByRole('button', { name: '터치로 아래쪽 이동', exact: true });
+    await expect(down).toBeEnabled();
+    await down.scrollIntoViewIfNeeded();
+    const touchTargetAvailable = () =>
+      down.evaluate((button) => {
+        const box = button.getBoundingClientRect(),
+          sidebar = document.querySelector('.sidebar')?.getBoundingClientRect();
+        const x = box.x + box.width / 2,
+          y = box.y + box.height / 2;
+        const hit = document.elementFromPoint(x, y);
+        return (
+          box.top >= 0 &&
+          box.bottom <= Math.min(innerHeight, sidebar?.top ?? innerHeight) &&
+          !!hit &&
+          (hit === button || button.contains(hit))
+        );
+      });
+    await expect.poll(touchTargetAvailable).toBe(true);
+    await expect(learner.locator('.competition-event-strip')).toHaveCount(0);
+    await request(master, `/competitions/${competition.id}/action`, 'POST', { action: 'publish' });
+    await expect(learner.locator('.competition-event-strip')).toContainText(competition.name);
+    await expect.poll(touchTargetAvailable).toBe(true);
+    const scrollBefore = await learner.evaluate(() => scrollY);
+    const yBefore = Number(await learner.locator('.game-host').getAttribute('data-y'));
+    const downBox = (await down.boundingBox())!;
+    await learner.mouse.move(downBox.x + downBox.width / 2, downBox.y + downBox.height / 2);
+    await learner.mouse.down();
+    await learner.waitForTimeout(180);
+    await learner.mouse.up();
+    await expect
+      .poll(async () => Number(await learner.locator('.game-host').getAttribute('data-y')))
+      .toBeGreaterThan(yBefore);
+    await learner.keyboard.down('ArrowDown');
+    await learner.waitForTimeout(100);
+    await learner.keyboard.up('ArrowDown');
+    expect(await learner.evaluate(() => scrollY)).toBe(scrollBefore);
+    await learner.screenshot({ path: 'docs/competitions/classroom-event-arrival-390.png' });
+    const project = await request<{ id: string }>(remaining, '/projects', 'POST', {
+      ...emptyProject(),
+      title: '보존해야 하는 임시 출품 프로젝트',
+    });
+    await request(remaining, `/competitions/${competition.id}/entry`, 'PUT', {
+      projectId: project.id,
+      title: '보존해야 하는 임시 출품작',
+      displayName: '명단 검증 메이커',
+      intro: { serviceName: '임시 소개서' },
+      submit: false,
+    });
+    await request(master, `/classes/${nextClass.id}/members`, 'PATCH', { memberIds: ids });
+    await page.reload();
+    await page.getByRole('button', { name: '경진대회', exact: true }).click();
+    await page
+      .locator('.competition-card')
+      .filter({ has: page.getByRole('heading', { name: competition.name, exact: true }) })
+      .getByRole('button', { name: '대회 자세히 보기' })
+      .click();
+    await page.getByRole('button', { name: '설정 수정', exact: true }).click();
+    await expect(page.getByRole('dialog').getByRole('alert')).toContainText(
+      '출품 이력이 있는 대회는 기존 참가자를 제외할 수 없어요',
+    );
+    await expect(
+      page.getByRole('dialog').getByRole('button', { name: '현재 반 참가 명단으로 정리' }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole('dialog').getByRole('button', { name: '설정 저장', exact: true }),
+    ).toBeDisabled();
+    const preserved = await request<CompetitionDetailResponse>(
+      master,
+      `/competitions/${competition.id}`,
+    );
+    expect(preserved.competition.participantIds).toEqual([ids[1]]);
+    expect(preserved.entries).toHaveLength(1);
+    expect(preserved.entries[0].title).toBe('보존해야 하는 임시 출품작');
+  } finally {
+    await Promise.all([master.close(), moved.close(), remaining.close()]);
   }
 });

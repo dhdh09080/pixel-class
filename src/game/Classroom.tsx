@@ -47,6 +47,8 @@ export default function Classroom({
     };
     const observer = new ResizeObserver(schedule);
     if (host.current) observer.observe(host.current);
+    // Live event strips and wrapped toolbar rows shift the host without changing its size.
+    if (container.current) observer.observe(container.current);
     window.addEventListener('scroll', schedule, { capture: true, passive: true });
     window.addEventListener('resize', schedule);
     window.visualViewport?.addEventListener('resize', schedule);

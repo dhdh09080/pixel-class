@@ -205,12 +205,14 @@ function CompetitionEditor({
   competition,
   classes,
   state,
+  participantsLocked = false,
   onClose,
   onSaved,
 }: {
   competition?: Competition;
   classes: SchoolClass[];
   state: AppState;
+  participantsLocked?: boolean;
   onClose: () => void;
   onSaved: (id: string) => Promise<void>;
 }) {
@@ -252,8 +254,15 @@ function CompetitionEditor({
       member.status === 'ACTIVE' &&
       classes.find((c) => c.id === classId)?.memberIds.includes(member.id),
   );
+  const eligibleIds = new Set(students.map((student) => student.id));
+  const unavailableIds = participants.filter((id) => !eligibleIds.has(id));
+  const retainedIds = participantsLocked ? competition?.participantIds || [] : [];
   const save = async () => {
     if (sending.current) return;
+    if (unavailableIds.length) {
+      setError('현재 반의 재학생이 아닌 참가자가 있어요. 아래 참가 명단 안내를 확인해 주세요.');
+      return;
+    }
     sending.current = true;
     setBusy(true);
     setError('');
@@ -383,11 +392,44 @@ function CompetitionEditor({
         </fieldset>
         <fieldset>
           <legend>참가 학생 · {participants.length}명 선택</legend>
+          {unavailableIds.length > 0 && (
+            <InlineNotice title="참가 명단을 확인해 주세요" kind="error">
+              <p>
+                다른 반으로 이동했거나 현재 재학생이 아닌 참가자가 남아 있어요:{' '}
+                {unavailableIds
+                  .map(
+                    (id) =>
+                      state.members.find((member) => member.id === id)?.name || '기존 참가 학생',
+                  )
+                  .join(', ')}
+              </p>
+              {participantsLocked ? (
+                <p>
+                  출품 이력이 있는 대회는 기존 참가자를 제외할 수 없어요. 해당 학생을 원래 반으로
+                  돌리거나 대회를 보관한 뒤 새 대회를 준비해 주세요. 제출 기록은 보존돼요.
+                </p>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() =>
+                    setParticipants((previous) => previous.filter((id) => eligibleIds.has(id)))
+                  }
+                >
+                  현재 반 참가 명단으로 정리
+                </Button>
+              )}
+            </InlineNotice>
+          )}
           <div className="competition-actions">
-            <Button type="button" onClick={() => setParticipants(students.map((s) => s.id))}>
+            <Button
+              type="button"
+              onClick={() =>
+                setParticipants([...new Set([...retainedIds, ...students.map((s) => s.id)])])
+              }
+            >
               이 반 전체 선택
             </Button>
-            <Button type="button" onClick={() => setParticipants([])}>
+            <Button type="button" onClick={() => setParticipants(retainedIds)}>
               선택 해제
             </Button>
           </div>
@@ -397,6 +439,12 @@ function CompetitionEditor({
                 <input
                   type="checkbox"
                   checked={participants.includes(student.id)}
+                  disabled={retainedIds.includes(student.id)}
+                  title={
+                    retainedIds.includes(student.id)
+                      ? '출품 이력이 있는 대회의 기존 참가자는 유지해요.'
+                      : undefined
+                  }
                   onChange={(e) =>
                     setParticipants((previous) =>
                       e.target.checked
@@ -412,6 +460,11 @@ function CompetitionEditor({
               <p className="competition-note">먼저 반 구성에서 학생을 배정해 주세요.</p>
             )}
           </div>
+          {participantsLocked && (
+            <p className="competition-note">
+              출품 이력이 있어 기존 참가자를 유지해요. 현재 반의 재학생을 추가로 선택할 수 있어요.
+            </p>
+          )}
         </fieldset>
         <fieldset>
           <legend>공개 범위와 심사</legend>
@@ -490,7 +543,7 @@ function CompetitionEditor({
             type="submit"
             variant="primary"
             busy={busy}
-            disabled={!classId || !participants.length}
+            disabled={!classId || !participants.length || unavailableIds.length > 0}
           >
             {competition ? '설정 저장' : '준비 상태로 만들기'}
           </Button>
@@ -1652,6 +1705,9 @@ export function CompetitionsPage({ state, onToast, onRefresh }: Props) {
         <CompetitionEditor
           key={editing === 'new' ? 'new' : editing.id}
           competition={editing === 'new' ? undefined : editing}
+          participantsLocked={
+            editing !== 'new' && detail?.competition.id === editing.id && !!detail.entries.length
+          }
           classes={list.classes}
           state={state}
           onClose={() => setEditing(null)}
