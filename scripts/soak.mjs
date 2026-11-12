@@ -9,7 +9,9 @@ import { emptyProject } from '../shared/types.ts';
 
 // Dedicated disposable private server. No existing school database or external endpoint is used.
 const duration = Number(process.env.SOAK_SECONDS || 600);
-assert.ok(Number.isFinite(duration) && duration >= 60 && duration <= 3600);
+assert.ok(Number.isFinite(duration) && duration >= 60 && duration <= 7200);
+const pauseBetween = Number(process.env.SOAK_PAUSE_MS || 8000);
+assert.ok(Number.isFinite(pauseBetween) && pauseBetween >= 100 && pauseBetween <= 60000);
 const dir = mkdtempSync(join(tmpdir(), 'pixel-v03-soak-'));
 const base = 'http://127.0.0.1:3020';
 const key = randomBytes(32).toString('hex');
@@ -22,7 +24,8 @@ const report = {
     execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
   ),
   requestedSeconds: duration,
-  kind: '6 real Chromium contexts; private local server; not 30-browser or multi-hour production certification',
+  pauseBetweenRoundsMs: pauseBetween,
+  kind: '6 real Chromium contexts; disposable local private school; not Internet or production certification',
   checkpoints: [],
   errors: [],
   socketOpened: 0,
@@ -30,6 +33,9 @@ const report = {
   movementFrames: 0,
   rounds: 0,
   restartVerified: false,
+  networkRecoveries: 0,
+  uploadCycles: 0,
+  verifiedBackupCycles: 0,
   passed: false,
 };
 let child, browser;
@@ -107,6 +113,7 @@ async function checkpoint(label) {
     serverSockets: { ...serverSockets },
     browserSocketCloseEventsMayBeLostOnNavigation: report.socketOpened - report.socketClosed,
     rounds: report.rounds,
+    runtime: (await request(contexts[0], '/operations')).runtime,
   };
   report.checkpoints.push(point);
   console.log(JSON.stringify(point));
@@ -195,6 +202,9 @@ try {
   began = Date.now();
   report.warmupCompletedAt = new Date().toISOString();
   await checkpoint('warm');
+  const initialBackup = await request(contexts[0], '/operations/backup', {});
+  assert.equal(initialBackup.backup.state, 'verified');
+  report.verifiedBackupCycles++;
   let restarted = false;
   while ((Date.now() - began) / 1000 < duration) {
     const elapsed = (Date.now() - began) / 1000;
@@ -213,6 +223,42 @@ try {
     }
     const index = 1 + (report.rounds % 5),
       page = pages[index];
+    if (report.rounds > 0 && report.rounds % 10 === 0) {
+      await contexts[index].setOffline(true);
+      await pause(1200);
+      await contexts[index].setOffline(false);
+      await expect
+        .poll(async () => (await request(contexts[0], '/state')).online.length, { timeout: 15000 })
+        .toBe(6);
+      await expect.poll(() => serverSockets.active, { timeout: 15000 }).toBe(6);
+      report.networkRecoveries++;
+    }
+    if (report.rounds > 0 && report.rounds % 20 === 0) {
+      const file = await request(contexts[1], `/projects/${owner.id}/attachments`, {
+        fileName: 'cycle.txt',
+        content: Buffer.from('upload-cycle-' + report.rounds).toString('base64'),
+      });
+      const download = await contexts[1].request.get(
+        base + `/api/projects/${owner.id}/attachments/${file.id}`,
+      );
+      assert.equal(download.status(), 200);
+      assert.equal((await download.body()).toString(), 'upload-cycle-' + report.rounds);
+      await request(
+        contexts[1],
+        `/projects/${owner.id}/attachments/${file.id}`,
+        undefined,
+        'DELETE',
+      );
+      report.uploadCycles++;
+    }
+    if (report.rounds > 0 && report.rounds % 30 === 0) {
+      const snapshot = await request(contexts[0], '/operations/backup', {});
+      assert.equal(snapshot.backup.state, 'verified');
+      report.verifiedBackupCycles++;
+      await request(contexts[index], '/messages', {
+        text: '장시간 교실 연결 확인 ' + report.rounds,
+      });
+    }
     if (report.rounds % 3 === 0) {
       await page.getByRole('button', { name: '내 프로젝트', exact: true }).click();
       await expect(page.getByRole('heading', { name: '나의 프로젝트', exact: true })).toBeVisible();
@@ -240,7 +286,7 @@ try {
     );
     report.rounds++;
     if (report.rounds % 3 === 0) await checkpoint('round-' + report.rounds);
-    await pause(8000);
+    await pause(pauseBetween);
   }
   await checkpoint('final');
   assert.equal(report.errors.length, 0);
