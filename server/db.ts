@@ -31,9 +31,9 @@ export function hashPassword(password: string) {
   const salt = randomBytes(16).toString('hex');
   return `${salt}:${scryptSync(password, salt, 64).toString('hex')}`;
 }
+const userByIdQuery = db.prepare('SELECT body FROM users WHERE id=?');
 export function userById(userId: string): Member | undefined {
-  const row = db.prepare('SELECT body FROM users WHERE id=?').get(userId) as
-    { body: string } | undefined;
+  const row = userByIdQuery.get(userId) as { body: string } | undefined;
   return row ? JSON.parse(row.body) : undefined;
 }
 export function members(schoolId: string): Member[] {

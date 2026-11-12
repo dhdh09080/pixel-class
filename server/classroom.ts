@@ -1,9 +1,9 @@
 import { get, list, put, members, id } from './db.js';
 import type { Desk, Member } from '../shared/types.js';
 import { worldSize, nextDeskSlot, type WorldSize } from '../shared/world.js';
-export function roomSize(schoolId: string): WorldSize {
+export function roomSize(schoolId: string, desks = list<Desk>('desk', schoolId)): WorldSize {
   const saved = get<WorldSize>('classroom', `room-${schoolId}`, schoolId);
-  const next = worldSize(list<Desk>('desk', schoolId), saved);
+  const next = worldSize(desks, saved);
   if (!saved || saved.height !== next.height)
     put('classroom', { id: `room-${schoolId}`, ...next }, schoolId);
   return next;
