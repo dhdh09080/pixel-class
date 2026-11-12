@@ -2,11 +2,11 @@
 
 **기존 학교를 보존한 운영 후보를 구현·검증했다. 실제 새 버전 배포는 완료되지 않았다.**
 
-작업 시작2026-11-11 22:59 UTC /2026-11-12 07:59 KST. 실제 코드 변경과 반복 QA를 수행했으며 약4시간 예산의 일부를 사용했다. 최종 정리 시각과 GitHub/main 상태는 아래 기록을 따른다.
+작업 시작2026-11-11 22:59 UTC /2026-11-12 07:59 KST. 실제 코드 변경과 반복 QA를 수행했으며 약4시간 예산의 일부를 사용했다. 최종 상태 기록은2026-11-12 01시대 UTC이며 약2시간대의 개발·검증을 수행했다. 종료 기준C: 새 배포의 승인과 외부 연결 차단으로 핵심 후속 검증이 더 진행되지 않아, 가능한 코드/자동 검증과 배포 대기 준비를 완료하고 운영 제한을 남긴다.
 
 ## 코드와 검증
 
-저장소 `dhdh09080/pixel-class`, 작업 브랜치 `feature/pixel-class-production-quality`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13).
+저장소 `dhdh09080/pixel-class`, 작업 브랜치 `feature/pixel-class-production-quality`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13) **main 병합 완료**. 검증 head `fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`, main 코드 병합 `ad4d62f032f6636a476f20b6e8429d741fbd68af`이며 두 Git 트리의 일치도 확인했다. 상태 문서와 마지막 캡처는 런타임 변경 없는 후속 main 커밋으로 기록한다.
 
 - `b5b1c70`: 반별 대회·독립 KEY 심사·안전한 HTML·버전/평균 집계·보안 회귀.
 - `3d0ecbf`:60×80 도트와 직업별 옷장. 기존 외모 ID와 게임 크기 보존.
@@ -15,9 +15,13 @@
 - `94cea89`: 실제 사설 HTTPS/Volume의 외부 심사와 점수 복구 검사.
 - `441bb16`: 반 이동 명단 복구·모바일 실시간 행사 도착 후 터치 이동·발표 시각 검사.
 
-- **`2359d1b67dc2fddfde540bb06c656a7cae07e478`**: 인증 뒤의 게임 JS/CSS 압축·경로별 캐시 격리·8개 실제 HTTP 회귀.
+- `2359d1b`: 인증 뒤의 게임 JS/CSS 압축·경로별 캐시 격리·8개 실제 HTTP 회귀.
 
-[CI #43128330692](https://github.com/dhdh09080/pixel-class/actions/runs/43128330692) **169/169 성공**: 서버119·브라우저48·Compose1·Railway 운영 프로필1. 원본 Dockerfile 전체 빌드도 성공했다. 문서/캡처 후속 커밋은 런타임 코드를 바꾸지 않는다. [검증 상세](PRODUCTION_TEST_REPORT.md), [코드 변경](PRODUCTION_IMPROVEMENTS.md).
+- **`fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`**: 공식 심사표 명칭·설명을 실용성/활용성/완성도/창의성으로 통일. 배점·API 필드·저장 형식은 유지.
+
+[CI #43130365405](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405) **169/169 성공**: 서버119·브라우저48·Compose1·Railway 운영 프로필1. 원본 Dockerfile 전체 빌드도 성공했다. 문서/캡처 후속 커밋은 런타임 코드를 바꾸지 않는다. [검증 상세](PRODUCTION_TEST_REPORT.md), [코드 변경](PRODUCTION_IMPROVEMENTS.md).
+
+최종 읽기 전용 독립 검토에서 코드와 보고서의 P0/P1 또는 허위 완료 주장은 발견되지 않았다. 이는 미검증 운영 항목을 통과로 바꾸는 판단은 아니다. [검토 범위](docs/production/independent-review.json).
 
 ## 주요 결과
 
@@ -36,7 +40,7 @@
 - **실제 실행 소스 `67f84b5d957ca6eed65745b73400adbf3bc0ef00`**, 배포 `fb44aa92-27bc-411d-83ad-8954010861cc`, 플랫폼 `SUCCESS` 확인.
 - 기존 `school-data`500MB Volume `/app/data`, SQLite WAL, 단일 Express/WebSocket·HTTPS 프록시를 유지했다. 계정·DB·볼륨·비밀 변수를 초기화하거나 재생성하지 않았다.
 - Supabase Auth/Postgres/Storage/Realtime 전환은 하지 않았다. 현재 작은 비공개 학교와 기존 자료 보존에는 검증된 단일 SQLite 서버가 적합하며, 다른 인증/DB로 동시에 옮기는 위험을 추가하지 않았다.
-- 최신 기준 소스 적용 요청은 자동 승인 검토에서 **“사용자가 승인하지 않음”으로 취소**되었다. 다른 API로 우회하지 않았다. 현재 대기 소스와 최종 main 상태는 `STATUS.md`에 갱신한다.
+- 최신 기준 소스 적용 요청은 자동 승인 검토에서 **“사용자가 승인하지 않음”으로 취소**되었다. 다른 API로 우회하지 않았다. 기존 patch의 대기 소스를 main 병합 `ad4d62f`로 갱신하고 destructive:false·소스 커밋만 실질 변경·Volume/17개 변수/시작 명령 보존을 재확인했다. **적용하지 않았으므로 실제 소스는 그대로다.** [최종 플랫폼 기록](docs/production/railway-release-state.json).
 - Cloud의 직접 Railway HTTPS/WSS는 CONNECT403. 기존 플랫폼 상태와 로컬/CI 운영 검증을 실제 외부 두 PC 인수로 간주하지 않는다. 현재 원격 DB 파일/최신 백업 일관성도 직접 확인하지 못했다.
 
 ## AI와 비용

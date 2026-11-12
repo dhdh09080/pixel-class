@@ -1,6 +1,6 @@
 # 경진대회 검증 보고서
 
-검증 코드 `2359d1b67dc2fddfde540bb06c656a7cae07e478`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13). [GitHub CI #43128330692](https://github.com/dhdh09080/pixel-class/actions/runs/43128330692)에서 기존 회귀와 신규 검사를 포함한169개가 통과했다. PR의 `live` 잡은 조건에 따라 건너뛰었으며 외부 배포 검증으로 해석하지 않는다.
+검증 코드 `fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13). [GitHub CI #43130365405](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405)에서 기존 회귀와 신규 검사를 포함한169개가 통과했다. PR의 `live` 잡은 조건에 따라 건너뛰었으며 외부 배포 검증으로 해석하지 않는다.
 
 ## 신규 자동 검증
 

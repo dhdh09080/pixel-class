@@ -1,13 +1,13 @@
 {
-  "checkedAt": "2026-11-12T00:40:31.234Z",
+  "checkedAt": "2026-11-12T00:52:28.799Z",
   "environment": "isolated Docker Railway profile, real volume and HTTPS gate; not the internet deployment",
   "publicEntrance": 200,
   "rewrittenAssets": 3,
   "compressedAssets": [
     {
-      "asset": "/competition-assets/index-4ku89bmN.js",
+      "asset": "/competition-assets/index-qIKfWmUn.js",
       "identityBytes": 392596,
-      "brBytes": 118966,
+      "brBytes": 118961,
       "gzipBytes": 118789
     },
     {

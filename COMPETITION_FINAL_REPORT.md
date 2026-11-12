@@ -1,6 +1,6 @@
 # 반별 AI 서비스 경진대회 최종 보고
 
-검증 코드 `2359d1b`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13). 반·대회·학생 제출·안전한 HTML·외부 KEY 심사·평균 순위·결과 공개·교실 행사를 기존 SQLite 학교에 추가했다. **현재 실제 Railway 실행 코드는 기존 `67f84b5`이며 새 대회 기능을 배포 완료로 보고하지 않는다.** 최종 플랫폼 적용 상태는 `STATUS.md`가 기준이다.
+검증 코드 `fc4afc1`, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13). 반·대회·학생 제출·안전한 HTML·외부 KEY 심사·평균 순위·결과 공개·교실 행사를 기존 SQLite 학교에 추가했다. **현재 실제 Railway 실행 코드는 기존 `67f84b5`이며 새 대회 기능을 배포 완료로 보고하지 않는다.** PR #13은 main `ad4d62f`로 병합했으며 같은 소스를 Railway 대기로 고정했다. 실제 적용은 하지 않았다. 최종 플랫폼 상태는 `STATUS.md`가 기준이다.
 
 ## 제공 기능
 

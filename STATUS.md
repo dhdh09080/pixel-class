@@ -1,6 +1,6 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-검증 코드 **`2359d1b67dc2fddfde540bb06c656a7cae07e478`**, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13), [CI169개 성공](https://github.com/dhdh09080/pixel-class/actions/runs/43128330692). 서버119·브라우저48·Compose1·Railway 운영 프로필1을 확인했습니다. 새 기능 구현과 실제 서비스 적용은 구분합니다.
+검증 코드 **`fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`**, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13), [CI169개 성공](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405). 서버119·브라우저48·Compose1·Railway 운영 프로필1을 확인했습니다. 새 기능 구현과 실제 서비스 적용은 구분합니다.
 
 ## 실제 배포와 데이터
 
@@ -9,10 +9,10 @@
 - 기존500MB `school-data` Volume `/app/data`, SQLite WAL·Express/WebSocket 단일 인스턴스를 유지합니다. 계정·사용자 자료·비밀 변수·볼륨을 삭제/초기화/재생성하지 않았습니다.
 - Supabase 연결/전환 없음. 원격 DB 파일과 최신 백업 일관성은 직접 미검증이며, 로컬 및 CI의 재생성·백업·복원은 검증했습니다.
 - 새 배포 적용은 자동 승인 검토가 “사용자가 승인하지 않음”으로 취소했습니다. 다른 API로 우회하지 않습니다. 현재 Cloud의 직접 HTTPS/WSS는 CONNECT403이라 외부 두 PC 인수도 미완료입니다.
-- 최종 main/대기 소스: 검증 코드2359d1b가 PR #13에 있습니다. main 병합과 최종 대기 소스는 최종 플랫폼 재조회 후 기록합니다.
+- 최종 main 코드 병합 **`ad4d62f032f6636a476f20b6e8429d741fbd68af`**, 검증 head **`fc4afc1`**, PR #13 병합 완료. Railway 대기 소스도 **`ad4d62f`**로 고정했습니다. 대기 patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`의 실질 변경은 소스 커밋1개이며 destructive:false입니다.17개 변수·기존 Volume·시작 명령은 그대로이고 적용은 실행하지 않았습니다. 이후 main의 상태 문서/캡처 기록 커밋은 런타임 변경이 없습니다. [플랫폼 최종 기록](docs/production/railway-release-state.json).
 - OpenAI 키/모델 없음·AI 비활성. 실제 모델 품질/과금 검증은 미실행이며 연결 시 학교 하루3회·동시1회부터 시험합니다.
 
-## 검증된 후보의 기능
+## main에 반영한 기능
 
 - 기존 학생 입학·캐릭터·책상·프로젝트·교안·과제·질문·피드백·개인 알림·계정 복구를 보존합니다.
 - 실제60×80 정수 도트와 헤어18·눈10·피부8·눈 색12·모자15·의상25·직업 코디17종. 성별 제한 없이 조합하며 기존 외모 ID/게임 크기와 얼굴·피부 보존을 검사했습니다.

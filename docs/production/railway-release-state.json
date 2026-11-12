@@ -1,0 +1,179 @@
+{
+  "checkedAt": "2026-11-12T01:03:11.254Z",
+  "github": {
+    "pullRequest": "https://github.com/dhdh09080/pixel-class/pull/13",
+    "testedHead": "fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de",
+    "mergedMain": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+    "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/43130365405"
+  },
+  "liveDeployment": {
+    "id": "fb44aa92-27bc-411d-83ad-8954010861cc",
+    "status": "SUCCESS",
+    "createdAt": "2026-11-10T06:57:26.397Z",
+    "url": null
+  },
+  "liveSource": "67f84b5d957ca6eed65745b73400adbf3bc0ef00",
+  "pendingSource": {
+    "repo": "dhdh09080/pixel-class",
+    "branch": "main",
+    "commitSha": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+    "image": null
+  },
+  "stagedChanges": {
+    "project": {
+      "id": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+      "name": "pixel-class"
+    },
+    "environment": {
+      "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "name": "private-test"
+    },
+    "staged": {
+      "patchId": "94f0b81b-cc4b-4d2a-b863-c40682e872b9",
+      "status": "STAGED",
+      "changeCount": 4,
+      "message": null,
+      "createdAt": "2026-11-10T08:30:15.111Z",
+      "updatedAt": "2026-11-12T01:02:42.220Z"
+    },
+    "destructive": false,
+    "resources": [
+      {
+        "kind": "service",
+        "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+        "name": "pixel-class",
+        "action": "update",
+        "changes": [
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.branch",
+            "displayName": "Branch",
+            "type": "updated",
+            "from": "main",
+            "to": "main",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.commitSha",
+            "displayName": "Commit Sha",
+            "type": "updated",
+            "from": "67f84b5d957ca6eed65745b73400adbf3bc0ef00",
+            "to": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.image",
+            "displayName": "Image",
+            "type": "removed",
+            "from": "",
+            "to": "",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.repo",
+            "displayName": "Repo",
+            "type": "updated",
+            "from": "dhdh09080/pixel-class",
+            "to": "dhdh09080/pixel-class",
+            "destructive": false
+          }
+        ]
+      }
+    ],
+    "sharedVariables": [],
+    "privateNetworkDisabled": null
+  },
+  "volumes": [
+    {
+      "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+      "name": "school-data",
+      "mountPath": "/app/data",
+      "sizeMB": 500,
+      "region": "sfo",
+      "state": "live"
+    }
+  ],
+  "variableNames": [
+    "AI_ENABLED",
+    "AI_MAX_CONCURRENT",
+    "AI_SCHOOL_DAILY_CALLS",
+    "COOKIE_SECURE",
+    "DATABASE_MODE",
+    "DATABASE_PATH",
+    "DEMO_MODE",
+    "HOST",
+    "MASTER_BOOTSTRAP_KEY",
+    "NODE_ENV",
+    "PIXEL_RUNTIME",
+    "PORT",
+    "PUBLIC_ORIGIN",
+    "RAILWAY_DOCKERFILE_PATH",
+    "RAILWAY_RUN_UID",
+    "STAGING_ACCESS_KEY",
+    "TRUST_PROXY_HOPS"
+  ],
+  "environment": {
+    "environment": {
+      "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "name": "private-test"
+    },
+    "services": [
+      {
+        "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+        "serviceName": "pixel-class",
+        "state": "online",
+        "statusText": "Online",
+        "activeDeployments": [
+          {
+            "id": "fb44aa92-27bc-411d-83ad-8954010861cc",
+            "status": "SUCCESS",
+            "createdAt": "2026-11-10T06:57:26.397Z",
+            "statusUpdatedAt": "2026-11-10T06:57:51.588Z"
+          }
+        ],
+        "replicaStatus": {
+          "running": 1,
+          "crashed": 0,
+          "total": 1
+        },
+        "cronJob": null,
+        "issues": {
+          "warningCount": 0,
+          "criticalCount": 0
+        },
+        "recentFailures": 0,
+        "recentFailedDeployments": [],
+        "hasIssues": false,
+        "isCronJob": false,
+        "hasVolume": true
+      }
+    ],
+    "pendingWork": [
+      {
+        "id": "patch:94f0b81b-cc4b-4d2a-b863-c40682e872b9",
+        "kind": "EnvironmentPatch",
+        "status": "staged",
+        "changes": [
+          {
+            "kind": "resource.update",
+            "address": "service.a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+            "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7"
+          }
+        ],
+        "startedAt": "2026-11-10T08:30:15.111Z",
+        "workflowId": "commitChanges/3a0dc4b5-3a92-4478-92e7-8a0927b1f09e/94f0b81b-cc4b-4d2a-b863-c40682e872b9"
+      }
+    ],
+    "summary": {
+      "totalServices": 1,
+      "servicesWithIssues": 0,
+      "totalFailures": 0
+    }
+  },
+  "applied": false,
+  "externalNewReleaseVerified": false,
+  "blockers": [
+    "Deployment apply request cancelled by automatic approval review: user did not approve this action. No retry or alternate path.",
+    "Cloud direct HTTPS/WSS CONNECT403; no proxy bypass attempted.",
+    "Remote current backup consistency and real external owner/student acceptance not verified."
+  ]
+}

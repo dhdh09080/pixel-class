@@ -1,11 +1,11 @@
 {
-  "capturedAt": "2026-11-12T00:41:52.469Z",
+  "capturedAt": "2026-11-12T00:53:32.167Z",
   "kind": "Two isolated Docker network clients; not physical computers or internet deployment",
   "results": [
     {
       "ok": true,
       "role": "MASTER",
-      "clientAddress": "172.18.0.5",
+      "clientAddress": "172.18.0.4",
       "httpsChainVerified": true,
       "wss": true,
       "externalDeployment": false
@@ -13,7 +13,7 @@
     {
       "ok": true,
       "role": "STUDENT",
-      "clientAddress": "172.18.0.4",
+      "clientAddress": "172.18.0.5",
       "httpsChainVerified": true,
       "wss": true,
       "externalDeployment": false

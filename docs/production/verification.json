@@ -1,6 +1,6 @@
 {
-  "completedAt": "2026-11-12T00:48:52.849260+00:00",
-  "sourceCommit": "2359d1b67dc2fddfde540bb06c656a7cae07e478",
+  "completedAt": "2026-11-12T01:04:00.969303+00:00",
+  "sourceCommit": "fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de",
   "checks": {
     "server": {
       "passed": 119,
@@ -9,7 +9,7 @@
     "browser": {
       "passed": 48,
       "failed": 0,
-      "evidence": "Clean latest-code local run:48 passed (7.4m); latest CI48 passed"
+      "evidence": "Final fc4afc1 CI48 passed; local full2359d1b48 passed (7.4m), final rubric3 passed (57.3s)"
     },
     "railwayProfile": {
       "passed": 1,
@@ -23,14 +23,22 @@
     "format": {
       "passed": true,
       "scope": "Final documentation and captures; local npm run format:check"
+    },
+    "rubricFollowup": {
+      "browserPassed": 3,
+      "railwayPassed": 1,
+      "composePassed": 1,
+      "includedInCi169": true
     }
   },
-  "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/43128330692",
+  "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/43130365405",
   "preservedHistoricalArtifacts": 13,
   "externalDeploymentVerified": false,
   "limitations": [
     "Cloud ENOSPC failures are documented; clean full browser rerun passed",
     "Local Docker verified all 40 runtime sources plus built client (51 files); identical dependency base; CI builds original full Dockerfile",
     "Actual Railway deploy blocked by approval review; direct HTTPS/WSS CONNECT403"
-  ]
+  ],
+  "mergedMain": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+  "stagedSourceCommit": "ad4d62f032f6636a476f20b6e8429d741fbd68af"
 }

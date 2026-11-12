@@ -1,8 +1,8 @@
 # Pixel Class v0.6
 
-> **운영 품질·반별 경진대회 후보 — [PR #13](https://github.com/dhdh09080/pixel-class/pull/13)**
+> **운영 품질·반별 경진대회 main 반영 — [PR #13](https://github.com/dhdh09080/pixel-class/pull/13)**
 >
-> 실제 운영 코드는 Railway의 기존 `67f84b5`입니다. 새 경진대회·아바타는 저장소의 검증 후보이며 실제 배포와 구분합니다. [최종 보고서](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [검증 현황](STATUS.md)
+> 실제 운영 코드는 Railway의 기존 `67f84b5`입니다. 새 경진대회·아바타는 main에 병합했고 Railway에는 검증된 소스만 대기로 준비했습니다. 실제 적용은 승인 대기입니다. [최종 보고서](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [검증 현황](STATUS.md)
 
 **Learn AI. Build Your Own Service.**
 
