@@ -12,6 +12,8 @@
 - main 코드 병합 `ad4d62f`가 실제 Railway에 적용됐습니다. 기존500MB Volume·17개 변수·일반 시작 명령을 유지합니다. [새 플랫폼 기록](docs/production/live/platform-deployment.json) · [브라우저 접속 시도](docs/production/live/browser-reachability.json).
 - OpenAI 키/모델 없음·AI 비활성. 실제 모델 품질/과금 검증은 미실행이며 연결 시 학교 하루3회·동시1회부터 시험합니다.
 
+추가 외부 검사: [GitHub CI43250333509](https://github.com/dhdh09080/pixel-class/actions/runs/43250333509), 검증 소스6528e67에서 기존169개 회귀와 live 검사 모두 성공했습니다. 실제 주소의 HTTPS health·새 공개 대회 shell200·익명 학교/로그인 API401·익명 WSS handshake401을 확인했습니다. **정상 계정 로그인과 인증된 WSS101은 미검증**입니다. CI에 사용자 자격정보를 전달하거나 운영 자료를 쓰지 않았습니다. [범위 기록](docs/production/live/external-ci.json).
+
 ## main에 반영한 기능
 
 - 기존 학생 입학·캐릭터·책상·프로젝트·교안·과제·질문·피드백·개인 알림·계정 복구를 보존합니다.

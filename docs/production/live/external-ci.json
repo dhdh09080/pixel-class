@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-11-12T15:51:32.598Z",
+  "testedCommit": "6528e67f0a2df2347fb218206cc42d316990efbd",
+  "ci": "https://github.com/dhdh09080/pixel-class/actions/runs/43250333509",
+  "conclusion": "success",
+  "executionEnvironment": "GitHub Actions; separate from the network-restricted Codex executor",
+  "externalChecks": {
+    "httpsHealth": true,
+    "privateEntrance401": true,
+    "anonymousSchoolApis401": true,
+    "foreignOrigin403": true,
+    "incorrectAccessCode401": true,
+    "anonymousLoginApi401": true,
+    "anonymousWssHandshake401": true,
+    "newCompetitionShell200": true
+  },
+  "authenticatedLoginVerified": false,
+  "authenticatedWss101Verified": false,
+  "existingRegressionTests": 169,
+  "limitations": [
+    "Codex runtime network settings cannot be changed with currently available tools.",
+    "Authenticated external account acceptance is still blocked; no owner credentials or school records were passed to this CI."
+  ]
+}
