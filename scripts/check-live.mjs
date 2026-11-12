@@ -6,11 +6,20 @@ import { verifyPublicRelease } from './public-release-check.mjs';
 // Non-destructive checks: no accounts, invitations or school content are written.
 const base = 'https://pixel-class-private-test.up.railway.app';
 const release = process.env.EXPECTED_RELEASE || '0.6.0';
+const expectedCommit = process.env.EXPECTED_COMMIT;
+assert.ok(
+  !expectedCommit || /^[a-f0-9]{40}$/.test(expectedCommit),
+  'Expected commit must be a full SHA.',
+);
 let ready = false;
 for (let i = 0; i < 60; i++) {
   try {
     const response = await fetch(base + '/api/health', { signal: AbortSignal.timeout(10000) });
-    if (response.ok && response.headers.get('x-pixel-class-release') === release) {
+    if (
+      response.ok &&
+      response.headers.get('x-pixel-class-release') === release &&
+      (!expectedCommit || response.headers.get('x-pixel-class-commit') === expectedCommit)
+    ) {
       assert.deepEqual(await response.json(), { ok: true });
       ready = true;
       break;
@@ -115,6 +124,7 @@ console.log(
     ok: true,
     url: base,
     release,
+    expectedCommit: expectedCommit || null,
     checks: [
       'HTTPS health',
       'guided entrance',

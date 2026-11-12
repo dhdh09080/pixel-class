@@ -1194,6 +1194,8 @@ app.post('/api/events/:id/read', (req, res) => {
 });
 app.get('/api/health', (_req, res) => {
   db.prepare('SELECT 1').get();
+  const commit = process.env.RAILWAY_GIT_COMMIT_SHA;
+  if (/^[a-f0-9]{40}$/.test(commit || '')) res.setHeader('X-Pixel-Class-Commit', commit!);
   res.json(railway ? { ok: true } : { ok: true, storage: 'sqlite', demo });
 });
 app.use('/api', (_req, res) => res.status(404).json({ error: '요청한 기능을 찾을 수 없습니다.' }));

@@ -75,6 +75,7 @@ before(async () => {
         AUTO_BACKUP: 'false',
         PIXEL_RUNTIME: '',
         RAILWAY_PROJECT_ID: '',
+        RAILWAY_GIT_COMMIT_SHA: '1234567890abcdef1234567890abcdef12345678',
       },
       stdio: 'ignore',
     },
@@ -247,6 +248,8 @@ test('HTML, health/auth APIs and user-facing errors remain uncompressed and auth
     const r = await raw(path, 'br, gzip');
     assert.equal(r.status, status);
     assert.equal(r.headers['content-encoding'], undefined);
+    if (path === '/api/health')
+      assert.equal(r.headers['x-pixel-class-commit'], '1234567890abcdef1234567890abcdef12345678');
   }
 });
 test('simultaneous cold clients receive one stable encoded representation', async () => {

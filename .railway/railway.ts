@@ -5,7 +5,11 @@ export const partial = 'pixel-class';
 export default defineRailway(() => {
   const data = volume('school-data', { sizeMB: 500 });
   const app = service('pixel-class', {
-    source: github('dhdh09080/pixel-class', { branch: 'main', checkSuites: true }),
+    // main CI publishes this branch only after the full verification job passes.
+    source: github('dhdh09080/pixel-class', {
+      branch: 'deploy/railway-verified',
+      checkSuites: false,
+    }),
     build: { builder: 'DOCKERFILE', dockerfilePath: 'Dockerfile' },
     replicas: 1,
     cdn: { enabled: false },
