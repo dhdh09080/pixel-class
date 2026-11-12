@@ -118,6 +118,57 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
             );
             expect(assets.length).toBeGreaterThan(1);
             for (const asset of assets) expect((await anonymous.get(asset)).status()).toBe(200);
+            const compression: {
+              asset: string;
+              identityBytes: number;
+              brBytes: number;
+              gzipBytes: number;
+            }[] = [];
+            for (const asset of assets.filter((asset) => /\.(?:js|css)$/.test(asset))) {
+              const identityResponse = await anonymous.get(asset, {
+                  headers: { 'Accept-Encoding': 'identity' },
+                }),
+                identity = await identityResponse.body();
+              const wire: { br: number; gzip: number } = { br: 0, gzip: 0 };
+              for (const encoding of ['br', 'gzip'] as const) {
+                const encoded = await anonymous.get(asset, {
+                  headers: { 'Accept-Encoding': encoding },
+                });
+                expect(encoded.status()).toBe(200);
+                expect(encoded.headers()['content-encoding']).toBe(encoding);
+                expect(encoded.headers().vary).toMatch(/Accept-Encoding/i);
+                expect(await encoded.body()).toEqual(identity);
+                wire[encoding] = Number(encoded.headers()['content-length']);
+                expect(wire[encoding]).toBeGreaterThan(0);
+                expect(wire[encoding]).toBeLessThan(identity.length);
+              }
+              const privatePath = asset.replace('/competition-assets/', '/assets/');
+              const privateBr = await perimeter.get(privatePath, {
+                headers: { 'Accept-Encoding': 'br' },
+              });
+              expect(privateBr.status()).toBe(200);
+              expect(privateBr.headers()['content-encoding']).toBe('br');
+              expect(
+                (
+                  await perimeter.get(privatePath, {
+                    headers: { 'Accept-Encoding': 'br', 'If-None-Match': privateBr.headers().etag },
+                  })
+                ).status(),
+              ).toBe(304);
+              expect(
+                (
+                  await anonymous.get(privatePath, {
+                    headers: { 'Accept-Encoding': 'br', 'If-None-Match': privateBr.headers().etag },
+                  })
+                ).status(),
+              ).toBe(401);
+              compression.push({
+                asset,
+                identityBytes: identity.length,
+                brBytes: wire.br,
+                gzipBytes: wire.gzip,
+              });
+            }
             const publicContext = await browser.newContext({ baseURL: base });
             contexts.push(publicContext);
             const publicPage = await publicContext.newPage();
@@ -150,6 +201,7 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
                     'isolated Docker Railway profile, real volume and HTTPS gate; not the internet deployment',
                   publicEntrance: entrance.status(),
                   rewrittenAssets: assets.length,
+                  compressedAssets: compression,
                   lazyComponentLoaded: true,
                   privateRequests,
                   failedAssets,

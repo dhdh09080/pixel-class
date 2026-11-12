@@ -29,6 +29,7 @@ import {
   isPublicCompetitionRequest,
 } from './competitions.js';
 import { publicCompetitionAsset } from './competition-domain.js';
+import { staticAssetHandlers } from './static-assets.js';
 import { CapacityError, assertUploadCapacity, scheduleBackups } from './operations.js';
 import { roomSize, allocateDesk } from './classroom.js';
 import express, { type Request, type Response, type NextFunction } from 'express';
@@ -1197,21 +1198,19 @@ app.get('/api/health', (_req, res) => {
 });
 app.use('/api', (_req, res) => res.status(404).json({ error: '요청한 기능을 찾을 수 없습니다.' }));
 if (process.env.NODE_ENV === 'production') {
-  const publicBundleCache = new Map<string, string>();
+  const compressedAssets = staticAssetHandlers(resolve('dist/assets'), publicCompetitionAsset);
+  app.get('/assets/:asset', (req, res, next) => {
+    if (!/\.(?:js|css)$/.test(String(req.params.asset))) return next();
+    return compressedAssets.privateAsset(req, res, next);
+  });
   // Only this public bundle prefix bypasses the entrance, never school APIs or /assets.
-  app.get('/competition-assets/:asset', (req, res) => {
+  app.get('/competition-assets/:asset', (req, res, next) => {
     if (!isPublicCompetitionRequest('GET', req.path)) return res.status(404).end();
-    const asset = String(req.params.asset),
-      file = resolve('dist/assets', asset);
+    const asset = String(req.params.asset);
+    if (asset.endsWith('.js') || asset.endsWith('.css'))
+      return compressedAssets.publicAsset(req, res, next);
+    const file = resolve('dist/assets', asset);
     if (!existsSync(file)) return res.status(404).end();
-    if (asset.endsWith('.js') || asset.endsWith('.css')) {
-      let body = publicBundleCache.get(asset);
-      if (!body) {
-        body = publicCompetitionAsset(readFileSync(file, 'utf8'));
-        publicBundleCache.set(asset, body);
-      }
-      return res.type(asset.endsWith('.js') ? 'application/javascript' : 'text/css').send(body);
-    }
     return res.sendFile(file);
   });
   app.get('/competition/:id', (req, res, next) => {
