@@ -47,6 +47,49 @@ test('backup and restore reject overwrite, same-path targets and invalid databas
     rmSync(dir, { force: true, recursive: true });
   }
 });
+test('restore revokes historical admission KEYs without deleting their audit history or mutating the source', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pixel-admission-restore-'));
+  const source = join(dir, 'source.sqlite'),
+    snapshot = join(dir, 'snapshot.sqlite'),
+    restored = join(dir, 'restored.sqlite');
+  const db = new DatabaseSync(source);
+  try {
+    db.exec(
+      `CREATE TABLE users(id TEXT); CREATE TABLE sessions(id TEXT); CREATE TABLE records(id TEXT,kind TEXT,body TEXT); CREATE TABLE invitations(id TEXT,body TEXT); CREATE TABLE ai_usage(id TEXT);`,
+    );
+    const original = {
+      id: 'invite-history',
+      label: '입학 기록',
+      revoked: false,
+      usedAt: null,
+      expiresAt: '2099-01-01T00:00:00Z',
+    };
+    db.prepare('INSERT INTO invitations VALUES(?,?)').run(original.id, JSON.stringify(original));
+    await copyDatabase(source, snapshot);
+    db.prepare('UPDATE invitations SET body=?').run(
+      JSON.stringify({ ...original, usedAt: '2026-11-12T00:00:00Z' }),
+    );
+    await copyDatabase(snapshot, restored, { invalidateSessions: true });
+    const read = new DatabaseSync(restored, { readOnly: true });
+    try {
+      const invitation = JSON.parse(
+        String(read.prepare('SELECT body FROM invitations').get()!.body),
+      );
+      assert.equal(invitation.revoked, true);
+      assert.equal(invitation.label, original.label);
+      assert.equal(
+        JSON.parse(String(db.prepare('SELECT body FROM invitations').get()!.body)).usedAt,
+        '2026-11-12T00:00:00Z',
+      );
+      assert.equal(verifyDatabase(snapshot).invitations, 1);
+    } finally {
+      read.close();
+    }
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test('v04 school-wide AI quota survives snapshot and session-invalidating restore', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'pixel-v04-quota-backup-'));

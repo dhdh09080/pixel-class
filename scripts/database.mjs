@@ -93,6 +93,13 @@ export async function copyDatabase(source, destination, { invalidateSessions = f
             .some((column) => column.name === 'kind')
         )
           restored.exec("DELETE FROM records WHERE kind='password-recovery';");
+        if (
+          restored
+            .prepare('PRAGMA table_info(invitations)')
+            .all()
+            .some((column) => column.name === 'body')
+        )
+          restored.exec("UPDATE invitations SET body=json_set(body,'$.revoked',json('true'));");
         restored.exec(
           'DELETE FROM sessions; PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA wal_checkpoint(TRUNCATE);',
         );
