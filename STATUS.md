@@ -1,10 +1,10 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 2026-11-13 자동 배포 구성 중
+## 2026-11-13 자동 배포 코드 main 반영 — 최초 Railway 설정 대기
 
 기존 운영 개선 배포 `1dc05462-f8c3-4ddb-ab38-147ba3f4a29d`는 SUCCESS입니다. 설정 pin은 `1a2b711`, 실제 배포 메타데이터는 `fb3bfcc`이며 앱 런타임은 같습니다. 실패했던 [외부 CI43294492581](https://github.com/dhdh09080/pixel-class/actions/runs/43294492581)의 live만 재실행해 HTTPS·새 기능 파일·익명 API/WSS 차단까지 통과했습니다. 정상 계정 로그인·인증 WSS 101은 별도 미검증입니다.
 
-main 전체 검증 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사로 자동화를 구성합니다. 로컬 서버 검사는 기존 133개와 신규 Git 승격 4개를 합쳐 137개 통과, 빌드 통과입니다. PR 및 실제 자동 배포는 검증 중입니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md).
+[PR #15](https://github.com/dhdh09080/pixel-class/pull/15), main `987df36`에 자동 배포 코드를 반영했습니다. main 전체 검증 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사 순서입니다. [PR CI43313650237](https://github.com/dhdh09080/pixel-class/actions/runs/43313650237)와 [main CI43315133977](https://github.com/dhdh09080/pixel-class/actions/runs/43315133977)의 **verify 190개(서버137·브라우저51·운영2)**가 통과했습니다. main publish도 성공해 `deploy/railway-verified`가 실제 `987df36`으로 갱신됐습니다. Railway 최초 설정은 미적용이며 live가 정확한 커밋을 기다리고 있으므로 새 자동 배포나 workflow 전체 성공으로 판정하지 않습니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md) · [정확한 적용 범위](docs/automation/state.json).
 
 대기 patch `4ee79d9c-195b-4ebb-837c-9b77f6379385`는 브랜치 변경·커밋 고정 해제뿐입니다. 도구의 자동 승인 검토가 적용을 거절해 최초 Review/Deploy가 필요합니다. 기존 Volume·17개 변수·계정·도메인은 유지합니다. 아래 11월 12일의 적용 대기 기록은 당시 이력입니다.
 

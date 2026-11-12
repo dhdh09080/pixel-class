@@ -1,0 +1,49 @@
+{
+  "checkedAtKst": "2026-11-13T07:08:30+09:00",
+  "repository": "dhdh09080/pixel-class",
+  "pr": 15,
+  "mergedCommit": "987df36bb52836382f4c9807b14f0f48bb69525a",
+  "prCi": {
+    "runId": 43313650237,
+    "conclusion": "success",
+    "checks": 190
+  },
+  "mainCi": {
+    "runId": 43315133977,
+    "verify": "success",
+    "server": 137,
+    "browser": 51,
+    "composeHttps": 1,
+    "railwayHttpsProfile": 1,
+    "total": 190,
+    "publish": "success",
+    "promotionStatus": "promoted",
+    "promotedCommit": "987df36bb52836382f4c9807b14f0f48bb69525a",
+    "verifiedBranch": "deploy/railway-verified",
+    "live": "in progress; waiting for the exact commit, initial Railway configuration remains unapplied",
+    "workflowConclusion": "not yet successful"
+  },
+  "initialRailwaySetup": {
+    "applied": false,
+    "patchId": "4ee79d9c-195b-4ebb-837c-9b77f6379385",
+    "changeCount": 2,
+    "destructive": false,
+    "changes": ["Branch main -> deploy/railway-verified", "Remove source.commitSha pin"],
+    "approvalRejection": "Cancelled — the user did not approve this action. No changes were made.",
+    "observedSource": {
+      "repo": "dhdh09080/pixel-class",
+      "branch": "main",
+      "commitSha": "1a2b71185835c48a3502250a73902de0b8c315f0"
+    },
+    "volumeAndVariablesUnchanged": true
+  },
+  "newAutomaticDeploymentObserved": false,
+  "currentProductionDeployment": "1dc05462-f8c3-4ddb-ab38-147ba3f4a29d",
+  "priorExternalSmoke": {
+    "runId": 43294492581,
+    "conclusion": "success",
+    "authenticatedLoginVerified": false,
+    "authenticatedWssVerified": false
+  },
+  "scope": "Verified main-to-branch automation is complete. Railway initial setup and end-to-end automatic deployment remain unverified until the user applies the two staged fields."
+}

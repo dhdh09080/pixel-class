@@ -17,10 +17,14 @@ publish만 contents:write를 가지며 PR 검사와 live는 읽기 권한입니�
 - 로컬 `npm test`: 137/137 통과. 기존 133개에 실제 임시 Git 원격으로 생성/정상 갱신·오래된 실행·분기 이력·잘못된 SHA를 검사하는 4개를 추가했습니다.
 - `npm run build`: 통과. health 헤더도 실제 테스트 서버에서 확인합니다.
 - 이전 main `fb3bfcc`의 실패했던 외부 검사만 재실행한 CI43294492581은 이제 성공입니다. 기존 운영 개선 배포 `1dc05462-f8c3-4ddb-ab38-147ba3f4a29d`는 SUCCESS이며, 이는 새 자동 배포 파이프라인의 완료 증명과 구분합니다.
-- 새 파이프라인의 PR CI와 실제 자동 승격·배포는 검증 중입니다. 기존 51개 브라우저·두 운영 프로필을 유지합니다.
+- [PR #15](https://github.com/dhdh09080/pixel-class/pull/15)를 `987df36bb52836382f4c9807b14f0f48bb69525a`로 main에 병합했습니다. [PR CI43313650237](https://github.com/dhdh09080/pixel-class/actions/runs/43313650237) 전체 190개가 통과했습니다.
+- [main CI43315133977](https://github.com/dhdh09080/pixel-class/actions/runs/43315133977)에서도 서버137·브라우저51·운영2 = **190개 통과**, publish 성공을 확인했습니다. GitHub Actions가 실제 배포 브랜치를 `987df36`으로 정상 갱신했고 원격 ref도 일치합니다.
+- Railway의 최초 설정 두 건은 여전히 미적용입니다. 새 파이프라인의 live는 정확한 커밋을 기다리는 중이며, 전체 workflow나 실제 자동 배포가 완료됐다고 보고하지 않습니다. [범위별 증거](docs/automation/state.json).
 
 ## 최초 설정 적용 상태
 
 Railway 대기 patch `4ee79d9c-195b-4ebb-837c-9b77f6379385`는 **Branch main → deploy/railway-verified**, **Commit Sha 고정 해제** 두 항목뿐입니다. destructive:false이며 Volume·비밀·도메인을 바꾸지 않습니다. 최초 배포 브랜치는 전체 기존 CI/외부 검사가 통과한 `fb3bfcc`로 만들었습니다.
 
 사용자의 요청 후 도구의 자동 승인 검토가 `accept_deploy`를 “Cancelled — the user did not approve this action. No changes were made.”로 거절했습니다. 브라우저 제어 연결도 실패했으므로 우회하지 않았습니다. 사용자가 열린 Railway **private-test → Review/Deploy**에서 이 두 설정을 최초 한 번 적용해야 합니다. 실제 적용 확인 전에는 자동 배포가 활성화됐다고 보고하지 않습니다.
+
+보고서 보완 커밋은 문서와 검증 자료만 포함하며 앱 런타임은 위 190개 검사의 커밋과 같습니다. 보완 커밋의 CI/배포 완료를 앞선 결과로 대신 표시하지 않습니다. 롤백은 main에 정상 revert 커밋을 만들고 다시 검증·배포합니다. DB를 자동으로 이전 시점으로 돌리거나 배포 이력을 강제로 덮어쓰지 않습니다.
