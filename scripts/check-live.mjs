@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import https from 'node:https';
+import { randomBytes } from 'node:crypto';
 
 // Non-destructive checks: no accounts, invitations or school content are written.
 const base = 'https://pixel-class-private-test.up.railway.app';
@@ -48,6 +50,49 @@ const incorrect = await fetch(base + '/access', {
 });
 assert.equal(incorrect.status, 401);
 assert.match(await incorrect.text(), /다시 확인/);
+// The upgraded transport must reach the deployed app and enforce the same
+// private entrance. This is a negative check, not an authenticated WSS session.
+const anonymousSocketStatus = await new Promise((resolve, reject) => {
+  const request = https.request(
+    base + '/socket',
+    {
+      headers: {
+        Origin: base,
+        Connection: 'Upgrade',
+        Upgrade: 'websocket',
+        'Sec-WebSocket-Version': '13',
+        'Sec-WebSocket-Key': randomBytes(16).toString('base64'),
+      },
+      signal: AbortSignal.timeout(10000),
+    },
+    (response) => {
+      response.resume();
+      resolve(response.statusCode);
+    },
+  );
+  request.on('upgrade', (_response, socket) => {
+    socket.destroy();
+    reject(Error('Anonymous WSS upgrade was accepted.'));
+  });
+  request.on('error', reject);
+  request.end();
+});
+assert.equal(anonymousSocketStatus, 401, 'Anonymous WSS must remain private.');
+const anonymousLogin = await fetch(base + '/api/login', {
+  method: 'POST',
+  headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
+  body: '{}',
+  signal: AbortSignal.timeout(10000),
+});
+assert.equal(anonymousLogin.status, 401, 'Login API must enforce the private entrance.');
+const showcase = await fetch(base + '/competition/00000000-0000-4000-8000-000000000000', {
+  headers: { Accept: 'text/html' },
+  signal: AbortSignal.timeout(10000),
+});
+assert.equal(showcase.status, 200, 'The new external showcase shell must be available.');
+const showcaseHtml = await showcase.text();
+assert.match(showcaseHtml, /\/competition-assets\//);
+assert.doesNotMatch(showcaseHtml, /공용 접근 비밀번호/);
 console.log(
   JSON.stringify({
     ok: true,
@@ -60,6 +105,11 @@ console.log(
       'recovery link preserved',
       'foreign Origin blocked',
       'incorrect access code rejected',
+      'anonymous WSS handshake rejected401',
+      'anonymous login API blocked401',
+      'new public competition shell200',
     ],
+    authenticatedLoginVerified: false,
+    authenticatedWssVerified: false,
   }),
 );
