@@ -6,7 +6,7 @@
 
 [CI43317472507](https://github.com/dhdh09080/pixel-class/actions/runs/43317472507)은 **verify 190개(서버137·브라우저51·운영2)·publish·live 모두 성공**입니다. 실제 HTTPS 커밋 일치, 비공개 입구, 익명 API/로그인/WSS 차단과 공개 기능 파일을 확인했습니다. 정상 계정 로그인·인증된 WSS 101은 별도 미검증입니다.
 
-main 검사 통과 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사로 자동화했습니다. 이 확인 기록의 후속 push로 최초 설정 이후 수동 Deploy 없는 재배포를 추가 확인합니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 증거](docs/automation/state.json). 아래 11월 12일 적용 대기 기록은 과거 이력입니다.
+main 검사 통과 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사로 자동화했습니다. 첫 후속 push는 190개 검사와 승격을 통과했으나 Railway 이벤트가 관측되지 않아 동일 저장소/브랜치의 정식 GitHub 연결을 재등록했습니다. 재등록이 시작한 배포와 이후의 무인 push 배포를 구분해 후속 검증합니다. 추가 사용자 설정은 필요하지 않습니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 증거](docs/automation/state.json). 아래 11월 12일 적용 대기 기록은 과거 이력입니다.
 
 ## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 

@@ -65,5 +65,16 @@
     "authenticatedWssVerified": false
   },
   "newAutomaticDeploymentObserved": false,
-  "scope": "Initial configuration and deployed exact-commit external smoke succeeded. A follow-up documentation push will test a new unattended automatic deployment after setup."
+  "scope": "Configuration is applied and the same source was re-registered after a missing push event. A second documentation push will verify unattended deployment after reconnection.",
+  "connectionRepair": {
+    "firstProbeCommit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
+    "firstProbeRun": 43320443111,
+    "verify": "success; 190 checks",
+    "publish": "success; remote ref matched",
+    "deploymentEventBeforeRepair": "not observed",
+    "action": "Re-register the same GitHub repo and verified branch using the existing service source connection",
+    "result": "connected; deployment started",
+    "scope": "One existing service/environment only; volume, variables, domain and plan preserved",
+    "countsAsUnattendedPushProof": false
+  }
 }
