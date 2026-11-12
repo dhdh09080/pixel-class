@@ -1,0 +1,28 @@
+name: Pixel Class deployed release
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      expected_commit:
+        description: Full deployed commit SHA (defaults to main)
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: railway-deployed-release
+  cancel-in-progress: true
+jobs:
+  live:
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify the actual Railway release and private entrance
+        run: node scripts/check-live.mjs
+        env:
+          EXPECTED_COMMIT: ${{ github.event.deployment.sha || inputs.expected_commit || github.sha }}

@@ -55,17 +55,3 @@ jobs:
       - name: Publish only the verified current main commit
         id: promotion
         run: node scripts/promote-railway.mjs
-  live:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.publish.outputs.commit != ''
-    needs: publish
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Verify the actual Railway release and private entrance
-        run: node scripts/check-live.mjs
-        env:
-          EXPECTED_COMMIT: ${{ needs.publish.outputs.commit }}

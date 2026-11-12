@@ -8,7 +8,7 @@
 2. 전체 서버·브라우저·두 Docker HTTPS 운영 프로필이 통과해야 publish가 실행됩니다.
 3. 현재 main 커밋만 `deploy/railway-verified`로 정상 push합니다. 오래된 실행은 생략하고, 분기된 배포 이력은 강제로 덮어쓰지 않습니다.
 4. Railway는 이 브랜치를 자동 배포합니다. Commit Sha 고정을 제거하며 별도 Railway “Wait for CI”는 사용하지 않습니다. 검증 완료 뒤에만 브랜치를 갱신하는 구조로 순환 대기를 방지합니다.
-5. live 작업은 실제 HTTPS health의 `X-Pixel-Class-Commit`이 검증 커밋과 같아질 때까지 기다린 후 비공개 입구·익명 API/WSS 차단·공개 기능 자산을 검사합니다. 실제 계정 로그인·인증된 WSS 101은 포함하지 않습니다.
+5. 배포 전 CI는 verify·publish 이후 종료합니다. 별도 `deployed-release.yml`이 Railway의 성공 deployment_status 이벤트를 받아 live를 실행합니다. live 작업은 실제 HTTPS health의 `X-Pixel-Class-Commit`이 검증 커밋과 같아질 때까지 기다린 후 비공개 입구·익명 API/WSS 차단·공개 기능 자산을 검사합니다. 실제 계정 로그인·인증된 WSS 101은 포함하지 않습니다.
 
 publish만 contents:write를 가지며 PR 검사와 live는 읽기 권한입니다. 새 비밀을 Git이나 로그에 기록하지 않습니다. 배포 브랜치에 수동으로 코드를 push하지 마세요. CI 자체가 실행되지 않거나 권한/테스트가 실패하면 자동 승격하지 않습니다. Railway 장애가 자동으로 해결되거나 DB가 자동 롤백되는 기능은 아닙니다.
 
@@ -36,3 +36,11 @@ publish만 contents:write를 가지며 PR 검사와 live는 읽기 권한입니�
 프로젝트가 기존 private-test 환경·pixel-class 서비스 하나뿐임을 확인하고, 이미 사용자가 적용한 동일 저장소/브랜치로 정식 GitHub source 연결을 재등록했습니다. 새 키·리소스·Volume·변수·도메인은 만들거나 바꾸지 않았습니다. 연결 도구는 재등록 성공과 해당 브랜치의 배포 시작을 반환했습니다. 이 재등록이 시작한 배포도 별도의 무인 push 이벤트 성공으로 세지 않습니다.
 
 이번 재등록 기록을 main에 정상 push해 새 커밋의 **검증 → 자동 승격 → Railway push 배포 → 외부 커밋 확인**을 다시 관측합니다. 추가 사용자 설정은 요청하지 않았습니다.
+
+## 배포 전·후 workflow 분리
+
+두 번째 후속 커밋 `2ee3701`도 190개 검사와 승격을 통과했지만 새 Railway 배포는 아직 관측되지 않았습니다. 현재 서비스의 `8a3f4a8` 배포와 외부 검사는 정상입니다.
+
+Railway 공식 지침은 전체 GitHub workflow의 완료 상태를 기다리는 경우가 있음을 명시합니다. 따라서 source 설정에서 노출되지 않는 CI 대기 옵션에도 순환 대기가 생기지 않도록 배포 전 verify/publish와 배포 후 live를 서로 다른 workflow로 분리했습니다. 원인이 해당 옵션이라고 단정하지 않습니다. 배포 전 190개 검사와 배포 후 정확한 커밋·익명 보호·공개 자산 검사는 제거하거나 완화하지 않았습니다. 후속 자동 배포를 관측하기 전에는 자동 배포 완료로 판정하지 않습니다.
+
+출처: https://docs.railway.com/cli/deploying#post-deployment-actions · https://docs.railway.com/deployments/github-autodeploys#enabling-wait-for-ci
