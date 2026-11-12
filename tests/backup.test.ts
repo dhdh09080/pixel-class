@@ -5,7 +5,8 @@ import { mkdtempSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 // @ts-expect-error Standalone Node CLI is intentionally usable without tsx.
-import { copyDatabase, verifyDatabase } from '../scripts/database.mjs';
+import { copyDatabase, verifyDatabase, databaseChecksum } from '../scripts/database.mjs';
+import { spawnSync } from 'node:child_process';
 
 test('online backup includes WAL records and restore preserves content while invalidating sessions', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'pixel-backup-'));
@@ -63,6 +64,72 @@ test('v04 school-wide AI quota survives snapshot and session-invalidating restor
       assert.equal(restored.prepare('SELECT count FROM ai_school_usage').get()!.count, 2);
     } finally {
       restored.close();
+    }
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+test('offline verification checks an expected SHA-256 without changing backup bytes', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pixel-checksum-cli-')),
+    file = join(dir, 'backup.sqlite');
+  const db = new DatabaseSync(file);
+  db.exec(
+    'CREATE TABLE users(id TEXT); CREATE TABLE sessions(id TEXT); CREATE TABLE records(id TEXT); CREATE TABLE invitations(id TEXT); CREATE TABLE ai_usage(id TEXT)',
+  );
+  db.close();
+  try {
+    const checksum = await databaseChecksum(file);
+    const result = spawnSync(
+      process.execPath,
+      ['scripts/database.mjs', 'verify', file, '--sha256', checksum],
+      { encoding: 'utf8' },
+    );
+    assert.equal(result.status, 0);
+    assert.equal(JSON.parse(result.stdout).checksumMatched, true);
+    const mismatch = spawnSync(
+      process.execPath,
+      ['scripts/database.mjs', 'verify', file, '--sha256', '0'.repeat(64)],
+      { encoding: 'utf8' },
+    );
+    assert.equal(mismatch.status, 1);
+    assert.match(mismatch.stderr, /does not match/);
+    assert.equal(await databaseChecksum(file), checksum);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+test('restoring an older CLI backup cannot resurrect a consumed password recovery grant', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pixel-recovery-rollback-')),
+    source = join(dir, 'source.sqlite'),
+    snapshot = join(dir, 'old.sqlite'),
+    restored = join(dir, 'restored.sqlite');
+  const db = new DatabaseSync(source);
+  try {
+    db.exec(
+      "CREATE TABLE users(id TEXT); CREATE TABLE sessions(id TEXT); CREATE TABLE records(id TEXT,kind TEXT,body TEXT); CREATE TABLE invitations(id TEXT); CREATE TABLE ai_usage(id TEXT); INSERT INTO users VALUES('preserved-user'); INSERT INTO records VALUES('project','project','preserved-content'); INSERT INTO records VALUES('old-grant','password-recovery','PRIVATE-RECOVERY-GRANT-CANARY');",
+    );
+    await copyDatabase(source, snapshot);
+    db.exec("DELETE FROM records WHERE kind='password-recovery'");
+    await copyDatabase(snapshot, restored, { invalidateSessions: true });
+    const target = new DatabaseSync(restored, { readOnly: true }),
+      old = new DatabaseSync(snapshot, { readOnly: true });
+    try {
+      assert.equal(
+        target.prepare("SELECT count(*) n FROM records WHERE kind='password-recovery'").get()!.n,
+        0,
+      );
+      assert.equal(
+        old.prepare("SELECT count(*) n FROM records WHERE kind='password-recovery'").get()!.n,
+        1,
+      );
+      assert.equal(
+        target.prepare("SELECT body FROM records WHERE kind='project'").get()!.body,
+        'preserved-content',
+      );
+    } finally {
+      target.close();
+      old.close();
     }
   } finally {
     db.close();

@@ -10,7 +10,17 @@ import {
 } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { db } from './db.js';
+import { db, get } from './db.js';
+import {
+  snapshotStatus,
+  verifySnapshot,
+  saveSnapshotProof,
+  snapshotChecksum,
+  verifyStoredSnapshot,
+} from './backup-integrity.js';
+import { aiLimits } from './ai-policy.js';
+import { isRailway } from './railway-volume.mjs';
+import type { OperationsStatus } from '../shared/operations.js';
 
 export class CapacityError extends Error {}
 const MiB = 1024 * 1024;
@@ -47,17 +57,76 @@ export function assertUploadCapacity(school: string, encoded: string) {
     );
 }
 let pending: Promise<string> | undefined;
+let lastAttemptAt: string | null = null;
+let lastFailure: string | null = null;
+const backupFile = () => join(dirname(source()), 'backups', 'latest.sqlite');
+const bytes = (file: string) => {
+  try {
+    return statSync(file).size;
+  } catch {
+    return 0;
+  }
+};
+export function operationsStatus(school: string): OperationsStatus {
+  const limits = aiLimits(process.env),
+    memory = process.memoryUsage();
+  const usage = db
+    .prepare('SELECT count FROM ai_school_usage WHERE school_id=? AND day=?')
+    .get(school, new Date().toISOString().slice(0, 10)) as { count: number } | undefined;
+  const last = get<{ fileName: string; sha256: string; preparedAt: string }>(
+    'backup-export',
+    'last-export:' + school,
+    school,
+  );
+  return {
+    ...storageStatus(school),
+    observedAt: new Date().toISOString(),
+    lastExport: last
+      ? { fileName: last.fileName, sha256: last.sha256, preparedAt: last.preparedAt }
+      : null,
+    backup: { ...snapshotStatus(backupFile()), lastAttemptAt, lastFailure },
+    runtime: {
+      uptimeSeconds: Math.floor(process.uptime()),
+      rssBytes: memory.rss,
+      heapUsedBytes: memory.heapUsed,
+      databaseBytes: bytes(source()),
+      walBytes: bytes(source() + '-wal'),
+      database: 'sqlite',
+      instances: 1,
+    },
+    ai: {
+      enabled: !isRailway(process.env) || process.env.AI_ENABLED === 'true',
+      configured: !!(process.env.OPENAI_API_KEY && process.env.OPENAI_MODEL),
+      usedToday: usage?.count || 0,
+      dailyLimit: limits.schoolDailyCalls,
+      maxConcurrent: limits.concurrentCalls,
+    },
+  };
+}
+let verifying: Promise<void> | undefined;
+export async function verifyLatestBackup() {
+  if (pending) await pending;
+  if (!verifying)
+    verifying = (async () => {
+      await verifyStoredSnapshot(backupFile());
+    })().finally(() => {
+      verifying = undefined;
+    });
+  await verifying;
+}
 function hasTable(database: DatabaseSync, table: string) {
   return !!database.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table);
 }
-/** Credentials never leave the live database in backup or school exports. */
+/** Temporary judge grants are excluded; password verifiers remain for account restoration. */
 function redactCompetitionCredentials(database: DatabaseSync) {
   for (const table of ['competition_judge_sessions', 'competition_judge_passes'])
     if (hasTable(database, table)) database.exec(`DELETE FROM ${table}`);
 }
 export function makeBackup(): Promise<string> {
   if (pending) return pending;
+  lastAttemptAt = new Date().toISOString();
   pending = (async () => {
+    if (verifying) await verifying;
     const directory = join(dirname(source()), 'backups');
     mkdirSync(directory, { recursive: true, mode: 0o700 });
     const disk = statfsSync(directory);
@@ -76,7 +145,7 @@ export function makeBackup(): Promise<string> {
       try {
         redactCompetitionCredentials(snapshot);
         snapshot.exec(
-          "DELETE FROM sessions; DELETE FROM records WHERE kind='password-recovery'; PRAGMA wal_checkpoint(TRUNCATE);",
+          "DELETE FROM sessions; DELETE FROM records WHERE kind='password-recovery'; PRAGMA wal_checkpoint(TRUNCATE); VACUUM;",
         );
         if (
           (snapshot.prepare('PRAGMA quick_check').get() as { quick_check: string }).quick_check !==
@@ -86,15 +155,26 @@ export function makeBackup(): Promise<string> {
       } finally {
         snapshot.close();
       }
+      const proof = await verifySnapshot(temporary);
       const target = join(directory, 'latest.sqlite');
       renameSync(temporary, target);
+      saveSnapshotProof(target, proof);
+      lastFailure = null;
       return target;
     } finally {
       for (const suffix of ['', '-wal', '-shm']) rmSync(temporary + suffix, { force: true });
     }
-  })().finally(() => {
-    pending = undefined;
-  });
+  })()
+    .catch((error) => {
+      lastFailure =
+        error instanceof CapacityError
+          ? '저장 공간 부족으로 백업을 만들지 못했어요.'
+          : '백업을 완료하지 못했어요. 기존 자료를 보존하고 운영 로그를 확인해 주세요.';
+      throw error;
+    })
+    .finally(() => {
+      pending = undefined;
+    });
   return pending;
 }
 export function scheduleBackups() {
@@ -139,8 +219,16 @@ export async function exportSchoolDatabase(school: string) {
     throw e;
   }
   out.close();
+  let proof;
+  try {
+    proof = await snapshotChecksum(file);
+  } catch (error) {
+    for (const suffix of ['', '-wal', '-shm']) rmSync(file + suffix, { force: true });
+    throw error;
+  }
   return {
     file,
+    sha256: proof.sha256,
     cleanup: () => {
       for (const suffix of ['', '-wal', '-shm']) rmSync(file + suffix, { force: true });
     },
