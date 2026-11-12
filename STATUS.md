@@ -1,5 +1,13 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
+## 2026-11-13 자동 배포 구성 중
+
+기존 운영 개선 배포 `1dc05462-f8c3-4ddb-ab38-147ba3f4a29d`는 SUCCESS입니다. 설정 pin은 `1a2b711`, 실제 배포 메타데이터는 `fb3bfcc`이며 앱 런타임은 같습니다. 실패했던 [외부 CI43294492581](https://github.com/dhdh09080/pixel-class/actions/runs/43294492581)의 live만 재실행해 HTTPS·새 기능 파일·익명 API/WSS 차단까지 통과했습니다. 정상 계정 로그인·인증 WSS 101은 별도 미검증입니다.
+
+main 전체 검증 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사로 자동화를 구성합니다. 로컬 서버 검사는 기존 133개와 신규 Git 승격 4개를 합쳐 137개 통과, 빌드 통과입니다. PR 및 실제 자동 배포는 검증 중입니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md).
+
+대기 patch `4ee79d9c-195b-4ebb-837c-9b77f6379385`는 브랜치 변경·커밋 고정 해제뿐입니다. 도구의 자동 승인 검토가 적용을 거절해 최초 Review/Deploy가 필요합니다. 기존 Volume·17개 변수·계정·도메인은 유지합니다. 아래 11월 12일의 적용 대기 기록은 당시 이력입니다.
+
 ## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 
 [PR #14](https://github.com/dhdh09080/pixel-class/pull/14)를 **`1a2b71185835c48a3502250a73902de0b8c315f0`**로 main에 병합했습니다. 실행 코드의 고정 검사 소스는 `79f2363ac71524f0fc24fa99273212b5f3700492`이며 이후에는 문서·QA 도구와 테스트 프로세스 제한만 바뀌었습니다. 서버 133·브라우저 51·두 Docker HTTPS 운영 프로필을 합친 **186개 검사**가 로컬과 [PR 최종 CI](https://github.com/dhdh09080/pixel-class/actions/runs/43286430877)에서 통과했습니다. [개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md).

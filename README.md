@@ -1,8 +1,8 @@
 # Pixel Class v0.6
 
-운영 개선을 [PR #14](https://github.com/dhdh09080/pixel-class/pull/14)로 main에 병합했습니다(`1a2b711`). MASTER 운영 상태·백업 무결성, 제출 버전 비교·평가 제외/복원, 실시간 처리 비용과 캐릭터 조합을 보완했고 전체 186개 회귀 검사가 통과했습니다. [이번 보고서](OVERNIGHT_OPERATIONS_REPORT.md)에서 변경과 검증 제한을 확인하세요.
+main 검사 통과 후 Railway가 자동 배포하도록 구성하고 있습니다. [자동 배포 순서와 현재 적용 상태](AUTO_DEPLOY_REPORT.md)를 확인하세요. 기존 운영 개선은 Railway 배포 SUCCESS와 외부 익명 보호 검사 통과를 확인했습니다. 새 자동 배포 설정의 최초 적용은 별도로 확인 중입니다.
 
-**새 버전의 Railway 적용은 승인 도구의 거절로 대기 중입니다.** 기존 비공개 서비스는 유지하며, 대기 변경은 소스 커밋 한 항목뿐입니다. 장시간 검사는 두 차례 중단돼 연속 1~2시간 완료로 판정하지 않았습니다. 실제 실행·CI·외부 인증 범위는 [STATUS.md](STATUS.md)를 기준으로 합니다.
+[운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
 
 **Learn AI. Build Your Own Service.**
 
