@@ -925,3 +925,61 @@
 .competition-pass-options .field {
   margin: 12px 0 0;
 }
+
+.competition-history-selectors,
+.competition-history-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+.competition-history-diff section {
+  border-top: 1px solid #dce2d5;
+  padding-top: 12px;
+}
+.competition-history-columns > div {
+  min-width: 0;
+  background: #f6f6ef;
+  padding: 14px;
+  border-radius: 10px;
+}
+.competition-history-columns p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.competition-score-reviews summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.competition-score-reviews li {
+  align-items: flex-start;
+}
+.competition-score-reviews li > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 680px) {
+  .competition-history-selectors,
+  .competition-history-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .competition-score-reviews li {
+    flex-wrap: wrap;
+  }
+}
+
+.competition-judging-status {
+  flex-wrap: wrap;
+}
+.competition-judge-summary {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+@media (max-width: 680px) {
+  .competition-judge-summary {
+    flex-basis: calc(100% - 48px);
+  }
+}

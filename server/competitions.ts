@@ -204,13 +204,24 @@ function submitted(c: Competition): StoredEntry[] {
     .map((e) => ({ ...e, id: e.entryId }));
 }
 function scores(c: Competition): RankedScore[] {
+  const excluded = new Set(
+    (
+      db
+        .prepare(
+          "SELECT json_extract(body,'$.scoreId') id FROM records WHERE school_id=? AND kind='competition-score-review' AND json_extract(body,'$.competitionId')=? AND json_extract(body,'$.excluded')=1",
+        )
+        .all(c.schoolId, c.id) as { id: string }[]
+    ).map((r) => r.id),
+  );
   return (
     db
       .prepare(
-        'SELECT entry_id,body FROM competition_scores WHERE school_id=? AND competition_id=?',
+        'SELECT id,entry_id,body FROM competition_scores WHERE school_id=? AND competition_id=?',
       )
-      .all(c.schoolId, c.id) as { entry_id: string; body: string }[]
-  ).map((r) => ({ ...JSON.parse(r.body), entryId: r.entry_id }));
+      .all(c.schoolId, c.id) as { id: string; entry_id: string; body: string }[]
+  )
+    .filter((r) => !excluded.has(r.id))
+    .map((r) => ({ ...JSON.parse(r.body), entryId: r.entry_id }));
 }
 function ranks(c: Competition) {
   return competitionRanking(
@@ -973,11 +984,16 @@ export function registerCompetitionRoutes(app: Express, d: Dependencies) {
   });
   app.post('/api/competitions/:id/withdraw', (req, res) => {
     const { u, c } = load(req);
+    d.rate('competition-withdraw:' + u.id, 40, 60000);
     writable(c, u);
     const e = list<StoredEntry>('competition-entry', c.schoolId).find(
       (entry) => entry.competitionId === c.id && entry.studentId === u.id,
     );
     if (!e) d.fail(404, '제출한 작품이 없습니다.');
+    if (e!.status !== 'SUBMITTED')
+      d.fail(409, '최종 제출한 작품만 철회할 수 있어요. 이미 철회한 내용은 다시 저장하지 않아요.');
+    if (e!.revision >= 100)
+      d.fail(409, '제출 버전 한도에 도달했어요. 선생님에게 대회 운영을 문의해 주세요.');
     const revision = z.number().int().positive().parse(req.body.expectedRevision);
     if (revision !== e!.revision) d.fail(409, '최신 제출 내용을 확인한 후 철회해 주세요.');
     e!.status = 'WITHDRAWN';
@@ -1000,13 +1016,160 @@ export function registerCompetitionRoutes(app: Express, d: Dependencies) {
       e = get<StoredEntry>('competition-entry', String(req.params.entryId), c.schoolId);
     if (!e || e.competitionId !== c.id || (u.role !== 'MASTER' && e.studentId !== u.id))
       d.fail(404, '작품을 찾을 수 없습니다.');
+    if (req.query.summary === '1') {
+      const rows = db
+        .prepare(
+          "SELECT json_extract(body,'$.revision') revision,json_extract(body,'$.title') title,json_extract(body,'$.status') status,json_extract(body,'$.submittedAt') submittedAt,json_extract(body,'$.updatedAt') updatedAt FROM records WHERE school_id=? AND kind='competition-version' AND json_extract(body,'$.entryId')=? ORDER BY json_extract(body,'$.revision') DESC",
+        )
+        .all(c.schoolId, e!.id);
+      return res.json(rows.map((row) => ({ id: e!.id, ...row })));
+    }
+    const versions = list<StoredEntry & { entryId: string }>(
+      'competition-version',
+      c.schoolId,
+    ).filter((v) => v.entryId === e!.id);
     res.json(
-      list<StoredEntry & { entryId: string }>('competition-version', c.schoolId)
-        .filter((v) => v.entryId === e!.id)
-        .map((v) =>
-          entryView({ ...v, id: v.entryId }, c, u.role === 'MASTER' ? 'MASTER' : 'OWNER'),
-        ),
+      versions.map((v) =>
+        entryView({ ...v, id: v.entryId }, c, u.role === 'MASTER' ? 'MASTER' : 'OWNER'),
+      ),
     );
+  });
+  app.get('/api/competitions/:id/entries/:entryId/versions/:revision', (req, res) => {
+    const { u, c } = load(req),
+      entryId = String(req.params.entryId);
+    const e = get<StoredEntry>('competition-entry', entryId, c.schoolId);
+    if (!e || e.competitionId !== c.id || (u.role !== 'MASTER' && e.studentId !== u.id))
+      d.fail(404, '작품을 찾을 수 없습니다.');
+    const revision = z.coerce.number().int().min(1).max(100).parse(req.params.revision);
+    const version = get<StoredEntry & { entryId: string }>(
+      'competition-version',
+      `${entryId}:${revision}`,
+      c.schoolId,
+    );
+    if (!version || version.entryId !== entryId || version.competitionId !== c.id)
+      d.fail(404, '제출 버전을 찾을 수 없습니다.');
+    res.json(entryView({ ...version!, id: entryId }, c, u.role === 'MASTER' ? 'MASTER' : 'OWNER'));
+  });
+  app.get('/api/competitions/:id/score-reviews', (req, res) => {
+    const { c } = load(req, true);
+    const offset = z.coerce
+      .number()
+      .int()
+      .min(0)
+      .max(100000)
+      .parse(req.query.offset || 0);
+    const rows = db
+      .prepare(
+        'SELECT s.id,s.entry_id,s.body,s.created_at,p.label FROM competition_scores s LEFT JOIN competition_judge_passes p ON p.id=s.judge_id AND p.school_id=s.school_id AND p.competition_id=s.competition_id WHERE s.school_id=? AND s.competition_id=? ORDER BY s.created_at DESC,s.id DESC LIMIT 50 OFFSET ?',
+      )
+      .all(c.schoolId, c.id, offset) as {
+      id: string;
+      entry_id: string;
+      body: string;
+      created_at: string;
+      label: string | null;
+    }[];
+    const total = (
+      db
+        .prepare('SELECT count(*) n FROM competition_scores WHERE school_id=? AND competition_id=?')
+        .get(c.schoolId, c.id) as { n: number }
+    ).n;
+    res.json({
+      total,
+      offset,
+      limit: 50,
+      scores: rows.map((row) => {
+        const value = JSON.parse(row.body),
+          entry = get<StoredEntry>('competition-entry', row.entry_id, c.schoolId);
+        const review = get<{
+          revision: number;
+          excluded: boolean;
+          reason: string;
+          updatedAt: string;
+        }>('competition-score-review', 'score-review:' + row.id, c.schoolId);
+        return {
+          id: row.id,
+          entryId: row.entry_id,
+          title: entry?.title || '보존된 출품작',
+          judgeLabel: row.label || '복원된 심사자',
+          createdAt: row.created_at,
+          practicality: value.practicality,
+          usability: value.usability,
+          completeness: value.completeness,
+          creativity: value.creativity,
+          comment: value.comment,
+          review: review
+            ? {
+                revision: review.revision,
+                excluded: review.excluded,
+                reason: review.reason,
+                updatedAt: review.updatedAt,
+              }
+            : { revision: 0, excluded: false, reason: '', updatedAt: null },
+        };
+      }),
+    });
+  });
+  app.post('/api/competitions/:id/score-reviews/:scoreId', (req, res) => {
+    const { u, c } = load(req, true);
+    d.rate('score-review:' + u.id, 30, 60000);
+    const value = z
+      .object({
+        revision: z.number().int().min(0).max(99),
+        excluded: z.boolean(),
+        reason: text(1000).min(5),
+      })
+      .parse(req.body);
+    if (c.resultsPublished || c.archived)
+      d.fail(
+        409,
+        '공개한 결과는 먼저 공개를 철회해야 검토할 수 있어요. 보관한 대회는 변경할 수 없어요.',
+      );
+    const scoreId = String(req.params.scoreId);
+    transaction(() => {
+      const row = db
+        .prepare(
+          'SELECT body FROM competition_scores WHERE id=? AND school_id=? AND competition_id=?',
+        )
+        .get(scoreId, c.schoolId, c.id) as { body: string } | undefined;
+      if (!row) d.fail(404, '평가를 찾을 수 없습니다.');
+      const previous = get<{ revision: number; excluded: boolean; originalHash: string }>(
+        'competition-score-review',
+        'score-review:' + scoreId,
+        c.schoolId,
+      );
+      if ((previous?.revision || 0) !== value.revision)
+        d.fail(409, '다른 화면에서 검토 상태가 바뀌었어요. 다시 불러와 주세요.');
+      if ((previous?.excluded || false) === value.excluded)
+        d.fail(409, '이미 같은 검토 상태입니다.');
+      if (previous && previous.originalHash !== digest(row!.body))
+        d.fail(409, '평가 원본이 달라져 검토를 중단했어요. 운영 기록을 확인해 주세요.');
+      const record = {
+        id: 'score-review:' + scoreId,
+        scoreId,
+        competitionId: c.id,
+        revision: value.revision + 1,
+        excluded: value.excluded,
+        reason: value.reason,
+        actor: u.id,
+        updatedAt: now(),
+        originalHash: digest(row!.body),
+      };
+      put('competition-score-review', record, c.schoolId);
+      put(
+        'competition-score-review-version',
+        { ...record, id: scoreId + ':' + record.revision },
+        c.schoolId,
+      );
+      audit(
+        c,
+        value.excluded ? 'score.excluded' : 'score.restored',
+        u.id,
+        scoreId + '; ' + value.reason,
+      );
+    });
+    d.changed(c.schoolId);
+    res.json({ ok: true });
   });
   app.post('/api/competitions/:id/extensions', (req, res) => {
     const { u, c } = load(req, true),

@@ -472,6 +472,31 @@ test('HTML introduction remains available when artifact types exclude HTML', asy
   assert.ok(e.introFile);
   assert.equal(e.introFile!.mime, 'text/html');
 });
+test('withdrawal cannot amplify already-withdrawn entries or bypass the100-version storage cap', async () => {
+  const c = await contest(),
+    e = await submit(c);
+  const path = `/competitions/${c.id}/withdraw`;
+  assert.equal((await request(path, 'POST', { expectedRevision: 1 }, student)).status, 200);
+  assert.equal((await request(path, 'POST', { expectedRevision: 2 }, student)).status, 409);
+  const versions = await json<any[]>(
+    `/competitions/${c.id}/entries/${e.id}/versions?summary=1`,
+    'GET',
+    undefined,
+    student,
+  );
+  assert.equal(versions.length, 2);
+  const last = await submit(c, student, { expectedRevision: 2 });
+  fixture((db) => {
+    const row = db
+      .prepare("SELECT body FROM records WHERE kind='competition-entry' AND id=?")
+      .get(last.id) as { body: string };
+    db.prepare("UPDATE records SET body=? WHERE kind='competition-entry' AND id=?").run(
+      JSON.stringify({ ...JSON.parse(row.body), revision: 100 }),
+      last.id,
+    );
+  });
+  assert.equal((await request(path, 'POST', { expectedRevision: 100 }, student)).status, 409);
+});
 
 test('submission checks ownership, class participation, required deliverables and optimistic revisions', async () => {
   const c = await contest();
@@ -532,6 +557,32 @@ test('submission checks ownership, class participation, required deliverables an
   );
   assert.equal(versions.length, 2);
   assert.equal(versions[0].title, '공개 작품');
+  const summaries = await json<any[]>(
+    `/competitions/${c.id}/entries/${e.id}/versions?summary=1`,
+    'GET',
+    undefined,
+    student,
+  );
+  assert.equal(summaries.length, 2);
+  assert.ok(!('introHtml' in summaries[0]));
+  assert.ok(!('projectSnapshot' in summaries[0]));
+  const old = await json<CompetitionEntry>(
+    `/competitions/${c.id}/entries/${e.id}/versions/1`,
+    'GET',
+    undefined,
+    student,
+  );
+  assert.equal(old.title, '공개 작품');
+  assert.equal(
+    (await request(`/competitions/${c.id}/entries/${e.id}/versions/1`, 'GET', undefined, second))
+      .status,
+    404,
+  );
+  assert.equal(
+    (await request(`/competitions/${c.id}/entries/${e.id}/versions/1`, 'GET', undefined, other))
+      .status,
+    404,
+  );
   assert.equal(
     (await request(`/competitions/${c.id}/entries/${e.id}/versions`, 'GET', undefined, second))
       .status,
@@ -1042,6 +1093,128 @@ test('competition files count toward shared quota and failed uploads preserve pr
     2,
   );
 });
+test('MASTER score exclusions preserve originals, reject stale changes and recalculate eligibility before publication', async () => {
+  const c = await contest({ minJudges: 2 }),
+    e = await submit(c);
+  judging(c);
+  const first = await activate(c),
+    secondJudge = await activate(c);
+  await json(`/public/competitions/${c.id}/entries/${e.id}/scores`, 'POST', score, first.cookie);
+  await json(
+    `/public/competitions/${c.id}/entries/${e.id}/scores`,
+    'POST',
+    { ...score, practicality: 35 },
+    secondJudge.cookie,
+  );
+  const path = `/competitions/${c.id}/score-reviews`;
+  assert.equal((await request(path, 'GET', undefined, student)).status, 403);
+  assert.equal((await request(path, 'GET', undefined, other)).status, 404);
+  const page = await json(path);
+  assert.equal(page.total, 2);
+  assert.equal(page.scores.length, 2);
+  assert.ok(!JSON.stringify(page).includes(first.key));
+  const item = page.scores[0],
+    target = path + '/' + item.id;
+  const original = fixture(
+    (db) =>
+      (
+        db.prepare('SELECT body FROM competition_scores WHERE id=?').get(item.id) as {
+          body: string;
+        }
+      ).body,
+  );
+  assert.equal(
+    (await request(target, 'POST', { revision: 0, excluded: true, reason: '짧음' })).status,
+    400,
+  );
+  await json(target, 'POST', {
+    revision: 0,
+    excluded: true,
+    reason: '동일 작품의 평가 기준을 확인하기 위한 검토',
+  });
+  let view = await json(`/competitions/${c.id}`);
+  assert.equal(view.results[0].count, 1);
+  assert.equal(view.results[0].eligible, false);
+  assert.equal(
+    (
+      await request(target, 'POST', {
+        revision: 0,
+        excluded: false,
+        reason: '검토를 마쳐 평가를 원래대로 복원합니다',
+      })
+    ).status,
+    409,
+  );
+  const restored = await Promise.all(
+    [1, 2].map(() =>
+      request(target, 'POST', {
+        revision: 1,
+        excluded: false,
+        reason: '검토를 마쳐 평가를 원래대로 복원합니다',
+      }),
+    ),
+  );
+  assert.deepEqual(restored.map((r) => r.status).sort(), [200, 409]);
+  view = await json(`/competitions/${c.id}`);
+  assert.equal(view.results[0].count, 2);
+  assert.equal(view.results[0].average, 87.5);
+  assert.equal(view.results[0].eligible, true);
+  assert.equal(
+    fixture(
+      (db) =>
+        (
+          db.prepare('SELECT body FROM competition_scores WHERE id=?').get(item.id) as {
+            body: string;
+          }
+        ).body,
+    ),
+    original,
+  );
+  assert.equal(
+    fixture(
+      (db) =>
+        (
+          db
+            .prepare(
+              "SELECT count(*) n FROM records WHERE kind='competition-score-review-version' AND json_extract(body,'$.scoreId')=?",
+            )
+            .get(item.id) as { n: number }
+        ).n,
+    ),
+    2,
+  );
+  shift(c, {
+    judgingEndsAt: new Date(Date.now() - 500).toISOString(),
+    resultsAt: new Date(Date.now() - 100).toISOString(),
+  });
+  await json(`/competitions/${c.id}/action`, 'POST', { action: 'publishResults' });
+  assert.equal(
+    (
+      await request(target, 'POST', {
+        revision: 2,
+        excluded: true,
+        reason: '결과 공개 중 임의 제외 요청은 차단해야 합니다',
+      })
+    ).status,
+    409,
+  );
+  await json(`/competitions/${c.id}/action`, 'POST', {
+    action: 'retractResults',
+    reason: '검토 테스트',
+  });
+  await json(`/competitions/${c.id}/action`, 'POST', { action: 'archive', reason: '보관 테스트' });
+  assert.equal(
+    (
+      await request(target, 'POST', {
+        revision: 2,
+        excluded: true,
+        reason: '보관 후 변경 요청도 차단해야 합니다',
+      })
+    ).status,
+    409,
+  );
+});
+
 test('school exports keep own competition scores, remove foreign scores and strip all judge credentials', async () => {
   const c = await contest(),
     e = await submit(c);
