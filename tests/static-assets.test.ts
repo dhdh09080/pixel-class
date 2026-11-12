@@ -8,11 +8,13 @@ import { once } from 'node:events';
 import { request as httpRequest } from 'node:http';
 import { brotliDecompressSync, gunzipSync } from 'node:zlib';
 import { staticEncoding } from '../server/static-assets.js';
+// @ts-expect-error The release probe also runs directly under plain Node in CI.
+import { verifyPublicRelease } from '../scripts/public-release-check.mjs';
 const dir = mkdtempSync(join(tmpdir(), 'pixel-static-')),
   port = 3064,
   origin = `http://127.0.0.1:${port}`;
 const js =
-  'const deps=["assets/chunk-fixture.js"]; export const title="우리 교실";\n' +
+  'const deps=["assets/chunk-fixture.js","assets/PublicCompetition-release-fixture.js"]; export const title="우리 교실";\n' +
   '/* trusted build fixture */\n'.repeat(10000);
 const css = '.school { background: url("/assets/school.png"); color: #214538; }\n'.repeat(2000);
 let server: ChildProcess;
@@ -47,6 +49,10 @@ before(async () => {
     '<html><script type="module" src="/assets/app-fixture.js"></script></html>',
   );
   writeFileSync(join(dir, 'dist/assets/app-fixture.js'), js);
+  writeFileSync(
+    join(dir, 'dist/assets/PublicCompetition-release-fixture.js'),
+    'export const nextAction="다음 미평가 작품";',
+  );
   writeFileSync(join(dir, 'dist/assets/app-fixture.css'), css);
   writeFileSync(join(dir, 'secret.js'), 'SECRET_OUTSIDE_BUILD');
   symlinkSync(join(dir, 'secret.js'), join(dir, 'dist/assets/linked.js'));
@@ -150,6 +156,38 @@ test('public compressed assets rewrite lazy dependency maps and CSS before encod
       assert.ok(!body.toString().includes('"assets/'));
       assert.notEqual(body.toString(), source);
     }
+  const shell = await raw('/competition/11111111-2222-3333-4444-555555555555');
+  const assets = await verifyPublicRelease(origin, shell.body.toString());
+  assert.equal(assets.featureAsset, '/competition-assets/PublicCompetition-release-fixture.js');
+  await assert.rejects(
+    verifyPublicRelease(origin, shell.body.toString(), async (url: URL, options: RequestInit) =>
+      url.pathname.includes('PublicCompetition-')
+        ? new Response('export const oldRelease=true;')
+        : fetch(url, options),
+    ),
+    /missing the current/,
+  );
+  await assert.rejects(
+    verifyPublicRelease(
+      origin,
+      shell.body.toString(),
+      async () => new Response('not found', { status: 404 }),
+    ),
+    /must load/,
+  );
+  let externalRequest = false;
+  await assert.rejects(
+    verifyPublicRelease(
+      origin,
+      '<script src="https://example.invalid/app.js"></script>',
+      async () => {
+        externalRequest = true;
+        return new Response('');
+      },
+    ),
+    /same-origin/,
+  );
+  assert.equal(externalRequest, false);
 });
 test('representation-specific ETags, weak/list validators and HEAD preserve HTTP negotiation', async () => {
   const br = await raw('/assets/app-fixture.js', 'br');
