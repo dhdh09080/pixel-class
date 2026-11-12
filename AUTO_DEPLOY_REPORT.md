@@ -19,12 +19,12 @@ publish만 contents:write를 가지며 PR 검사와 live는 읽기 권한입니�
 - 이전 main `fb3bfcc`의 실패했던 외부 검사만 재실행한 CI43294492581은 이제 성공입니다. 기존 운영 개선 배포 `1dc05462-f8c3-4ddb-ab38-147ba3f4a29d`는 SUCCESS이며, 이는 새 자동 배포 파이프라인의 완료 증명과 구분합니다.
 - [PR #15](https://github.com/dhdh09080/pixel-class/pull/15)를 `987df36bb52836382f4c9807b14f0f48bb69525a`로 main에 병합했습니다. [PR CI43313650237](https://github.com/dhdh09080/pixel-class/actions/runs/43313650237) 전체 190개가 통과했습니다.
 - [main CI43315133977](https://github.com/dhdh09080/pixel-class/actions/runs/43315133977)에서도 서버137·브라우저51·운영2 = **190개 통과**, publish 성공을 확인했습니다. GitHub Actions가 실제 배포 브랜치를 `987df36`으로 정상 갱신했고 원격 ref도 일치합니다.
-- Railway의 최초 설정 두 건은 여전히 미적용입니다. 새 파이프라인의 live는 정확한 커밋을 기다리는 중이며, 전체 workflow나 실제 자동 배포가 완료됐다고 보고하지 않습니다. [범위별 증거](docs/automation/state.json).
+- 사용자가 최초 설정 두 건을 적용했습니다. 현재 source는 `deploy/railway-verified`이며 Commit Sha 고정과 대기 변경이 없습니다. 기존 Volume·17개 변수·단일 인스턴스를 유지합니다.
+- [CI43317472507](https://github.com/dhdh09080/pixel-class/actions/runs/43317472507)은 **190개 verify·publish·live 모두 성공**입니다. 실제 HTTPS health의 커밋이 `f36f5d5afe702e7e658abb9f951764f1fd3ac50a`와 일치하고, 비공개 입구·익명 API/로그인/WSS 차단·공개 기능 파일을 확인했습니다. 정상 계정 로그인·인증된 WSS 101은 포함하지 않습니다.
+- 현재 배포 `ceef1fd2-1727-4145-9d9c-1b4f881e803e`는 SUCCESS·Online·1 running입니다. [범위별 증거](docs/automation/state.json).
 
-## 최초 설정 적용 상태
+## 최초 설정 이후 자동 재배포 확인
 
-Railway 대기 patch `4ee79d9c-195b-4ebb-837c-9b77f6379385`는 **Branch main → deploy/railway-verified**, **Commit Sha 고정 해제** 두 항목뿐입니다. destructive:false이며 Volume·비밀·도메인을 바꾸지 않습니다. 최초 배포 브랜치는 전체 기존 CI/외부 검사가 통과한 `fb3bfcc`로 만들었습니다.
-
-사용자의 요청 후 도구의 자동 승인 검토가 `accept_deploy`를 “Cancelled — the user did not approve this action. No changes were made.”로 거절했습니다. 브라우저 제어 연결도 실패했으므로 우회하지 않았습니다. 사용자가 열린 Railway **private-test → Review/Deploy**에서 이 두 설정을 최초 한 번 적용해야 합니다. 실제 적용 확인 전에는 자동 배포가 활성화됐다고 보고하지 않습니다.
+초기 설정 적용은 완료됐습니다. 이 확인 기록을 main에 정상 push해 **190개 검사 → 배포 브랜치 자동 갱신 → Railway 후속 배포 → 정확한 커밋의 외부 인수**를 수동 Deploy 없이 추가 확인합니다. 이 후속 검사 완료 전에는 최초 설정 적용을 별도의 자동 재배포 이벤트 성공으로 계산하지 않습니다. 앞서 도구의 적용 승인이 거절된 기록은 당시 이력이며 현재 설정 대기를 의미하지 않습니다.
 
 보고서 보완 커밋은 문서와 검증 자료만 포함하며 앱 런타임은 위 190개 검사의 커밋과 같습니다. 보완 커밋의 CI/배포 완료를 앞선 결과로 대신 표시하지 않습니다. 롤백은 main에 정상 revert 커밋을 만들고 다시 검증·배포합니다. DB를 자동으로 이전 시점으로 돌리거나 배포 이력을 강제로 덮어쓰지 않습니다.
