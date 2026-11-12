@@ -1,10 +1,8 @@
 # Pixel Class v0.6
 
-운영 개선 후보는 [PR #14](https://github.com/dhdh09080/pixel-class/pull/14)에서 검증 중입니다. MASTER 운영 상태·백업 무결성, 제출 버전 비교·평가 제외/복원, 실시간 처리 비용과 캐릭터 조합을 보완했습니다. [이번 개선과 실패 재현 기록](OVERNIGHT_OPERATIONS_REPORT.md)을 확인하세요. main 병합과 실제 Railway 적용 상태는 [STATUS.md](STATUS.md)를 기준으로 합니다.
+운영 개선을 [PR #14](https://github.com/dhdh09080/pixel-class/pull/14)로 main에 병합했습니다(`1a2b711`). MASTER 운영 상태·백업 무결성, 제출 버전 비교·평가 제외/복원, 실시간 처리 비용과 캐릭터 조합을 보완했고 전체 186개 회귀 검사가 통과했습니다. [이번 보고서](OVERNIGHT_OPERATIONS_REPORT.md)에서 변경과 검증 제한을 확인하세요.
 
-> **운영 품질·반별 경진대회 main 반영 — [PR #13](https://github.com/dhdh09080/pixel-class/pull/13)**
->
-> 사용자 Deploy 적용 후 Railway 실행 코드는 `ad4d62f`이며 새 경진대회·아바타가 포함됩니다. 플랫폼 SUCCESS를 확인했지만 외부 계정 로그인·WSS 인수는 현재 검사 환경의 네트워크 차단으로 미완료입니다. [최종 보고서](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [검증 현황](STATUS.md)
+**새 버전의 Railway 적용은 승인 도구의 거절로 대기 중입니다.** 기존 비공개 서비스는 유지하며, 대기 변경은 소스 커밋 한 항목뿐입니다. 장시간 검사는 두 차례 중단돼 연속 1~2시간 완료로 판정하지 않았습니다. 실제 실행·CI·외부 인증 범위는 [STATUS.md](STATUS.md)를 기준으로 합니다.
 
 **Learn AI. Build Your Own Service.**
 

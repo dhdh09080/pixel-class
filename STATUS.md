@@ -1,40 +1,36 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 운영 개선 후보 — PR #14 검증 중
+## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 
-[PR #14](https://github.com/dhdh09080/pixel-class/pull/14), 실행 코드 `79f2363ac71524f0fc24fa99273212b5f3700492`. 서버133·실제 브라우저51·두 Docker HTTPS 운영 프로필까지186개 검사와 빌드가 로컬 및 [CI43268948454](https://github.com/dhdh09080/pixel-class/actions/runs/43268948454)에서 통과했습니다. 동일 코드의2시간 검사는 실행 환경 재시작으로95분27초·642회 관측 뒤 중단됐습니다. 완료로 세지 않고 새1시간/6컨텍스트 검사를 진행 중입니다. 완료 전에는 최종 통과나 실제 배포 완료로 판정하지 않습니다. [이번 보고서](OVERNIGHT_OPERATIONS_REPORT.md).
+[PR #14](https://github.com/dhdh09080/pixel-class/pull/14)를 **`1a2b71185835c48a3502250a73902de0b8c315f0`**로 main에 병합했습니다. 실행 코드의 고정 검사 소스는 `79f2363ac71524f0fc24fa99273212b5f3700492`이며 이후에는 문서·QA 도구와 테스트 프로세스 제한만 바뀌었습니다. 서버 133·브라우저 51·두 Docker HTTPS 운영 프로필을 합친 **186개 검사**가 로컬과 [PR 최종 CI](https://github.com/dhdh09080/pixel-class/actions/runs/43286430877)에서 통과했습니다. [개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md).
 
-MASTER 운영 상태와 검증된 서버 백업·학교별 다운로드 체크섬, 본인/MASTER 제출 버전 비교, 원래 점수를 보존하는 MASTER 집계 제외/복원, 과거 KEY 복원 방지, 이름표·이동 처리 비용 개선과 캐릭터 뒷면 장비 수정을 추가합니다. 외부 자동 백업은 연결하지 않았으며 실제 계정의 외부 로그인·인증된 WSS101은 계속 미검증입니다.
+- MASTER의 **내 계정과 운영 → 학교 운영 상태**: 서버/DB/WAL/AI 사용량, 검증된 백업·체크섬·학교별 내보내기 준비 기록.
+- 본인/MASTER 제출 버전 비교, 원본 점수를 보존하는 사유 기반 평가 집계 제외·복원과 변경 이력.
+- 복원 후 과거 입학·복구·심사 KEY 재사용 방지, 빈 페이지에 남는 인증 자료 제거.
+- 이름표 계산·소켓 이동 검증/SQL 재사용, 숨겨진 심사 탭의 중복 조회 감소, 캐릭터 뒷면 모자/장비 수정.
+- 30개 자동 소켓 301초 추가 측정: 이동 수신율 99.864%·지연 p95 17.30ms·종료 후 연결 0개. 실제 30대 브라우저 또는 월 요금 절감 보증은 아님.
+- 장시간 관측: 첫 시도는 환경 재시작으로 **95분 27초·642회**, 두 번째는 프로세스 종료로 **26분·177회**까지만 기록됐습니다. 합산하거나 완료한 1~2시간 검사로 세지 않습니다. 첫 임시 DB의 무결성·새 파일 복원·프로젝트 보존은 별도 통과했습니다.
 
-아래는 PR #13과 기존 실제 배포 이력이며 새 후보의 적용 완료를 의미하지 않습니다.
+## 실제 배포·데이터·인증
 
-검증 코드 **`fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`**, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13), [CI169개 성공](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405). 서버119·브라우저48·Compose1·Railway 운영 프로필1을 확인했습니다. 새 기능 구현과 실제 서비스 적용은 구분합니다.
+- 주소: https://pixel-class-private-test.up.railway.app/
+- Railway `pixel-class / private-test / pixel-class`: 기존 배포 `152e403f-7cb4-4a98-8732-6b76ce6217a0`가 SUCCESS·Online·1 running입니다. **이번 main 버전은 아직 미적용**입니다.
+- 현재 설정의 소스 고정 값은 `ad4d62f032f6636a476f20b6e8429d741fbd68af`, 기존 배포 메타데이터는 `39a21214fadacb167deefc77f7dac918b4d79ba6`입니다. 두 커밋의 앱·서버·의존성·시작/복구 코드 차이는 없으며 메타데이터 차이를 숨기지 않습니다.
+- 대기 patch `79e0e3e6-bace-44b0-afdf-d2dd610d9d3a`: **Commit Sha 한 항목만 `ad4d62f` → `1a2b711`**, destructive:false. 500MB `/app/data` Volume·17개 변수·단일 인스턴스·도메인·요금제는 유지합니다.
+- 사용자 포괄 승인 후에도 도구의 자동 승인 검토에서 Railway `accept_deploy`가 **“Cancelled — the user did not approve this action. No changes were made.”**로 거절했습니다. 우회하지 않았습니다. 사용자가 Railway **private-test → Review/Deploy**에서 이 한 건을 적용해야 합니다. 플랫폼 SUCCESS와 새 feature asset 확인 전에는 적용 완료로 보고하지 않습니다. [실제 플랫폼/거절 기록](docs/overnight/runtime/release-status.json).
+- SQLite WAL·Express/WebSocket을 유지합니다. Supabase 전환 없음. 실제 운영 DB 파일의 최신 무결성/백업은 직접 미검증이며, 로컬·CI의 실제 두 계정·HTTPS/WSS·파일·재시작·새 파일 복원 검사는 통과했습니다.
+- 정상 계정의 외부 로그인·인증된 WSS 101은 계속 미검증입니다. 현재 실행 환경의 도메인 정책을 우회하지 않았습니다. 이전 익명 외부 검사는 [CI 43250333509](https://github.com/dhdh09080/pixel-class/actions/runs/43250333509)에서 health·공개 shell 200·학교/로그인 API와 WSS 401을 확인했습니다.
+- [main CI 43292083207](https://github.com/dhdh09080/pixel-class/actions/runs/43292083207): **verify 186개 성공, live 실패로 전체 workflow는 실패**입니다. 외부 HTTPS health·비공개 입구·익명 학교/로그인 API·익명 WSS 차단은 통과했으나 **“The deployed UI is missing the current judge-progress feature.”**로 새 기능 파일 확인이 실패했습니다. 이전 배포를 새 배포로 인정하지 않았습니다. 정상 계정 로그인·인증 WSS 101은 검증하지 않았습니다. [범위별 결과](docs/overnight/runtime/main-ci-result.json).
+- OpenAI 키·모델 없음, AI 비활성. 연결 시 학교 하루 3회·동시 1회부터 시험합니다. 실제 응답 품질·과금 검증은 미실행입니다.
+- 같은 Volume의 서버 백업은 외부 백업이 아닙니다. 외부 자동 백업·실제 지출 경보·이메일 소유권 확인·MFA는 미설정/미구현이며 공개 운영 준비 완료로 판정하지 않습니다.
 
-## 실제 배포와 데이터 — 사용자 Deploy 적용 후 갱신
+## 기존 기능과 이력
 
-- 비공개 주소: https://pixel-class-private-test.up.railway.app/
-- Railway `pixel-class / private-test / pixel-class`, 실제 실행 소스 **`ad4d62f032f6636a476f20b6e8429d741fbd68af`**, 배포 `152e403f-7cb4-4a98-8732-6b76ce6217a0` 플랫폼 SUCCESS.
-- 기존500MB `school-data` Volume `/app/data`, SQLite WAL·Express/WebSocket 단일 인스턴스를 유지합니다. 계정·사용자 자료·비밀 변수·볼륨을 삭제/초기화/재생성하지 않았습니다.
-- Supabase 연결/전환 없음. 원격 DB 파일과 최신 백업 일관성은 직접 미검증이며, 로컬 및 CI의 재생성·백업·복원은 검증했습니다.
-- 사용자께서 Deploy를 적용한 후2026-11-12 01:29 UTC에 새 배포 SUCCESS·Online·1 running을 확인했습니다. 대기 변경은 없습니다. 현재 Cloud의 HTTPS는 CONNECT403, Chromium은 ERR_TUNNEL_CONNECTION_FAILED로 외부 로그인·WSS 인수는 아직 미검증입니다.
-- main 코드 병합 `ad4d62f`가 실제 Railway에 적용됐습니다. 기존500MB Volume·17개 변수·일반 시작 명령을 유지합니다. [새 플랫폼 기록](docs/production/live/platform-deployment.json) · [브라우저 접속 시도](docs/production/live/browser-reachability.json).
-- OpenAI 키/모델 없음·AI 비활성. 실제 모델 품질/과금 검증은 미실행이며 연결 시 학교 하루3회·동시1회부터 시험합니다.
+학생 입학·외모·책상·프로젝트·교안·과제·질문·피드백·알림·계정 복구, 반별 경진대회·독립 심사·명시적 결과 공개를 보존합니다. 현재 외모는 60×80 정수 도트, 헤어 18·눈 10·피부 8·눈 색 12·모자 15·의상 25·직업 코디 17종입니다. 성별 제한 없이 조합합니다.
 
-추가 외부 검사: [GitHub CI43250333509](https://github.com/dhdh09080/pixel-class/actions/runs/43250333509), 검증 소스6528e67에서 기존169개 회귀와 live 검사 모두 성공했습니다. 실제 주소의 HTTPS health·새 공개 대회 shell200·익명 학교/로그인 API401·익명 WSS handshake401을 확인했습니다. **정상 계정 로그인과 인증된 WSS101은 미검증**입니다. CI에 사용자 자격정보를 전달하거나 운영 자료를 쓰지 않았습니다. [범위 기록](docs/production/live/external-ci.json).
+[기존 운영 보고](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [대회 설계](COMPETITION_ARCHITECTURE.md) · [이번 검증 자료](docs/overnight/README.md)
 
-## main에 반영한 기능
-
-- 기존 학생 입학·캐릭터·책상·프로젝트·교안·과제·질문·피드백·개인 알림·계정 복구를 보존합니다.
-- 실제60×80 정수 도트와 헤어18·눈10·피부8·눈 색12·모자15·의상25·직업 코디17종. 성별 제한 없이 조합하며 기존 외모 ID/게임 크기와 얼굴·피부 보존을 검사했습니다.
-- 반/대회·KST 일정·제출 버전/동결·안전한 HTML·독립 KEY 심사·서버35/30/20/15·중복 방지·평균/동점·명시적 결과 공개·교실 행사.
-- 원본/공개 범위·동의·알림·복원 KEY 공격을 보강했고, 노트북 메뉴와 실시간 모바일 배너의 이동 버튼 겹침, 숨겨진 참가 명단을 수정했습니다.
-- 실제 로컬 HTTPS/Volume에서 독립 심사91점·학교API401·재시작/복원 보존.6개 Chromium컨텍스트603초/67회 반복·30인 소켓61초·75개 UI캡처를 구분해 기록했습니다.
-
-- 학교 인증 뒤 JS/CSS 압축과 공개 심사 캐시 분리. 같은 감속 조건의 진입 시간이 노트북13.94→5.67초·모바일13.90→6.08초로 감소했습니다.
-
-[최종 운영 보고](PRODUCTION_FINAL_REPORT.md) · [전체 검증과 실패 이력](PRODUCTION_TEST_REPORT.md) · [대회 사용법](COMPETITION_FINAL_REPORT.md) · [대회 설계](COMPETITION_ARCHITECTURE.md) · [디자인 검토](PRODUCTION_DESIGN_REVIEW.md)
-
-외부 운영 계정 로그인·WSS 인수·원격 백업 최신성 확인 전에는 공개 운영 준비 완료로 판정하지 않습니다. 이메일 소유권 확인/MFA·악성코드 검사·심사 정정/재심사 UI는 후속입니다.
+아래는 과거 시점별 기록입니다. 최신 실행 상태는 위 내용을 우선합니다.
 
 ## 이전 v0.6 릴리스 기록 (최신 후보 원본은 위60×80)
 

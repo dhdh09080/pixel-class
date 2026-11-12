@@ -41,7 +41,7 @@ for axis in axes:
             axis.axvline(point["elapsedSeconds"] / 60, color="#9e684d", linestyle="--", alpha=0.8, label="Server restart" if axis is axes[0] else None)
 if any(point["label"] == "after-server-restart" for point in points):
     axes[0].legend(loc="upper right")
-closed = report.get("serverSocketsAfterContextCleanup", {}).get("active")
+closed = (report.get("serverSocketsAfterContextCleanup") or {}).get("active")
 axes[1].set_title(f"After closing all browser contexts: {closed if closed is not None else 'not verified'}", fontsize=10)
 status = "PASSED" if report.get("passed") else "INCOMPLETE / FAILED"
 duration_kind = "observed seconds" if report.get("completed") is False else "real seconds"

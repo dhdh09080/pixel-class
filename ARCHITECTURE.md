@@ -161,7 +161,7 @@ AI 입력은 redaction 후 프로젝트 6000자·최근10개 대화 총16000자�
 
 `server/static-assets.ts`는 배포 빌드의 JS/CSS에만 Brotli/gzip을 제공한다. 기존 학교 게이트 뒤에서 호출하며, 공개 심사 경로는 번들 안의 자산 경로를 변환한 뒤 별도 캐시 키로 압축한다. 인코딩별 ETag·Vary·304·HEAD를 지원하고 동시 첫 압축은 같은 Promise를 공유한다. 캐시는 최대64개/64MiB, 단일 파일8MiB이며 정규 파일·이름·심볼릭 링크를 검사한다. HTML/API/업로드 파일은 대상이 아니며 기존 no-store 정책을 보존한다.
 
-## 운영 개선 후보의 추가 경계
+## main 운영 개선의 추가 경계
 
 `server/backup-integrity.ts`는 독립 스냅샷의 SQLite quick_check·외래 키·필수 테이블·스트리밍 SHA-256과 변경 중 파일/심볼릭 링크/WAL/journal을 검사합니다. 자동 백업과 학교별 내보내기는 임시 인증 수단을 제거한 후 VACUUM합니다. CLI restore는 새 파일만 만들고 기존 계정·자료·사용량·초대 이력은 보존하되 세션/심사 KEY/비밀번호 복구 KEY는 폐기하고 모든 과거 입학 KEY를 철회합니다. 같은 Volume 백업과 외부 저장 완료는 별개입니다. `backup-export` 레코드는 해당 학교의 마지막 다운로드 준비 파일명·해시·시각만 보관합니다.
 

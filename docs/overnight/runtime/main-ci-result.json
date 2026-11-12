@@ -1,0 +1,37 @@
+{
+  "sourceCommit": "1a2b71185835c48a3502250a73902de0b8c315f0",
+  "runId": 43292083207,
+  "url": "https://github.com/dhdh09080/pixel-class/actions/runs/43292083207",
+  "workflowConclusion": "failure",
+  "verify": {
+    "jobId": 131440642573,
+    "conclusion": "success",
+    "server": 133,
+    "browser": 51,
+    "composeHttps": 1,
+    "railwayLocalHttpsProfile": 1,
+    "total": 186
+  },
+  "live": {
+    "jobId": 131447020363,
+    "conclusion": "failure",
+    "failure": "The deployed UI is missing the current judge-progress feature.",
+    "reason": "The new Railway source was staged but accept_deploy approval was rejected; the old deployment remains live.",
+    "sequentialAssertionsCompletedBeforeFailure": [
+      "HTTPS health 200 and release header 0.6.0",
+      "private entrance 401",
+      "anonymous school APIs 401",
+      "recovery link preserved",
+      "foreign Origin 403",
+      "incorrect access password 401",
+      "anonymous WSS handshake 401",
+      "anonymous login API 401",
+      "public competition shell 200",
+      "public entry/module fetched, but current feature marker missing"
+    ],
+    "authenticatedLoginVerified": false,
+    "authenticatedWssVerified": false,
+    "newReleaseVerified": false
+  },
+  "note": "A failed new-release acceptance is preserved rather than relaxing the feature check. The complete workflow is not green."
+}

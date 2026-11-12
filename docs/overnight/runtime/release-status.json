@@ -1,0 +1,111 @@
+{
+  "checkedAt": "2026-11-12T19:38:49.601Z",
+  "repository": "dhdh09080/pixel-class",
+  "pr": 14,
+  "mergedCommit": "1a2b71185835c48a3502250a73902de0b8c315f0",
+  "newReleaseApplied": false,
+  "approvalResult": "Railway accept_deploy: Cancelled — the user did not approve this action. No changes were made.",
+  "stagedPatch": "79e0e3e6-bace-44b0-afdf-d2dd610d9d3a",
+  "stagedChanges": 1,
+  "change": "source.commitSha only: ad4d62f032f6636a476f20b6e8429d741fbd68af -> 1a2b71185835c48a3502250a73902de0b8c315f0",
+  "configuredLivePin": "ad4d62f032f6636a476f20b6e8429d741fbd68af",
+  "deploymentMetadataCommit": "39a21214fadacb167deefc77f7dac918b4d79ba6",
+  "oldSourceRuntimeComparison": "git diff ad4d62f 39a2121 -- src server shared Dockerfile package.json package-lock.json scripts/database.mjs scripts/start.mjs scripts/master-handoff.mjs: empty",
+  "url": "https://pixel-class-private-test.up.railway.app",
+  "status": {
+    "environment": {
+      "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "name": "private-test"
+    },
+    "services": [
+      {
+        "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+        "serviceName": "pixel-class",
+        "state": "online",
+        "statusText": "Online",
+        "activeDeployments": [
+          {
+            "id": "152e403f-7cb4-4a98-8732-6b76ce6217a0",
+            "status": "SUCCESS",
+            "createdAt": "2026-11-12T01:28:31.293Z",
+            "statusUpdatedAt": "2026-11-12T01:29:36.705Z"
+          }
+        ],
+        "replicaStatus": {
+          "running": 1,
+          "crashed": 0,
+          "total": 1
+        },
+        "cronJob": null,
+        "issues": {
+          "warningCount": 0,
+          "criticalCount": 0
+        },
+        "recentFailures": 0,
+        "recentFailedDeployments": [],
+        "hasIssues": false,
+        "isCronJob": false,
+        "hasVolume": true
+      }
+    ],
+    "pendingWork": [
+      {
+        "id": "patch:79e0e3e6-bace-44b0-afdf-d2dd610d9d3a",
+        "kind": "EnvironmentPatch",
+        "status": "staged",
+        "changes": [
+          {
+            "kind": "resource.update",
+            "address": "service.a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+            "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7"
+          }
+        ],
+        "startedAt": "2026-11-12T19:37:46.199Z",
+        "workflowId": "commitChanges/3a0dc4b5-3a92-4478-92e7-8a0927b1f09e/79e0e3e6-bace-44b0-afdf-d2dd610d9d3a"
+      }
+    ],
+    "summary": {
+      "totalServices": 1,
+      "servicesWithIssues": 0,
+      "totalFailures": 0
+    }
+  },
+  "deployments": [
+    {
+      "id": "152e403f-7cb4-4a98-8732-6b76ce6217a0",
+      "status": "SUCCESS",
+      "meta": {
+        "reason": "deploy",
+        "commitMessage": "docs: record merged release and pending Railway source",
+        "commitHash": "39a21214fadacb167deefc77f7dac918b4d79ba6",
+        "branch": "main"
+      },
+      "createdAt": "2026-11-12T01:28:31.293Z",
+      "updatedAt": "2026-11-12T01:29:36.706Z"
+    },
+    {
+      "id": "fb44aa92-27bc-411d-83ad-8954010861cc",
+      "status": "REMOVED",
+      "meta": {
+        "reason": "deploy",
+        "commitMessage": "docs: record verified MASTER handoff awaiting platform approval",
+        "commitHash": "9499877e0cd167bea7fc746108f6f9ff9240c2b1",
+        "branch": "main"
+      },
+      "createdAt": "2026-11-10T06:57:26.397Z",
+      "updatedAt": "2026-11-12T01:29:39.027Z"
+    }
+  ],
+  "unchanged": [
+    "500 MB /app/data volume",
+    "17 variable names and values",
+    "one instance",
+    "domain",
+    "plan"
+  ],
+  "limitations": [
+    "No external successful account login or authenticated WSS 101",
+    "No new release applied",
+    "Remote live database integrity not directly inspected"
+  ]
+}
