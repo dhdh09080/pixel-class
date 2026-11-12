@@ -45,27 +45,27 @@ export function fromKstInput(value: string) {
 export const scoreCriteria = [
   {
     key: 'practicality',
-    label: '실무 적용 가능성',
+    label: '실용성',
     max: 35,
-    description: '현장에서 겪는 문제를 해결하고, 실제로 활용할 수 있나요?',
+    description: '실제 업무나 일상에서 유용하게 활용할 수 있나요?',
   },
   {
     key: 'usability',
-    label: '사용 편의성',
+    label: '활용성',
     max: 30,
-    description: '처음 접하는 사람도 목적과 사용법을 이해하고 쉽게 이용할 수 있나요?',
+    description: '다른 직원들도 쉽게 사용할 수 있나요?',
   },
   {
     key: 'completeness',
     label: '완성도',
     max: 20,
-    description: '소개한 핵심 기능이 안정적으로 작동하고 결과물을 확인할 수 있나요?',
+    description: '오류 없이 안정적으로 동작하고 기능·화면·설명이 충실한가요?',
   },
   {
     key: 'creativity',
     label: '창의성',
     max: 15,
-    description: '문제를 새롭게 바라보고 AI를 목적에 맞게 활용했나요?',
+    description: '기존과 다른 아이디어나 개선점이 있나요?',
   },
 ] as const;
 export const introFields = [

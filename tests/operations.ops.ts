@@ -677,8 +677,8 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
           page.frameLocator('iframe').getByText('운영 출품 서비스', { exact: true }),
         ).toBeVisible();
         for (const [label, value] of [
-          ['실무 적용 가능성', '32'],
-          ['사용 편의성', '27'],
+          ['실용성', '32'],
+          ['활용성', '27'],
           ['완성도', '18'],
           ['창의성', '14'],
         ])

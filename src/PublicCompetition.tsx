@@ -42,8 +42,8 @@ export function CompetitionResults({ results }: { results: CompetitionResult[] }
               {!result.eligible ? ' · 최소 심사 수 미달' : ''}
             </small>
             <small>
-              실무 {result.practicality.toFixed(2)}/35 · 편의 {result.usability.toFixed(2)}/30 ·
-              완성 {result.completeness.toFixed(2)}/20 · 창의 {result.creativity.toFixed(2)}/15
+              실용성 {result.practicality.toFixed(2)}/35 · 활용성 {result.usability.toFixed(2)}/30 ·
+              완성도 {result.completeness.toFixed(2)}/20 · 창의성 {result.creativity.toFixed(2)}/15
             </small>
           </div>
           <span className="competition-result-score">

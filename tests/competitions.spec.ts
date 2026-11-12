@@ -296,8 +296,8 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
       ),
     ).toBeUndefined();
     for (const [label, value] of [
-      ['실무 적용 가능성', '32'],
-      ['사용 편의성', '27'],
+      ['실용성', '32'],
+      ['활용성', '27'],
       ['완성도', '18'],
       ['창의성', '14'],
     ] as const)
@@ -313,7 +313,7 @@ test('real MASTER and STUDENT create class, submit safely, judge, publish and ar
     await jp.reload();
     await jp.getByRole('button', { name: '작품 살펴보기', exact: true }).click();
     await expect(jp.getByText('이미 평가한 작품이에요')).toBeVisible();
-    await expect(jp.getByLabel('실무 적용 가능성')).toHaveCount(0);
+    await expect(jp.getByLabel('실용성')).toHaveCount(0);
     const reused = await stranger.request.post(
       `/api/public/competitions/${competition.id}/judge-session`,
       { headers, data: { key: pass.key } },
@@ -494,16 +494,16 @@ test('public showcase and score confirmation fit five viewports, and idle classr
       judgePage.frameLocator('iframe').getByRole('heading', { name: '서비스 이름', exact: true }),
     ).toBeVisible();
     await judgePage.getByRole('link', { name: '평가 항목으로 바로가기' }).click();
-    await judgePage.getByLabel('실무 적용 가능성', { exact: true }).fill('36');
+    await judgePage.getByLabel('실용성', { exact: true }).fill('36');
     for (const [label, value] of [
-      ['사용 편의성', '30'],
+      ['활용성', '30'],
       ['완성도', '20'],
       ['창의성', '15'],
     ] as const)
       await judgePage.getByLabel(label, { exact: true }).fill(value);
     await judgePage.getByRole('button', { name: '점수 확인하고 제출하기' }).click();
     await expect(judgePage.getByRole('dialog')).toHaveCount(0);
-    await judgePage.getByLabel('실무 적용 가능성', { exact: true }).fill('35');
+    await judgePage.getByLabel('실용성', { exact: true }).fill('35');
     await judgePage.getByRole('button', { name: '점수 확인하고 제출하기' }).click();
     const dialog = judgePage.getByRole('dialog');
     await expect(dialog).toBeVisible();

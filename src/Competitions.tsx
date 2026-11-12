@@ -1516,8 +1516,8 @@ export function CompetitionsPage({ state, onToast, onRefresh }: Props) {
                             : '결과 미리보기 · MASTER 전용'}
                         </h2>
                         <p className="competition-note">
-                          공식 KEY 심사의 항목별 평균을 합산해요. 동점은 실무 적용 → 사용 편의 →
-                          완성도 → 창의성 순으로 비교하며 모두 같으면 공동 순위예요.
+                          공식 KEY 심사의 항목별 평균을 합산해요. 동점은 실용성 → 활용성 → 완성도 →
+                          창의성 순으로 비교하며 모두 같으면 공동 순위예요.
                         </p>
                       </div>
                       <Trophy size={22} />
@@ -1654,9 +1654,9 @@ export function CompetitionsPage({ state, onToast, onRefresh }: Props) {
               <section className="panel">
                 <h2>어떤 작품을 평가하나요?</h2>
                 <p className="competition-note">
-                  실무 적용 가능성 35점
+                  실용성 35점
                   <br />
-                  사용 편의성 30점
+                  활용성 30점
                   <br />
                   완성도 20점
                   <br />
