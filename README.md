@@ -1,6 +1,6 @@
 # Pixel Class v0.6
 
-main 검사 통과 후 Railway가 자동 배포하도록 코드를 반영했습니다. [자동 배포 순서와 현재 적용 상태](AUTO_DEPLOY_REPORT.md)를 확인하세요. 기존 운영 개선은 Railway 배포 SUCCESS와 외부 익명 보호 검사 통과를 확인했습니다. 최초 Railway 설정이 적용됐고 190개 검사·실제 배포·정확한 커밋의 외부 인수까지 통과했습니다. main 자동 검증·승격과 초기 배포는 정상이며, 후속 push의 Railway 자동 시작은 추가 확인 중입니다.
+자동 검증·배포 브랜치 승격 코드를 main에 반영했고 190개 검사를 통과했습니다. 현재 학교 배포와 외부 익명 보호 검사는 정상입니다. **후속 push의 Railway 자동 시작은 아직 관측되지 않아 완전 자동 배포 완료로 판정하지 않습니다.** Source의 자동 배포 상태를 추가 확인 중입니다. [자동화 설정과 검증 범위](AUTO_DEPLOY_REPORT.md)를 확인하세요.
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
 

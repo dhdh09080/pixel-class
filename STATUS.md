@@ -1,12 +1,16 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 2026-11-13 자동 배포 설정 적용·외부 인수 성공
+## 2026-11-13 현재 운영 정상·자동 CI 성공 — Railway 후속 시작 미확인
 
-사용자가 최초 설정을 적용했습니다. 실제 Railway source는 **`deploy/railway-verified`**, Commit Sha 고정 없음·대기 변경 없음입니다. 배포 `ceef1fd2-1727-4145-9d9c-1b4f881e803e`는 **SUCCESS·Online·1 running**, 실제 커밋 `f36f5d5afe702e7e658abb9f951764f1fd3ac50a`입니다. 기존 500MB Volume `/app/data`·17개 변수·계정·도메인은 유지합니다.
+실제 URL: https://pixel-class-private-test.up.railway.app/
 
-[CI43317472507](https://github.com/dhdh09080/pixel-class/actions/runs/43317472507)은 **verify 190개(서버137·브라우저51·운영2)·publish·live 모두 성공**입니다. 실제 HTTPS 커밋 일치, 비공개 입구, 익명 API/로그인/WSS 차단과 공개 기능 파일을 확인했습니다. 정상 계정 로그인·인증된 WSS 101은 별도 미검증입니다.
+현재 배포 `0468e159-4eb1-4b81-9cf2-5bc18939eb5c`, 실제 커밋 `8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb`는 SUCCESS입니다. [CI43320443111](https://github.com/dhdh09080/pixel-class/actions/runs/43320443111)의 정확한 HTTPS 커밋·비공개 입구·익명 API/로그인/WSS 차단·공개 기능 자산 확인도 성공했습니다. 정상 계정 외부 로그인·인증된 WSS 101은 미검증입니다.
 
-main 검사 통과 → 검증된 배포 브랜치 정상 push → Railway 배포 → 실제 커밋/익명 보호 검사로 자동화했습니다. 첫 후속 push는 190개 검사와 승격을 통과했으나 Railway 이벤트가 관측되지 않아 동일 저장소/브랜치의 정식 GitHub 연결을 재등록했습니다. 재등록이 시작한 배포와 이후의 무인 push 배포를 구분해 후속 검증합니다. 배포 전·후 workflow도 분리해 CI 대기와의 순환 가능성을 제거했습니다. 후속 push의 새 Railway 배포는 아직 관측되지 않아 자동 배포 완료로 판정하지 않습니다. Source의 Enable/Disable 상태는 외부 도구에 노출되지 않아 사용자에게 화면 상태를 확인 중입니다. [자동 배포 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 증거](docs/automation/state.json). 아래 11월 12일 적용 대기 기록은 과거 이력입니다.
+최신 코드 `594b620`의 [CI43324847422](https://github.com/dhdh09080/pixel-class/actions/runs/43324847422)는 **190개 검사(서버137·브라우저51·운영2)와 publish 모두 성공**입니다. 배포 브랜치도 해당 커밋으로 정상 갱신됐습니다. 배포 후 검사는 별도 deployment_status workflow로 분리했습니다. 현재 앱과의 차이는 CI/문서이며 서버·프런트·의존성은 같습니다.
+
+초기 설정은 적용됐으나 후속 push의 Railway 배포 이벤트는 관측되지 않았습니다. 따라서 **완전 자동 배포 완료는 아닙니다.** 같은 연결 재등록으로 시작한 현재 배포를 무인 push 증거로 세지 않습니다. Source의 자동 배포 버튼/연결 권한 상태를 사용자에게 확인 중입니다. 해당 값은 연결 도구에서 노출되지 않고 브라우저 조작 연결도 실패했습니다. UI 상태나 원인을 추정해 완료 처리하지 않습니다.
+
+기존 500MB Volume `/app/data`·17개 변수·단일 인스턴스·계정·도메인·요금제를 보존했습니다. 새 키·유료 리소스·DB 초기화는 없습니다. [자동화 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 관측](docs/automation/state.json). 아래 기록은 과거 이력입니다.
 
 ## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 

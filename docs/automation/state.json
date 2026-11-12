@@ -1,5 +1,5 @@
 {
-  "checkedAtKst": "2026-11-13T07:29:52.911+09:00",
+  "checkedAtKst": "2026-11-13T08:16:04.661+09:00",
   "repository": "dhdh09080/pixel-class",
   "pr": 15,
   "mergedCommit": "987df36bb52836382f4c9807b14f0f48bb69525a",
@@ -9,8 +9,9 @@
     "checks": 190
   },
   "mainCi": {
-    "sourceCommit": "f36f5d5afe702e7e658abb9f951764f1fd3ac50a",
-    "runId": 43317472507,
+    "sourceCommit": "594b6209e4e28ab441f61307dfb5f415ed50bc92",
+    "runId": 43324847422,
+    "workflowConclusion": "success",
     "verify": "success",
     "server": 137,
     "browser": 51,
@@ -18,33 +19,35 @@
     "railwayHttpsProfile": 1,
     "total": 190,
     "publish": "success",
-    "verifiedBranch": "deploy/railway-verified",
-    "live": "success",
-    "workflowConclusion": "success"
+    "verifiedBranch": "deploy/railway-verified"
   },
   "initialRailwaySetup": {
     "applied": true,
     "appliedBy": "user",
     "previousPatchId": "4ee79d9c-195b-4ebb-837c-9b77f6379385",
     "observedSource": {
-      "repo": "dhdh09080/pixel-class",
-      "branch": "deploy/railway-verified"
+      "repo": "dhdh09080/pixel-class"
     },
     "pendingChanges": 0,
     "volumeAndVariablesUnchanged": true
   },
   "currentProductionDeployment": {
-    "id": "ceef1fd2-1727-4145-9d9c-1b4f881e803e",
+    "id": "0468e159-4eb1-4b81-9cf2-5bc18939eb5c",
     "status": "SUCCESS",
-    "commit": "f36f5d5afe702e7e658abb9f951764f1fd3ac50a",
-    "replicas": 1,
-    "volume": "500MB /app/data"
+    "meta": {
+      "reason": "deploy",
+      "commitMessage": "docs: confirm Railway setup and exact-commit live checks",
+      "commitHash": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
+      "branch": "deploy/railway-verified"
+    },
+    "createdAt": "2026-11-12T22:41:09.047Z",
+    "updatedAt": "2026-11-12T22:42:19.802Z"
   },
   "externalProof": {
     "ok": true,
     "url": "https://pixel-class-private-test.up.railway.app",
     "release": "0.6.0",
-    "expectedCommit": "f36f5d5afe702e7e658abb9f951764f1fd3ac50a",
+    "expectedCommit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
     "checks": [
       "HTTPS health",
       "guided entrance",
@@ -65,7 +68,7 @@
     "authenticatedWssVerified": false
   },
   "newAutomaticDeploymentObserved": false,
-  "scope": "Configuration is applied and the same source was re-registered after a missing push event. A second documentation push will verify unattended deployment after reconnection.",
+  "scope": "Application deployment and external anonymous protections are healthy. CI verification and automatic ref promotion are proven. Unattended Railway deployment remains unverified; no root cause is asserted.",
   "connectionRepair": {
     "firstProbeCommit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
     "firstProbeRun": 43320443111,
@@ -76,5 +79,94 @@
     "result": "connected; deployment started",
     "scope": "One existing service/environment only; volume, variables, domain and plan preserved",
     "countsAsUnattendedPushProof": false
-  }
+  },
+  "latestPredeploy": {
+    "sourceCommit": "594b6209e4e28ab441f61307dfb5f415ed50bc92",
+    "runId": 43324847422,
+    "workflowConclusion": "success",
+    "verify": "success",
+    "server": 137,
+    "browser": 51,
+    "composeHttps": 1,
+    "railwayHttpsProfile": 1,
+    "total": 190,
+    "publish": "success",
+    "verifiedBranch": "deploy/railway-verified"
+  },
+  "lastKnownHealthyExternal": {
+    "ok": true,
+    "url": "https://pixel-class-private-test.up.railway.app",
+    "release": "0.6.0",
+    "expectedCommit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
+    "checks": [
+      "HTTPS health",
+      "guided entrance",
+      "anonymous data blocked",
+      "recovery link preserved",
+      "foreign Origin blocked",
+      "incorrect access code rejected",
+      "anonymous WSS handshake rejected401",
+      "anonymous login API blocked401",
+      "new public competition shell200",
+      "current public judge-progress assets200"
+    ],
+    "publicAssets": {
+      "entryAsset": "/competition-assets/index-Dsx7D9se.js",
+      "featureAsset": "/competition-assets/PublicCompetition-CjRcizL0.js"
+    },
+    "authenticatedLoginVerified": false,
+    "authenticatedWssVerified": false
+  },
+  "currentDeployments": [
+    {
+      "id": "0468e159-4eb1-4b81-9cf2-5bc18939eb5c",
+      "status": "SUCCESS",
+      "meta": {
+        "reason": "deploy",
+        "commitMessage": "docs: confirm Railway setup and exact-commit live checks",
+        "commitHash": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
+        "branch": "deploy/railway-verified"
+      },
+      "createdAt": "2026-11-12T22:41:09.047Z",
+      "updatedAt": "2026-11-12T22:42:19.802Z"
+    }
+  ],
+  "observedSerializedSource": {
+    "repo": "dhdh09080/pixel-class"
+  },
+  "unattendedProbes": [
+    {
+      "commit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
+      "runId": 43320443111,
+      "result": "No new event observed before source reconnect. Reconnect-triggered deployment subsequently succeeded; not counted as unattended push proof."
+    },
+    {
+      "commit": "2ee3701758010e4b93ea6bd74a59273f4d505bd4",
+      "runId": 43322290169,
+      "jobs": [
+        {
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "publish",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "live",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ],
+      "result": "Verified ref updated; no new Railway deployment observed."
+    },
+    {
+      "commit": "594b6209e4e28ab441f61307dfb5f415ed50bc92",
+      "runId": 43324847422,
+      "result": "Complete pre-deploy workflow succeeded after separating post-deploy checks; no new Railway deployment observed."
+    }
+  ],
+  "nativeAutodeploySwitch": "Unknown; not exposed by available tools. Browser control failed; user was asked for Settings > Source button state."
 }
