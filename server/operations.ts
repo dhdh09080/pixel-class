@@ -23,7 +23,7 @@ const source = () =>
 export function storageStatus(school: string) {
   const row = db
     .prepare(
-      "SELECT coalesce(sum(length(CAST(body AS BLOB))),0) AS bytes FROM records WHERE school_id=? AND kind IN ('project-attachment','material','material-version')",
+      "SELECT coalesce(sum(length(CAST(body AS BLOB))),0) AS bytes FROM records WHERE school_id=? AND kind IN ('project-attachment','material','material-version','competition-file')",
     )
     .get(school) as { bytes: number };
   const disk = statfsSync(dirname(source()));
@@ -47,6 +47,14 @@ export function assertUploadCapacity(school: string, encoded: string) {
     );
 }
 let pending: Promise<string> | undefined;
+function hasTable(database: DatabaseSync, table: string) {
+  return !!database.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(table);
+}
+/** Credentials never leave the live database in backup or school exports. */
+function redactCompetitionCredentials(database: DatabaseSync) {
+  for (const table of ['competition_judge_sessions', 'competition_judge_passes'])
+    if (hasTable(database, table)) database.exec(`DELETE FROM ${table}`);
+}
 export function makeBackup(): Promise<string> {
   if (pending) return pending;
   pending = (async () => {
@@ -66,6 +74,7 @@ export function makeBackup(): Promise<string> {
       chmodSync(temporary, 0o600);
       const snapshot = new DatabaseSync(temporary);
       try {
+        redactCompetitionCredentials(snapshot);
         snapshot.exec(
           "DELETE FROM sessions; DELETE FROM records WHERE kind='password-recovery'; PRAGMA wal_checkpoint(TRUNCATE);",
         );
@@ -118,6 +127,9 @@ export async function exportSchoolDatabase(school: string) {
       .run(school);
     for (const table of ['records', 'invitations', 'ai_school_usage', 'users'])
       out.prepare(`DELETE FROM ${table} WHERE school_id!=?`).run(school);
+    if (hasTable(out, 'competition_scores'))
+      out.prepare('DELETE FROM competition_scores WHERE school_id!=?').run(school);
+    redactCompetitionCredentials(out);
     out.exec(
       "DELETE FROM records WHERE kind='password-recovery'; COMMIT; PRAGMA wal_checkpoint(TRUNCATE); VACUUM;",
     );

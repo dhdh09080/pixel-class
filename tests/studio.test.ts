@@ -13,6 +13,7 @@ import {
   appearanceColors,
   normalizeAppearance,
   appearancePresets,
+  professionPresets,
 } from '../shared/appearance.js';
 import { appearanceSchema } from '../shared/appearance-schema.js';
 import { defaultSchoolSettings } from '../shared/school.js';
@@ -153,7 +154,7 @@ test('expanded appearance catalog validates every option, rejects unsafe data, a
         false,
       );
   }
-  for (const preset of appearancePresets) {
+  for (const preset of [...appearancePresets, ...professionPresets]) {
     assert.equal(
       appearanceSchema.safeParse({ ...defaultAppearance, ...preset.changes }).success,
       true,
@@ -266,4 +267,41 @@ test('school names and detailed character data survive a real server restart wit
   assert.equal(after.me.id, before.me.id);
   assert.deepEqual(after.me.appearance, before.me.appearance);
   assert.deepEqual(after.school, before.school);
+});
+
+test('profession wardrobe preserves identity and all added choices persist for MASTER and STUDENT', async () => {
+  const identity = {
+    ...defaultAppearance,
+    hairstyle: 17,
+    eyeShape: 9,
+    eyes: '#278bd4',
+    skin: '#513b35',
+    hair: '#edc4d6',
+    body: 2,
+    accessory: 9,
+  };
+  const identityKeys = [
+    'skin',
+    'hair',
+    'hairstyle',
+    'eyes',
+    'eyeShape',
+    'brows',
+    'mouth',
+    'expression',
+    'accessory',
+    'body',
+  ] as const;
+  for (const preset of professionPresets) {
+    const look = { ...identity, ...preset.changes };
+    for (const key of identityKeys)
+      assert.equal(look[key], identity[key], preset.name + ': ' + key);
+    for (const cookie of [master, student]) {
+      assert.equal((await request('/me', 'PATCH', { appearance: look }, cookie)).status, 200);
+      assert.deepEqual(
+        (await (await request('/state', 'GET', undefined, cookie)).json()).me.appearance,
+        look,
+      );
+    }
+  }
 });

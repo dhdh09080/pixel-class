@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-11-12T00:44:53.901040+00:00",
+  "sourceCommit": "2359d1b67dc2fddfde540bb06c656a7cae07e478",
+  "sourceFiles": 40,
+  "totalVerifiedFiles": 51,
+  "allRuntimeSourcesAndBuiltClientMatch": true,
+  "image": "sha256:60748f9738b93262abd0fcbbeed8d590a74e45bc1f20c5d16edd754b75f617f8",
+  "method": "Cloud VFS disk workaround: successful original Dockerfile base with identical package/lockfile and dependencies; replace latest server/shared/scripts/dist in a root-owned layer, verify every runtime source and built client SHA256. Production Dockerfile unchanged; latest CI builds the complete original Dockerfile."
+}

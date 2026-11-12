@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-11-11T23:29:17.359Z",
+  "scope": "production dependencies, npm audit --omit=dev",
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  }
+}

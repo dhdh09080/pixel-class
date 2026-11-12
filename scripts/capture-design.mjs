@@ -8,7 +8,7 @@ if (!phase || !/^(before|after|cycle-\d+)$/.test(phase))
 const base = process.env.DESIGN_URL || 'http://127.0.0.1:5173';
 if (!['localhost', '127.0.0.1'].includes(new URL(base).hostname))
   throw Error('Capture only an isolated local demo.');
-const dir = join('docs/v03', phase);
+const dir = join(process.env.DESIGN_OUTPUT_DIR || 'docs/v03', phase);
 if (existsSync(join(dir, 'measurements.json')))
   throw Error('Capture already exists; choose a new cycle.');
 mkdirSync(dir, { recursive: true });
@@ -90,9 +90,22 @@ try {
     await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click();
     await page.getByRole('button', { name: '자료실', exact: true }).click();
     await shot('materials');
+    await page.getByRole('button', { name: '전시실', exact: true }).click();
+    await shot('gallery');
+    await page.getByRole('button', { name: '수업과 과제', exact: true }).click();
+    await shot('student-teaching');
+    await page.getByRole('button', { name: '내 계정과 운영', exact: true }).click();
+    await shot('student-account');
     await page.locator('.demo-switch').getByRole('button', { name: 'MASTER', exact: true }).click();
     await page.getByRole('button', { name: '교무실', exact: true }).click();
     await shot('master');
+    await page.getByRole('button', { name: '수업과 과제', exact: true }).click();
+    await shot('master-teaching');
+    await page.getByRole('button', { name: '경진대회', exact: true }).click();
+    await page.getByRole('heading', { name: '우리 반 AI 경진대회', exact: true }).waitFor();
+    await shot('master-competitions');
+    await page.getByRole('button', { name: '내 계정과 운영', exact: true }).click();
+    await shot('master-account');
     await page.goto('/?invite=DESIGN-AUDIT-ONLY');
     await page.getByLabel('입학 초대 KEY').waitFor();
     await shot('admission');

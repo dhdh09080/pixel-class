@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { AppState } from '../../shared/types';
+import { competitionStateLabels } from '../../shared/competitions';
 import type { ClassroomScene, GameAction } from './scene';
 export default function Classroom({
   state,
@@ -46,6 +47,8 @@ export default function Classroom({
     };
     const observer = new ResizeObserver(schedule);
     if (host.current) observer.observe(host.current);
+    // Live event strips and wrapped toolbar rows shift the host without changing its size.
+    if (container.current) observer.observe(container.current);
     window.addEventListener('scroll', schedule, { capture: true, passive: true });
     window.addEventListener('resize', schedule);
     window.visualViewport?.addEventListener('resize', schedule);
@@ -210,6 +213,19 @@ export default function Classroom({
           전체 화면
         </button>
       </div>
+      {state.competitionEvent && !['DRAFT', 'ARCHIVED'].includes(state.competitionEvent.state) && (
+        <div className="competition-event-strip" data-competition-id={state.competitionEvent.id}>
+          <div>
+            <strong>🏆 {state.competitionEvent.name}</strong>
+            <span>
+              {competitionStateLabels[state.competitionEvent.state]} · 우리 반의 AI 서비스 쇼케이스
+            </span>
+          </div>
+          <button type="button" onClick={() => onAction({ type: 'competition' })}>
+            대회 확인
+          </button>
+        </div>
+      )}
       <div
         className="game-host"
         ref={host}

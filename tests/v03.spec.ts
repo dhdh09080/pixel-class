@@ -427,6 +427,7 @@ test('another tab deleting a project preserves an editing draft and offers a cle
   await page.getByRole('button', { name: '프로젝트 목록으로', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('button', { name: '교실', exact: true }).click();
+  await expect(page.locator('canvas')).toBeVisible();
   await expect(page.locator('.map-online')).toContainText('접속 중');
   const world = page.locator('.game-host'),
     x = Number(await world.getAttribute('data-x'));

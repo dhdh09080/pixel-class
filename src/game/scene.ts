@@ -13,8 +13,14 @@ import {
 } from '../../shared/world';
 import { characterCanvas, type Direction } from './character';
 import { worldCanvas, deskCanvas, robotCanvas, WORLD_ART_SCALE } from './worldArt';
+import {
+  competitionBannerCanvas,
+  competitionBoardCanvas,
+  competitionTrophyCanvas,
+} from './competitionArt';
+import { competitionStateLabels } from '../../shared/competitions';
 export type GameAction = {
-  type: 'desk' | 'profile' | 'materials' | 'gallery' | 'ai' | 'notice';
+  type: 'desk' | 'profile' | 'materials' | 'gallery' | 'ai' | 'notice' | 'competition';
   memberId?: string;
 };
 type Player = {
@@ -50,6 +56,8 @@ export class ClassroomScene extends Phaser.Scene {
   layoutKey = '';
   worldHeight = 0;
   frameCount = 0;
+  competitionObjects: Phaser.GameObjects.GameObject[] = [];
+  competitionKey = '';
   onAction: (action: GameAction) => void;
   onMove: (v: unknown) => void;
   onPosition: (x: number, y: number) => void;
@@ -204,6 +212,7 @@ export class ClassroomScene extends Phaser.Scene {
   sync(state: AppState, initializing = false) {
     this.dataState = state;
     if (!initializing && !this.sys.isActive()) return;
+    this.syncCompetition();
     const room = state.world || worldSize(state.desks);
     if (room.height !== this.worldHeight) {
       const key = `world-${room.height}`;
@@ -223,7 +232,7 @@ export class ClassroomScene extends Phaser.Scene {
       this.layoutKey = layoutKey;
       this.desks.forEach((d) => d.destroy());
       this.desks = [];
-      for (const d of state.desks) {
+      for (const [deskIndex, d] of state.desks.entries()) {
         const owner = state.members.find((m) => m.deskId === d.id);
         const image = this.add
           .image(d.x, d.y + 58, 'desk')
@@ -240,7 +249,11 @@ export class ClassroomScene extends Phaser.Scene {
           .text(
             d.x,
             d.y + 88,
-            owner ? `${owner.id === state.me.id ? '나의 책상' : owner.name}` : '빈 자리',
+            owner
+              ? owner.id === state.me.id
+                ? '나의 책상'
+                : `${deskIndex + 1}번 자리`
+              : '빈 자리',
             {
               fontFamily: 'sans-serif',
               fontSize: '12px',
@@ -348,6 +361,96 @@ export class ClassroomScene extends Phaser.Scene {
       if (key.startsWith('char-') && !usedCharacterTextures.has(key)) this.textures.remove(key);
     const current = this.players.get(state.me.id);
     if (current) this.onPosition(current.sprite.x, current.sprite.y);
+  }
+  syncCompetition() {
+    // The server chooses only the account's active class event. No new movement obstacles.
+    const event = this.dataState.competitionEvent;
+    const visible = event && !['DRAFT', 'ARCHIVED'].includes(event.state) ? event : undefined;
+    const key = JSON.stringify(visible || null);
+    if (this.competitionKey === key) return;
+    this.competitionKey = key;
+    this.competitionObjects.forEach((object) => object.destroy());
+    this.competitionObjects = [];
+    if (!visible) return;
+    for (const [texture, canvas] of [
+      ['competition-banner', competitionBannerCanvas()],
+      ['competition-board', competitionBoardCanvas()],
+      ['competition-board-result', competitionBoardCanvas(true)],
+      ['competition-trophy', competitionTrophyCanvas()],
+    ] as const)
+      if (!this.textures.exists(texture)) this.textures.addCanvas(texture, canvas);
+    const title =
+      Array.from(visible.name).length > 23
+        ? Array.from(visible.name).slice(0, 22).join('') + '…'
+        : visible.name;
+    const banner = this.add
+      .image(560, 16, 'competition-banner')
+      .setDepth(3)
+      .setInteractive({ useHandCursor: true });
+    const bannerText = this.add
+      .text(560, 16, title, {
+        fontFamily: 'sans-serif',
+        fontSize: '12px',
+        fontStyle: 'bold',
+        color: '#fff8df',
+      })
+      .setOrigin(0.5)
+      .setDepth(4);
+    const result = visible.state === 'RESULTS_PUBLISHED';
+    const board = this.add
+      .image(790, 108, result ? 'competition-board-result' : 'competition-board')
+      .setDepth(3)
+      .setInteractive({ useHandCursor: true });
+    const caption = this.add
+      .text(790, 95, result ? '우리 반의 성취' : 'AI 쇼케이스', {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        fontStyle: 'bold',
+        color: '#385b43',
+      })
+      .setOrigin(0.5)
+      .setDepth(4);
+    const phase = this.add
+      .text(790, 116, competitionStateLabels[visible.state], {
+        fontFamily: 'sans-serif',
+        fontSize: '11px',
+        color: '#635a3d',
+      })
+      .setOrigin(0.5)
+      .setDepth(4);
+    const deadline = new Date(
+      visible.state === 'JUDGING' ? visible.judgingEndsAt : visible.submissionDueAt,
+    ).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric' });
+    const footer = this.add
+      .text(
+        790,
+        139,
+        result
+          ? (visible.winners?.[0] || '결과 확인하기').slice(0, 11)
+          : visible.state === 'JUDGING'
+            ? `${deadline} 심사 마감`
+            : `${deadline} 제출 마감`,
+        { fontFamily: 'sans-serif', fontSize: '10px', color: '#5f6c4f' },
+      )
+      .setOrigin(0.5)
+      .setDepth(4);
+    if (['JUDGING', 'JUDGING_CLOSED', 'RESULTS_PUBLISHED'].includes(visible.state)) {
+      const trophy = this.add.image(790, 67, 'competition-trophy').setScale(0.8).setDepth(5);
+      this.competitionObjects.push(trophy);
+    }
+    for (const object of [banner, board])
+      object.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
+        this.pointerAction(pointer, { type: 'competition' }),
+      );
+    this.competitionObjects.push(
+      banner,
+      bannerText,
+      board,
+      caption,
+      phase,
+      footer,
+      this.highlight(board, 790, 108, 96, 124),
+    );
   }
   highlight(
     target: Phaser.GameObjects.GameObject,

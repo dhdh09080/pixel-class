@@ -9,7 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const base = process.env.OPS_BASE_URL!;
 const railway = process.env.OPS_DEPLOYMENT_PROFILE === 'railway';
-const evidenceDir = railway ? 'docs/v05' : 'docs/operations';
+const evidenceDir = process.env.QA_OUTPUT_DIR || (railway ? 'docs/v05' : 'docs/operations');
 const headers = { 'X-Pixel-Class': '1', Origin: base };
 const gate = {
   username: process.env.OPS_ACCESS_USER!,
@@ -105,6 +105,114 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
                 })
               ).status(),
             ).toBe(401);
+            // The external judge entrance is a narrow exception to the real Railway gate.
+            // Loading an unknown contest must still load the public lazy bundle safely.
+            const contest = '/competition/11111111-1111-4111-8111-111111111111';
+            const entrance = await anonymous.get(contest);
+            expect(entrance.status()).toBe(200);
+            const html = await entrance.text();
+            expect(html).toContain('/competition-assets/');
+            expect(html).not.toContain('src="/assets/');
+            const assets = [...html.matchAll(/["'](\/competition-assets\/[^"']+)["']/g)].map(
+              (m) => m[1],
+            );
+            expect(assets.length).toBeGreaterThan(1);
+            for (const asset of assets) expect((await anonymous.get(asset)).status()).toBe(200);
+            const compression: {
+              asset: string;
+              identityBytes: number;
+              brBytes: number;
+              gzipBytes: number;
+            }[] = [];
+            for (const asset of assets.filter((asset) => /\.(?:js|css)$/.test(asset))) {
+              const identityResponse = await anonymous.get(asset, {
+                  headers: { 'Accept-Encoding': 'identity' },
+                }),
+                identity = await identityResponse.body();
+              const wire: { br: number; gzip: number } = { br: 0, gzip: 0 };
+              for (const encoding of ['br', 'gzip'] as const) {
+                const encoded = await anonymous.get(asset, {
+                  headers: { 'Accept-Encoding': encoding },
+                });
+                expect(encoded.status()).toBe(200);
+                expect(encoded.headers()['content-encoding']).toBe(encoding);
+                expect(encoded.headers().vary).toMatch(/Accept-Encoding/i);
+                expect(await encoded.body()).toEqual(identity);
+                wire[encoding] = Number(encoded.headers()['content-length']);
+                expect(wire[encoding]).toBeGreaterThan(0);
+                expect(wire[encoding]).toBeLessThan(identity.length);
+              }
+              const privatePath = asset.replace('/competition-assets/', '/assets/');
+              const privateBr = await perimeter.get(privatePath, {
+                headers: { 'Accept-Encoding': 'br' },
+              });
+              expect(privateBr.status()).toBe(200);
+              expect(privateBr.headers()['content-encoding']).toBe('br');
+              expect(
+                (
+                  await perimeter.get(privatePath, {
+                    headers: { 'Accept-Encoding': 'br', 'If-None-Match': privateBr.headers().etag },
+                  })
+                ).status(),
+              ).toBe(304);
+              expect(
+                (
+                  await anonymous.get(privatePath, {
+                    headers: { 'Accept-Encoding': 'br', 'If-None-Match': privateBr.headers().etag },
+                  })
+                ).status(),
+              ).toBe(401);
+              compression.push({
+                asset,
+                identityBytes: identity.length,
+                brBytes: wire.br,
+                gzipBytes: wire.gzip,
+              });
+            }
+            const publicContext = await browser.newContext({ baseURL: base });
+            contexts.push(publicContext);
+            const publicPage = await publicContext.newPage();
+            const privateRequests: string[] = [],
+              failedAssets: string[] = [],
+              publicErrors: string[] = [];
+            publicPage.on('request', (r) => {
+              if (/\/api\/(?:config|state)(?:\?|$)/.test(r.url()))
+                privateRequests.push(new URL(r.url()).pathname);
+            });
+            publicPage.on('response', (r) => {
+              if (r.url().includes('/competition-assets/') && r.status() >= 400)
+                failedAssets.push(new URL(r.url()).pathname);
+            });
+            publicPage.on('pageerror', (e) => publicErrors.push(e.message));
+            await publicPage.goto(contest);
+            await expect(publicPage.locator('.competition-public')).toBeVisible();
+            await expect(publicPage.getByText('확인이 필요해요', { exact: true })).toBeVisible();
+            expect(privateRequests).toEqual([]);
+            expect(failedAssets).toEqual([]);
+            expect(publicErrors).toEqual([]);
+            expect((await publicContext.request.get('/api/state')).status()).toBe(401);
+            mkdirSync(evidenceDir, { recursive: true });
+            writeFileSync(
+              join(evidenceDir, 'competition-gate.json'),
+              JSON.stringify(
+                {
+                  checkedAt: new Date().toISOString(),
+                  environment:
+                    'isolated Docker Railway profile, real volume and HTTPS gate; not the internet deployment',
+                  publicEntrance: entrance.status(),
+                  rewrittenAssets: assets.length,
+                  compressedAssets: compression,
+                  lazyComponentLoaded: true,
+                  privateRequests,
+                  failedAssets,
+                  publicErrors,
+                  schoolStateStatus: 401,
+                },
+                null,
+                2,
+              ) + '\n',
+            );
+            await publicPage.close();
           }
         } finally {
           await anonymous.dispose();
@@ -149,7 +257,10 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
 
     let invitation = '',
       projectId = '',
-      attachmentId = '';
+      attachmentId = '',
+      competitionId = '',
+      competitionEntryId = '';
+    let judge: BrowserContext | undefined;
     let identity: AppState['me'];
     await test.step('two independent password accounts complete the actual UI flow', async () => {
       await masterPage.goto('/');
@@ -477,6 +588,137 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
         ).toEqual([]);
     });
 
+    if (railway)
+      await test.step('an external judge scores an actual frozen work through the real private HTTPS gate', async () => {
+        const classes = await (await teacher.request.get('/api/competitions')).json();
+        const instant = Date.now(),
+          iso = (offset: number) => new Date(instant + offset).toISOString();
+        const created = await teacher.request.post('/api/competitions', {
+          headers,
+          data: {
+            name: 'HTTPS 운영 경진대회',
+            classId: classes.activeClassId,
+            participantIds: [identity.id],
+            opensAt: iso(-60000),
+            submissionDueAt: iso(15000),
+            judgingStartsAt: iso(16000),
+            judgingEndsAt: iso(180000),
+            resultsAt: iso(181000),
+          },
+        });
+        expect(created.status()).toBe(201);
+        competitionId = (await created.json()).id;
+        expect(
+          (
+            await teacher.request.post(`/api/competitions/${competitionId}/action`, {
+              headers,
+              data: { action: 'publish' },
+            })
+          ).ok(),
+        ).toBe(true);
+        const submitted = await student.request.put(`/api/competitions/${competitionId}/entry`, {
+          headers,
+          data: {
+            projectId,
+            title: '운영 출품 서비스',
+            displayName: '출품작 1',
+            serviceUrl: 'https://example.com',
+            consentPublic: true,
+            intro: {
+              serviceName: '운영 출품 서비스',
+              purpose: '비공개 학교와 분리된 안전한 심사',
+              features: '소개와 평가',
+              usage: '설명을 읽고 서비스를 확인해요',
+            },
+            submit: true,
+          },
+        });
+        expect(submitted.ok()).toBe(true);
+        competitionEntryId = (await submitted.json()).id;
+        const issued = await teacher.request.post(
+          `/api/competitions/${competitionId}/judge-passes`,
+          { headers, data: { label: 'HTTPS 독립 심사자', entryIds: [competitionEntryId] } },
+        );
+        expect(issued.status()).toBe(201);
+        const pass = await issued.json();
+        judge = await browser.newContext({ baseURL: base });
+        contexts.push(judge);
+        await expect
+          .poll(
+            async () =>
+              (await (await judge!.request.get(`/api/public/competitions/${competitionId}`)).json())
+                .competition.state,
+            { timeout: 25000, intervals: [250, 500, 1000] },
+          )
+          .toBe('JUDGING');
+        const page = await judge.newPage(),
+          judgeErrors: string[] = [];
+        page.on('pageerror', (e) => judgeErrors.push(e.message));
+        await page.goto(`/competition/${competitionId}#judge=${pass.key}`);
+        await expect(
+          page.getByText('HTTPS 독립 심사자 · 심사 연결됨', { exact: true }),
+        ).toBeVisible();
+        expect(page.url()).not.toContain('#');
+        expect(
+          (await judge.cookies()).some(
+            (c) => c.name === 'pixel_session' || c.name === '__Host-pixel_access',
+          ),
+        ).toBe(false);
+        const cookie = (await judge.cookies()).find((c) => c.name.startsWith('pixel_judge_'))!;
+        expect(cookie.secure).toBe(true);
+        expect(cookie.httpOnly).toBe(true);
+        expect(cookie.sameSite).toBe('Strict');
+        await page.getByRole('button', { name: /^작품 살펴보기/ }).click();
+        await expect(page.locator('iframe')).toHaveAttribute('sandbox', '');
+        await expect(
+          page.frameLocator('iframe').getByRole('heading', { name: '서비스 이름', exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.frameLocator('iframe').getByText('운영 출품 서비스', { exact: true }),
+        ).toBeVisible();
+        for (const [label, value] of [
+          ['실용성', '32'],
+          ['활용성', '27'],
+          ['완성도', '18'],
+          ['창의성', '14'],
+        ])
+          await page.getByLabel(label, { exact: true }).fill(value);
+        await page.getByRole('button', { name: '점수 확인하고 제출하기', exact: true }).click();
+        await page
+          .getByRole('dialog')
+          .getByRole('button', { name: '평가 최종 제출', exact: true })
+          .click();
+        await expect(page.getByText('이미 평가한 작품이에요', { exact: true })).toBeVisible();
+        expect((await judge.request.get('/api/state')).status()).toBe(401);
+        expect(judgeErrors).toEqual([]);
+        const detail = await (
+          await teacher.request.get(`/api/competitions/${competitionId}`)
+        ).json();
+        expect(
+          detail.results.find((r: { entryId: string }) => r.entryId === competitionEntryId),
+        ).toMatchObject({ average: 91, count: 1 });
+        mkdirSync(evidenceDir, { recursive: true });
+        await page.screenshot({ path: join(evidenceDir, 'real-judge.png'), fullPage: true });
+        writeFileSync(
+          join(evidenceDir, 'real-judge.json'),
+          JSON.stringify(
+            {
+              checkedAt: new Date().toISOString(),
+              environment: 'isolated Docker Railway HTTPS and real mounted volume',
+              accountSessions: 2,
+              independentJudgeSession: true,
+              secureHttpOnlyStrictCookie: true,
+              score: 91,
+              schoolApiStatus: 401,
+              errors: judgeErrors,
+            },
+            null,
+            2,
+          ) + '\n',
+        );
+        await page.close();
+      });
+
     await test.step('session rotation and logout invalidate the previous cookie', async () => {
       const old = (await student.cookies()).find((c) => c.name === 'pixel_session')!;
       const login = await student.request.post('/api/login', {
@@ -513,6 +755,14 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
       expect(after.me.id).toBe(identity.id);
       expect(after.me.deskId).toBe(identity.deskId);
       expect(after.me.appearance).toEqual(identity.appearance);
+      if (competitionId) {
+        const details = await (
+          await teacher.request.get(`/api/competitions/${competitionId}`)
+        ).json();
+        expect(
+          details.results.find((r: { entryId: string }) => r.entryId === competitionEntryId),
+        ).toMatchObject({ average: 91, count: 1 });
+      }
       expect(after.projects.find((p) => p.id === projectId)!.feedback.at(-1)!.text).toContain(
         '저장 후 다시 조회',
       );
@@ -645,6 +895,18 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
       expect(after.me.id).toBe(identity.id);
       expect(after.me.deskId).toBe(identity.deskId);
       expect(after.me.appearance).toEqual(identity.appearance);
+      if (competitionId) {
+        const details = await (
+          await teacher.request.get(`/api/competitions/${competitionId}`)
+        ).json();
+        expect(
+          details.results.find((r: { entryId: string }) => r.entryId === competitionEntryId),
+        ).toMatchObject({ average: 91, count: 1 });
+        expect(
+          (await (await judge!.request.get(`/api/public/competitions/${competitionId}`)).json())
+            .judge,
+        ).toBeUndefined();
+      }
       expect(after.projects.find((p) => p.id === projectId)!.feedback.at(-1)!.text).toContain(
         '저장 후 다시 조회',
       );
@@ -732,9 +994,10 @@ test(`${railway ? 'Railway profile' : 'private Docker'} HTTPS: real MASTER invit
         true,
       );
       expect(new Set(results.map((value) => value.clientAddress)).size).toBe(2);
-      mkdirSync(railway ? 'docs/v05' : 'docs/v04', { recursive: true });
+      const networkDir = process.env.QA_OUTPUT_DIR || (railway ? 'docs/v05' : 'docs/v04');
+      mkdirSync(networkDir, { recursive: true });
       writeFileSync(
-        `${railway ? 'docs/v05' : 'docs/v04'}/network-peers.json`,
+        `${networkDir}/network-peers.json`,
         JSON.stringify(
           {
             capturedAt: new Date().toISOString(),

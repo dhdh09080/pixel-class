@@ -18,6 +18,9 @@ const headers = { 'X-Pixel-Class': '1' };
 const report = {
   startedAt: new Date().toISOString(),
   sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+  workingTreeDirty: Boolean(
+    execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
+  ),
   requestedSeconds: duration,
   kind: '6 real Chromium contexts; private local server; not 30-browser or multi-hour production certification',
   checkpoints: [],
@@ -154,7 +157,7 @@ try {
       await page.getByLabel('비밀번호', { exact: true }).fill(password);
       if (i === 1) {
         await page.locator('.character-select').click();
-        await page.getByLabel('헤어스타일', { exact: true }).selectOption('2');
+        await page.getByRole('button', { name: '헤어스타일: 숏 크롭', exact: true }).click();
         await page.getByRole('button', { name: '이 모습으로 저장하기', exact: true }).click();
       }
       await page.getByRole('button', { name: '입학하고 교실 입장하기', exact: true }).click();
@@ -261,8 +264,9 @@ try {
   }
   report.serverSocketsAfterContextCleanup = { ...serverSockets };
   await stop();
-  mkdirSync('docs/v03/qa', { recursive: true });
-  writeFileSync('docs/v03/qa/soak.json', JSON.stringify(report, null, 2) + '\n');
+  const output = process.env.QA_OUTPUT_DIR || 'docs/v03/qa';
+  mkdirSync(output, { recursive: true });
+  writeFileSync(join(output, 'soak.json'), JSON.stringify(report, null, 2) + '\n');
   console.log(
     JSON.stringify({
       passed: report.passed,

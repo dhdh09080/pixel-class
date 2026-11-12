@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-11-12T00:41:00.414Z",
+  "environment": "isolated Docker Railway HTTPS and real mounted volume",
+  "accountSessions": 2,
+  "independentJudgeSession": true,
+  "secureHttpOnlyStrictCookie": true,
+  "score": 91,
+  "schoolApiStatus": 401,
+  "errors": []
+}

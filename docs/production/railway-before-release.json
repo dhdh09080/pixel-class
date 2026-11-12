@@ -1,0 +1,136 @@
+{
+  "checkedAt": "2026-11-12T00:48:20.886Z",
+  "projectId": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+  "environment": {
+    "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "name": "private-test"
+  },
+  "service": {
+    "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "name": "pixel-class",
+    "state": "live-with-staged-changes"
+  },
+  "latestDeployment": {
+    "id": "fb44aa92-27bc-411d-83ad-8954010861cc",
+    "status": "SUCCESS",
+    "createdAt": "2026-11-10T06:57:26.397Z",
+    "url": null
+  },
+  "sourceWithStagedChanges": {
+    "repo": "dhdh09080/pixel-class",
+    "branch": "main",
+    "commitSha": "cb36f6184b199abe7a836eb28bb5f2237458f837",
+    "image": null
+  },
+  "volumes": [
+    {
+      "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+      "name": "school-data",
+      "mountPath": "/app/data",
+      "sizeMB": 500,
+      "region": "sfo",
+      "state": "live"
+    }
+  ],
+  "domains": {
+    "serviceDomains": [
+      {
+        "id": "60975d72-e9db-48cd-a1fc-1b2e09fe5cf1",
+        "domain": "pixel-class-private-test.up.railway.app",
+        "targetPort": 8080
+      }
+    ],
+    "customDomains": []
+  },
+  "variableNames": [
+    "AI_ENABLED",
+    "AI_MAX_CONCURRENT",
+    "AI_SCHOOL_DAILY_CALLS",
+    "COOKIE_SECURE",
+    "DATABASE_MODE",
+    "DATABASE_PATH",
+    "DEMO_MODE",
+    "HOST",
+    "MASTER_BOOTSTRAP_KEY",
+    "NODE_ENV",
+    "PIXEL_RUNTIME",
+    "PORT",
+    "PUBLIC_ORIGIN",
+    "RAILWAY_DOCKERFILE_PATH",
+    "RAILWAY_RUN_UID",
+    "STAGING_ACCESS_KEY",
+    "TRUST_PROXY_HOPS"
+  ],
+  "stagedChanges": {
+    "project": {
+      "id": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+      "name": "pixel-class"
+    },
+    "environment": {
+      "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "name": "private-test"
+    },
+    "staged": {
+      "patchId": "94f0b81b-cc4b-4d2a-b863-c40682e872b9",
+      "status": "STAGED",
+      "changeCount": 4,
+      "message": null,
+      "createdAt": "2026-11-10T08:30:15.111Z",
+      "updatedAt": "2026-11-11T21:42:13.635Z"
+    },
+    "destructive": false,
+    "resources": [
+      {
+        "kind": "service",
+        "id": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+        "name": "pixel-class",
+        "action": "update",
+        "changes": [
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.branch",
+            "displayName": "Branch",
+            "type": "updated",
+            "from": "main",
+            "to": "main",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.commitSha",
+            "displayName": "Commit Sha",
+            "type": "updated",
+            "from": "67f84b5d957ca6eed65745b73400adbf3bc0ef00",
+            "to": "cb36f6184b199abe7a836eb28bb5f2237458f837",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.image",
+            "displayName": "Image",
+            "type": "removed",
+            "from": "",
+            "to": "",
+            "destructive": false
+          },
+          {
+            "path": "services.a64cd7e5-f18b-47ac-a714-d2322cca69e7.source.repo",
+            "displayName": "Repo",
+            "type": "updated",
+            "from": "dhdh09080/pixel-class",
+            "to": "dhdh09080/pixel-class",
+            "destructive": false
+          }
+        ]
+      }
+    ],
+    "sharedVariables": [],
+    "privateNetworkDisabled": null
+  },
+  "externalDeploymentVerified": false,
+  "applyRequest": {
+    "result": "Cancelled — the user did not approve this action. No changes were made.",
+    "retried": false
+  },
+  "directHttps": {
+    "result": "CONNECT403",
+    "policy": "No proxy bypass or alternate unapproved transport attempted."
+  }
+}

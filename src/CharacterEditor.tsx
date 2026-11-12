@@ -17,6 +17,7 @@ import {
   appearanceColors,
   normalizeAppearance,
   appearancePresets,
+  professionPresets,
 } from '../shared/appearance';
 import { type Direction } from './game/character';
 import { Button } from './ui';
@@ -271,11 +272,41 @@ export function CharacterEditor({
           )}
           {category === 'clothes' && (
             <>
+              <fieldset className="studio-option-group" disabled={busy}>
+                <legend>
+                  직업 코디 <span>헤어·얼굴·피부색은 그대로 유지돼요</span>
+                </legend>
+                <div className="studio-presets">
+                  {professionPresets.map((preset) => {
+                    const selected = Object.entries(preset.changes).every(
+                      ([key, value]) => a[key as keyof Appearance] === value,
+                    );
+                    return (
+                      <button
+                        type="button"
+                        className={`studio-preset ${selected ? 'is-selected' : ''}`}
+                        key={preset.name}
+                        aria-label={`직업 코디: ${preset.name}`}
+                        aria-pressed={selected}
+                        onClick={() =>
+                          setA((previous) =>
+                            normalizeAppearance({ ...previous, ...preset.changes }),
+                          )
+                        }
+                      >
+                        <Avatar appearance={{ ...a, ...preset.changes }} size={100} decorative />
+                        <span>{preset.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
               {options('outfit')}
               {colors('outfitColor')}
               {colors('accentColor')}
               <p className="studio-help">
-                티셔츠부터 드레스까지. 색상과 포인트를 조합해 나만의 옷장을 만들어 보세요.
+                모든 코디는 성별 제한 없이 선택할 수 있어요. 의상과 모자를 따로 바꾸거나 색상을
+                자유롭게 조합해 보세요.
               </p>
             </>
           )}

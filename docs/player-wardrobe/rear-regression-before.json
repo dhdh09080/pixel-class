@@ -1,0 +1,170 @@
+{
+  "capturedAt": "2026-11-11T23:46:07.104Z",
+  "source": "actual characterCanvas, integer 60x80 native renderer, isolated local Chromium",
+  "counts": {
+    "body": {
+      "unique": 4,
+      "expected": 4
+    },
+    "hairstyle": {
+      "unique": 18,
+      "expected": 18
+    },
+    "eyeShape": {
+      "unique": 10,
+      "expected": 10
+    },
+    "brows": {
+      "unique": 5,
+      "expected": 5
+    },
+    "expression": {
+      "unique": 6,
+      "expected": 6
+    },
+    "mouth": {
+      "unique": 6,
+      "expected": 6
+    },
+    "accessory": {
+      "unique": 10,
+      "expected": 10
+    },
+    "helmetStyle": {
+      "unique": 15,
+      "expected": 15
+    },
+    "helmetPattern": {
+      "unique": 6,
+      "expected": 6
+    },
+    "outfit": {
+      "unique": 25,
+      "expected": 25
+    }
+  },
+  "palettes": [
+    {
+      "name": "크림 리본",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "베리 단발",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "미드나잇 테일러",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "포레스트 워커",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "코랄 브레이드",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "라벤더 웨이브",
+      "colors": 19,
+      "partial": 0
+    },
+    {
+      "name": "코발트 리본",
+      "colors": 19,
+      "partial": 0
+    },
+    {
+      "name": "건축 엔지니어",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "정비사",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "개발자",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "의사",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "간호사",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "연구원",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "셰프",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "바리스타",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "교사",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "소방관",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "파일럿",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "경찰관",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "아티스트",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "가드너",
+      "colors": 16,
+      "partial": 0
+    },
+    {
+      "name": "우주비행사",
+      "colors": 18,
+      "partial": 0
+    },
+    {
+      "name": "호텔리어",
+      "colors": 17,
+      "partial": 0
+    },
+    {
+      "name": "스포츠 코치",
+      "colors": 17,
+      "partial": 0
+    }
+  ],
+  "rearGaps": [50, 0, 50, 5, 50, 50, 50, 0, 50, 50, 0, 5, 0, 50, 50, 0, 50, 0],
+  "worldFootprint": [55.2, 73.60000000000001]
+}
