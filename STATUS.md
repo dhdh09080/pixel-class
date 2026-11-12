@@ -2,14 +2,14 @@
 
 검증 코드 **`fc4afc13ac2d6b164a9ca7ffa105ad7b5cba72de`**, [PR #13](https://github.com/dhdh09080/pixel-class/pull/13), [CI169개 성공](https://github.com/dhdh09080/pixel-class/actions/runs/43130365405). 서버119·브라우저48·Compose1·Railway 운영 프로필1을 확인했습니다. 새 기능 구현과 실제 서비스 적용은 구분합니다.
 
-## 실제 배포와 데이터
+## 실제 배포와 데이터 — 사용자 Deploy 적용 후 갱신
 
 - 비공개 주소: https://pixel-class-private-test.up.railway.app/
-- Railway `pixel-class / private-test / pixel-class`, 기존 실행 소스 **`67f84b5d957ca6eed65745b73400adbf3bc0ef00`**, 배포 `fb44aa92-27bc-411d-83ad-8954010861cc` 플랫폼 SUCCESS.
+- Railway `pixel-class / private-test / pixel-class`, 실제 실행 소스 **`ad4d62f032f6636a476f20b6e8429d741fbd68af`**, 배포 `152e403f-7cb4-4a98-8732-6b76ce6217a0` 플랫폼 SUCCESS.
 - 기존500MB `school-data` Volume `/app/data`, SQLite WAL·Express/WebSocket 단일 인스턴스를 유지합니다. 계정·사용자 자료·비밀 변수·볼륨을 삭제/초기화/재생성하지 않았습니다.
 - Supabase 연결/전환 없음. 원격 DB 파일과 최신 백업 일관성은 직접 미검증이며, 로컬 및 CI의 재생성·백업·복원은 검증했습니다.
-- 새 배포 적용은 자동 승인 검토가 “사용자가 승인하지 않음”으로 취소했습니다. 다른 API로 우회하지 않습니다. 현재 Cloud의 직접 HTTPS/WSS는 CONNECT403이라 외부 두 PC 인수도 미완료입니다.
-- 최종 main 코드 병합 **`ad4d62f032f6636a476f20b6e8429d741fbd68af`**, 검증 head **`fc4afc1`**, PR #13 병합 완료. Railway 대기 소스도 **`ad4d62f`**로 고정했습니다. 대기 patch `94f0b81b-cc4b-4d2a-b863-c40682e872b9`의 실질 변경은 소스 커밋1개이며 destructive:false입니다.17개 변수·기존 Volume·시작 명령은 그대로이고 적용은 실행하지 않았습니다. 이후 main의 상태 문서/캡처 기록 커밋은 런타임 변경이 없습니다. [플랫폼 최종 기록](docs/production/railway-release-state.json).
+- 사용자께서 Deploy를 적용한 후2026-11-12 01:29 UTC에 새 배포 SUCCESS·Online·1 running을 확인했습니다. 대기 변경은 없습니다. 현재 Cloud의 HTTPS는 CONNECT403, Chromium은 ERR_TUNNEL_CONNECTION_FAILED로 외부 로그인·WSS 인수는 아직 미검증입니다.
+- main 코드 병합 `ad4d62f`가 실제 Railway에 적용됐습니다. 기존500MB Volume·17개 변수·일반 시작 명령을 유지합니다. [새 플랫폼 기록](docs/production/live/platform-deployment.json) · [브라우저 접속 시도](docs/production/live/browser-reachability.json).
 - OpenAI 키/모델 없음·AI 비활성. 실제 모델 품질/과금 검증은 미실행이며 연결 시 학교 하루3회·동시1회부터 시험합니다.
 
 ## main에 반영한 기능
@@ -24,7 +24,7 @@
 
 [최종 운영 보고](PRODUCTION_FINAL_REPORT.md) · [전체 검증과 실패 이력](PRODUCTION_TEST_REPORT.md) · [대회 사용법](COMPETITION_FINAL_REPORT.md) · [대회 설계](COMPETITION_ARCHITECTURE.md) · [디자인 검토](PRODUCTION_DESIGN_REVIEW.md)
 
-실제 새 버전 배포·외부 운영 계정 인수·원격 백업 최신성 확인 전에는 공개 운영 준비 완료로 판정하지 않습니다. 이메일 소유권 확인/MFA·악성코드 검사·심사 정정/재심사 UI는 후속입니다.
+외부 운영 계정 로그인·WSS 인수·원격 백업 최신성 확인 전에는 공개 운영 준비 완료로 판정하지 않습니다. 이메일 소유권 확인/MFA·악성코드 검사·심사 정정/재심사 UI는 후속입니다.
 
 ## 이전 v0.6 릴리스 기록 (최신 후보 원본은 위60×80)
 

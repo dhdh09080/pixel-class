@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-11-12T01:32:02.684Z",
+  "url": "https://pixel-class-private-test.up.railway.app",
+  "kind": "anonymous browser reachability only",
+  "authenticatedLoginVerified": false,
+  "wssVerified": false,
+  "error": "page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://pixel-class-private-test.up.railway.app/ Call log:"
+}

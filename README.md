@@ -2,7 +2,7 @@
 
 > **운영 품질·반별 경진대회 main 반영 — [PR #13](https://github.com/dhdh09080/pixel-class/pull/13)**
 >
-> 실제 운영 코드는 Railway의 기존 `67f84b5`입니다. 새 경진대회·아바타는 main에 병합했고 Railway에는 검증된 소스만 대기로 준비했습니다. 실제 적용은 승인 대기입니다. [최종 보고서](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [검증 현황](STATUS.md)
+> 사용자 Deploy 적용 후 Railway 실행 코드는 `ad4d62f`이며 새 경진대회·아바타가 포함됩니다. 플랫폼 SUCCESS를 확인했지만 외부 계정 로그인·WSS 인수는 현재 검사 환경의 네트워크 차단으로 미완료입니다. [최종 보고서](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [검증 현황](STATUS.md)
 
 **Learn AI. Build Your Own Service.**
 

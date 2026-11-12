@@ -1,0 +1,71 @@
+{
+  "checkedAt": "2026-11-12T01:32:03.310Z",
+  "liveSource": {
+    "repo": "dhdh09080/pixel-class",
+    "branch": "main",
+    "commitSha": "ad4d62f032f6636a476f20b6e8429d741fbd68af"
+  },
+  "latestDeployment": {
+    "id": "152e403f-7cb4-4a98-8732-6b76ce6217a0",
+    "status": "SUCCESS",
+    "createdAt": "2026-11-12T01:28:31.293Z",
+    "url": null
+  },
+  "volume": [
+    {
+      "id": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+      "name": "school-data",
+      "mountPath": "/app/data",
+      "sizeMB": 500,
+      "region": "sfo",
+      "state": "live"
+    }
+  ],
+  "pendingChanges": null,
+  "environment": {
+    "environment": {
+      "id": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "name": "private-test"
+    },
+    "services": [
+      {
+        "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+        "serviceName": "pixel-class",
+        "state": "online",
+        "statusText": "Online",
+        "activeDeployments": [
+          {
+            "id": "152e403f-7cb4-4a98-8732-6b76ce6217a0",
+            "status": "SUCCESS",
+            "createdAt": "2026-11-12T01:28:31.293Z",
+            "statusUpdatedAt": "2026-11-12T01:29:36.705Z"
+          }
+        ],
+        "replicaStatus": {
+          "running": 1,
+          "crashed": 0,
+          "total": 1
+        },
+        "cronJob": null,
+        "issues": {
+          "warningCount": 0,
+          "criticalCount": 0
+        },
+        "recentFailures": 0,
+        "recentFailedDeployments": [],
+        "hasIssues": false,
+        "isCronJob": false,
+        "hasVolume": true
+      }
+    ],
+    "pendingWork": [],
+    "summary": {
+      "totalServices": 1,
+      "servicesWithIssues": 0,
+      "totalFailures": 0
+    }
+  },
+  "authenticatedLoginVerified": false,
+  "wssVerified": false,
+  "directProbe": "HTTPS CONNECT403; current observed allowlist excludes target; no proxy bypass attempted"
+}
