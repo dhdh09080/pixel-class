@@ -1,0 +1,10 @@
+{
+  "observedAt": "2026-11-12T18:32:21Z",
+  "deploymentId": "152e403f-7cb4-4a98-8732-6b76ce6217a0",
+  "status": "SUCCESS",
+  "startDate": "2026-11-12T00:00:00Z",
+  "filter": "\"Scheduled school backup failed\" OR \"Pixel Class request failed\"",
+  "limit": 30,
+  "matchingEntries": 0,
+  "limitation": "Filtered runtime log search only; not a live DB integrity or authenticated account test."
+}
