@@ -25,7 +25,8 @@
     "test:load": "node scripts/load-realtime.mjs",
     "deploy:check": "node --import tsx scripts/check-deployment.mjs",
     "test:railway": "node scripts/test-operations.mjs --railway",
-    "railway:secrets": "node scripts/railway-secrets.mjs"
+    "railway:secrets": "node scripts/railway-secrets.mjs",
+    "test:enrollment": "node scripts/test-operations.mjs --railway --enrollment"
   },
   "dependencies": {
     "dotenv": "18.0.9",

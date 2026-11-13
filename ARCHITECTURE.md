@@ -168,3 +168,7 @@ AI 입력은 redaction 후 프로젝트 6000자·최근10개 대화 총16000자�
 `competition-score-review`와 불변 `competition-score-review-version`은 원래 competition_scores를 수정하지 않고 집계 포함 여부·사유·처리자·revision·원본 해시를 저장합니다. MASTER의 학교 범위와 결과 공개/보관 잠금을 검사하며 공개 DTO에는 개별 검토 이력을 포함하지 않습니다. 버전 조회는 요약 목록과 선택한 본문을 분리합니다. 예전 코드의 집계는 이 제외 기록을 해석하지 못하므로 공개 결과를 포함한 옛 코드 롤백을 호환 완료로 간주하지 않습니다.
 
 이동 경로의 Zod 스키마와 고정 SQLite 읽기 SQL만 재사용합니다. 권한·세션·학적·책상·교실 데이터는 계속 현재 DB에서 읽으며 결과 캐시를 추가하지 않습니다. 같은 메시지에서 이미 읽은 책상을 roomSize에 전달해 중복 조회를 없앱니다. 이름표 캐시는 마지막 위치/범위/우선순위 입력 하나만 유지합니다. 프레임 제한 실험은 이동 회귀 때문에 제거했습니다.
+
+## 가입 승인 경계
+
+`server/admission-policy.ts`가 공개 가입 경로의 정확한 method/path 예외를 정의합니다. `server/admissions.ts`는 서버 고정 STUDENT/PENDING 생성과 본인 상태 DTO, MASTER의 원자적 승인·반·책상 배정을 담당합니다. 기존 인증·세션·Secure Cookie와 SQLite 스키마를 재사용하며 반은 `competition-class`와 `Member.classId`를 사용합니다. `src/Enrollment.tsx`와 `AdmissionsPanel.tsx`가 대기 및 승인 화면을 분리합니다. 기능 플래그가 false여도 대기 계정은 기존 auth 경계에서 차단됩니다.

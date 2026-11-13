@@ -50,8 +50,10 @@ const Classroom = lazy(() => import('./game/Classroom'));
 const CompetitionsPage = lazy(() =>
   import('./Competitions').then((module) => ({ default: module.CompetitionsPage })),
 );
+const Enrollment = lazy(() => import('./Enrollment'));
 const PublicCompetition = lazy(() => import('./PublicCompetition'));
 import './competition.css';
+import './enrollment.css';
 type Page =
   | 'classroom'
   | 'projects'
@@ -73,6 +75,18 @@ type Overlay =
   | 'auth'
   | null;
 export default function App() {
+  if (location.pathname === '/join')
+    return (
+      <Suspense
+        fallback={
+          <div className="initial-loading" role="status">
+            학교를 불러오고 있어요…
+          </div>
+        }
+      >
+        <Enrollment />
+      </Suspense>
+    );
   const competitionRoute = location.pathname.match(/^\/competition\/([A-Za-z0-9_-]+)\/?$/);
   if (competitionRoute)
     return (
@@ -136,7 +150,12 @@ function SchoolApp() {
       const next = await fetchState();
       if (sequence === loadSequence.current) {
         applyState(next);
-        setConfig({ demo: next.demo, bootstrap: false, aiConfigured: next.aiConfigured });
+        setConfig({
+          demo: next.demo,
+          bootstrap: false,
+          aiConfigured: next.aiConfigured,
+          approvalRegistrationEnabled: next.approvalRegistrationEnabled,
+        });
       }
     } catch (e) {
       if (sequence !== loadSequence.current) return;
@@ -169,6 +188,10 @@ function SchoolApp() {
         try {
           applyState(await fetchState());
         } catch (e) {
+          if (c.approvalRegistrationEnabled && e instanceof ApiError && e.status === 403) {
+            location.replace('/join');
+            return;
+          }
           if (
             c.demo &&
             !sessionStorage.getItem('pixel-signed-out') &&
@@ -362,6 +385,7 @@ function SchoolApp() {
       sessionStorage.setItem('pixel-signed-out', '1');
       resetAccountUi();
       setState(null);
+      if (state?.approvalRegistrationEnabled) location.assign('/join?login=1');
     } catch (e) {
       onToast((e as Error).message);
     }
@@ -522,6 +546,12 @@ function SchoolApp() {
             </div>
           ) : page === 'classroom' ? (
             <>
+              {state.approvalRegistrationEnabled && me.role === 'STUDENT' && (
+                <p className="class-assignment">
+                  내 반 ·{' '}
+                  {state.classes?.find((group) => group.id === me.classId)?.name || '기본반'}
+                </p>
+              )}
               <div className="classroom-intro">
                 <div>
                   <p className="eyebrow">

@@ -14,6 +14,8 @@ import {
   validAccessCode,
   validAccessPass,
 } from './entrance.js';
+import { approvalRegistrationEnabled, isPublicEnrollmentRequest } from './admission-policy.js';
+import { registerAdmissionRoutes, admissionQueue, isApplicant } from './admissions.js';
 import { isRailway } from './railway-volume.mjs';
 import { aiLimits, mentoringInput } from './ai-policy.js';
 import { normalizeProject, aiProjectContext, redactSensitive } from '../shared/learning.js';
@@ -97,6 +99,14 @@ app.use((req, res, next) => {
       res.setHeader('Strict-Transport-Security', 'max-age=31536000');
   }
   if (req.path.startsWith('/api')) res.setHeader('Cache-Control', 'no-store');
+  const publicEnrollment = isPublicEnrollmentRequest(req.method, req.path);
+  if (
+    publicEnrollment &&
+    req.method === 'POST' &&
+    (!req.headers.origin ||
+      !allowedOrigin(req.headers.origin, req.headers.host, process.env.PUBLIC_ORIGIN))
+  )
+    return res.status(403).json({ error: '학교 주소에서 다시 시도해 주세요.' });
   if (railway) {
     // Never cache gated assets at a shared edge. Only the minimal liveness probe is public.
     res.setHeader('Cache-Control', 'private, no-store');
@@ -112,10 +122,24 @@ app.use((req, res, next) => {
     if (
       !(req.method === 'GET' && req.url === '/api/health') &&
       !isPublicCompetitionRequest(req.method, req.path) &&
+      !publicEnrollment &&
       !privateAccess(req.headers.authorization, accessSecret) &&
       !validAccessPass(req.headers.cookie, accessSecret)
     ) {
-      if (req.method === 'GET' && req.path === '/' && req.get('accept')?.includes('text/html'))
+      if (
+        req.method === 'GET' &&
+        req.path === '/' &&
+        req.get('accept')?.includes('text/html') &&
+        approvalRegistrationEnabled()
+      ) {
+        const reset = entranceInvite(req.query.reset);
+        return res.redirect(303, reset ? '/join?reset=' + reset : '/join');
+      }
+      if (
+        req.method === 'GET' &&
+        ['/', '/admin-entry'].includes(req.path) &&
+        req.get('accept')?.includes('text/html')
+      )
         return res
           .status(401)
           .send(
@@ -140,7 +164,7 @@ const standardJson = express.json({ limit: '8mb' });
 const competitionUploadJson = express.json({ limit: '14mb' });
 const publicCompetitionJson = express.json({ limit: '16kb' });
 app.use((req, res, next) =>
-  (req.path.startsWith('/api/public/competitions/')
+  (req.path.startsWith('/api/public/competitions/') || req.path.startsWith('/api/enrollment/')
     ? publicCompetitionJson
     : req.method === 'PUT' && /^\/api\/competitions\/[^/]+\/entry$/.test(req.path)
       ? competitionUploadJson
@@ -195,9 +219,55 @@ function login(res: Response, user: Member, req: Request) {
     path: '/',
   });
 }
+function grantSchoolAccess(res: Response) {
+  if (!railway) return;
+  const secret = process.env.STAGING_ACCESS_KEY;
+  if (!secret) fail(503, '학교 접근 설정을 확인해 주세요.');
+  res.cookie(accessCookie, createAccessPass(secret!), {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: accessDuration,
+  });
+}
+function restrictSchoolAccess(res: Response) {
+  if (railway)
+    res.clearCookie(accessCookie, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
+}
+function logout(req: Request, res: Response) {
+  const token = req.headers.cookie
+    ?.split(';')
+    .map((v) => v.trim())
+    .find((v) => v.startsWith('pixel_session='))
+    ?.slice(14);
+  if (token) {
+    db.prepare('DELETE FROM sessions WHERE token_hash=?').run(digest(token));
+    res.once('finish', () => closeSessionSockets(digest(token)));
+  }
+  res.clearCookie('pixel_session', {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.COOKIE_SECURE === 'true',
+    path: '/',
+  });
+  if (approvalRegistrationEnabled()) restrictSchoolAccess(res);
+}
+function verifyCredentials(email: string, password: string): Member {
+  rate('login-account:' + digest(email), 12);
+  const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(email) as
+    { password: string; body: string } | undefined;
+  const [salt, hash] = (row?.password || '0:').split(':');
+  const actual = scryptSync(password, salt, 64),
+    expected = Buffer.from(hash || '', 'hex');
+  if (!row || actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    fail(401, '이메일 또는 비밀번호가 올바르지 않습니다.');
+  return JSON.parse(row!.body) as Member;
+}
 function auth(req: Request): Member {
   const u = sessionUser(req);
   if (!u) fail(401, '로그인이 필요합니다.');
+  if (isApplicant(u!)) fail(403, '선생님의 가입 승인을 기다려 주세요.');
   if (u!.status === 'REVOKED') fail(403, '학교 접근 권한이 회수되었습니다.');
   return u!;
 }
@@ -404,6 +474,7 @@ function refreshAuth() {
 app.get('/api/config', (_req, res) =>
   res.json({
     demo,
+    ...(approvalRegistrationEnabled() ? { approvalRegistrationEnabled: true } : {}),
     bootstrap:
       !demo && !db.prepare("SELECT id FROM users WHERE json_extract(body,'$.role')='MASTER'").get(),
     aiConfigured: aiEnabled && !!process.env.OPENAI_API_KEY && !!process.env.OPENAI_MODEL,
@@ -421,29 +492,13 @@ app.post('/api/login', (req, res) => {
   // individual account separately so one class can sign in together.
   rate(`login:${req.ip}`, 120);
   const c = credentialSchema.parse(req.body);
-  rate(`login-account:${digest(c.email)}`, 12);
-  const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(c.email) as
-    { password: string; body: string } | undefined;
-  const [salt, expected] = (row?.password || '0:').split(':');
-  const actual = scryptSync(c.password, salt, 64);
-  if (!row || !expected || !timingSafeEqual(actual, Buffer.from(expected, 'hex')))
-    fail(401, '이메일 또는 비밀번호가 올바르지 않습니다.');
-  const u = JSON.parse(row!.body) as Member;
+  const u = verifyCredentials(c.email, c.password);
   if (u.status === 'REVOKED') fail(403, '학교 접근 권한이 회수되었습니다.');
   login(res, u, req);
   res.json({ ok: true });
 });
 app.post('/api/logout', (req, res) => {
-  const token = req.headers.cookie
-    ?.split(';')
-    .map((v) => v.trim())
-    .find((v) => v.startsWith('pixel_session='))
-    ?.slice(14);
-  if (token) {
-    db.prepare('DELETE FROM sessions WHERE token_hash=?').run(digest(token));
-    res.once('finish', () => closeSessionSockets(digest(token)));
-  }
-  res.clearCookie('pixel_session');
+  logout(req, res);
   res.json({ ok: true });
 });
 app.post('/api/bootstrap', (req, res) => {
@@ -482,6 +537,7 @@ app.post('/api/bootstrap', (req, res) => {
   res.json({ ok: true });
 });
 app.post('/api/register', (req, res) => {
+  if (approvalRegistrationEnabled()) fail(410, '초대 KEY 대신 회원가입을 신청해 주세요.');
   rate(`register:${req.ip}`, 120);
   rate(`invite-attempt:${req.ip}:${digest(String(req.body.key || ''))}`, 10);
   const c = credentialSchema
@@ -555,7 +611,11 @@ app.get('/api/state', (req, res) => {
     me: u,
     ...competitionClassroomState(u),
     school: schoolSettings(u.schoolId),
-    members: isActive ? members(u.schoolId) : [u],
+    members: isActive ? members(u.schoolId).filter((m) => !isApplicant(m)) : [u],
+    ...(approvalRegistrationEnabled() ? { approvalRegistrationEnabled: true } : {}),
+    ...(u.role === 'MASTER' && (approvalRegistrationEnabled() || admissionQueue(u.schoolId).length)
+      ? { admissions: admissionQueue(u.schoolId) }
+      : {}),
     projects: list<Project>('project', u.schoolId)
       .filter((p) => p.ownerId === u.id || (isActive && (u.role === 'MASTER' || p.isPublic)))
       .map((p) => projectView(p, u)),
@@ -797,6 +857,7 @@ app.post('/api/projects/:id/approve', (req, res) => {
 });
 app.post('/api/invitations', (req, res) => {
   const u = master(req);
+  if (approvalRegistrationEnabled()) fail(410, '회원가입 링크를 공유해 주세요.');
   const v = z.object({ label: z.string().trim().min(1).max(60) }).parse(req.body);
   const key = randomBytes(18).toString('base64url');
   const inv: Invitation = {
@@ -841,6 +902,8 @@ app.patch('/api/members/:id', (req, res) => {
     const m = userById(String(req.params.id));
     if (!m || m.schoolId !== u.schoolId || m.role === 'MASTER')
       fail(403, '해당 학생을 관리할 수 없습니다.');
+    if (m!.admission && !m!.admission.approvedAt)
+      fail(409, '가입 승인 메뉴에서 승인과 반 배정을 함께 처리해 주세요.');
     const previous = m!.status;
     m!.status = v.status;
     if (
@@ -1164,6 +1227,19 @@ registerAccountRoutes(app, {
     for (const c of connections) if (c.userId === userId) c.ws.close(1008, 'password changed');
   },
 });
+registerAdmissionRoutes(app, {
+  sessionUser,
+  master,
+  active,
+  login,
+  logout,
+  grantAccess: grantSchoolAccess,
+  restrictAccess: restrictSchoolAccess,
+  verifyCredentials,
+  fail,
+  rate,
+  changed,
+});
 app.post('/api/events/read-all', (req, res) => {
   const u = auth(req);
   for (const e of list<PersonalEvent>('personal-event', u.schoolId).filter(
@@ -1226,6 +1302,18 @@ if (process.env.NODE_ENV === 'production') {
         ),
       );
   });
+  app.get('/join', (_req, res) => {
+    if (!approvalRegistrationEnabled()) return res.status(404).end();
+    return res
+      .type('html')
+      .send(
+        readFileSync(resolve('dist/index.html'), 'utf8').replaceAll(
+          '/assets/',
+          '/competition-assets/',
+        ),
+      );
+  });
+  app.get('/admin-entry', (_req, res) => res.redirect(303, '/'));
   app.use(express.static(resolve('dist')));
   app.get('/{*path}', (_req, res) => res.sendFile(resolve('dist/index.html')));
 }

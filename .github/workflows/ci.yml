@@ -27,11 +27,16 @@ jobs:
         run: npm run test:operations
       - name: Verify Railway volume guards and private HTTPS accounts
         run: npm run test:railway
+      - name: Verify code-free admission approval and class assignment over HTTPS
+        run: npm run test:enrollment
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            test-results/enrollment/
+            docs/admissions/qa/
           retention-days: 7
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

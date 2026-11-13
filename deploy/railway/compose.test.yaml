@@ -27,6 +27,7 @@ services:
       DATABASE_MODE: create
       MASTER_BOOTSTRAP_KEY_FILE: /run/secrets/master_bootstrap
       STAGING_ACCESS_KEY_FILE: /run/secrets/staging_access
+      APPROVAL_REGISTRATION_ENABLED: ${APPROVAL_REGISTRATION_ENABLED:-false}
       AI_ENABLED: 'false'
       # Deliberate non-credential fixtures: AI must stay disabled even if a key/model are present.
       OPENAI_API_KEY: fixture-not-a-real-api-key

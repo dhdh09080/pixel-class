@@ -1,5 +1,9 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
+## 가입 승인 및 반 배정 변경 — 검증 중
+
+2026-11-13 KST. `feat/approval-registration`에서 코드 없는 가입 → MASTER 승인·반 배정 → 교실 입장을 구현하고 GitHub Actions에서 검증 중입니다. 운영은 아직 기존 초대 방식을 유지합니다. 세부 설계·접근 제한·활성화 및 롤백은 [ADMISSION_APPROVAL_REPORT.md](ADMISSION_APPROVAL_REPORT.md)를 참고하세요.
+
 ## 2026-11-13 자동 배포 실제 완주 확인
 
 실제 URL: https://pixel-class-private-test.up.railway.app/

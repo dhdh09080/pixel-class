@@ -30,20 +30,52 @@ for (let i = 0; i < 60; i++) {
   await new Promise((r) => setTimeout(r, 10000));
 }
 assert.ok(ready, 'The expected live release did not become healthy.');
-const entrance = await fetch(base + '/', {
-  headers: { Accept: 'text/html' },
+const enrollmentResponse = await fetch(base + '/api/enrollment/config', {
   signal: AbortSignal.timeout(10000),
 });
-assert.equal(entrance.status, 401);
-assert.equal(entrance.headers.has('www-authenticate'), false);
-assert.match(await entrance.text(), /공용 접근 비밀번호/);
+const enrollment =
+  enrollmentResponse.status === 200 &&
+  (await enrollmentResponse.json()).approvalRegistrationEnabled === true;
+const entrance = await fetch(base + '/', {
+  headers: { Accept: 'text/html' },
+  redirect: 'manual',
+  signal: AbortSignal.timeout(10000),
+});
+if (enrollment) {
+  assert.equal(entrance.status, 303);
+  assert.equal(entrance.headers.get('location'), '/join');
+  const join = await fetch(base + '/join', { signal: AbortSignal.timeout(10000) });
+  assert.equal(join.status, 200);
+  assert.match(await join.text(), /\/competition-assets\//);
+  const invalid = await fetch(base + '/api/enrollment/register', {
+    method: 'POST',
+    headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
+    body: '{}',
+    signal: AbortSignal.timeout(10000),
+  });
+  assert.equal(invalid.status, 400, 'Invalid public signup must not create any account.');
+  const session = await fetch(base + '/api/enrollment/session', {
+    signal: AbortSignal.timeout(10000),
+  });
+  assert.equal(session.status, 401, 'Enrollment status requires an account session.');
+} else {
+  assert.equal(entrance.status, 401);
+  assert.equal(entrance.headers.has('www-authenticate'), false);
+  assert.match(await entrance.text(), /공용 접근 비밀번호/);
+}
 for (const path of ['/api/config', '/api/state', '/api/teaching', '/api/operations/backup']) {
   const response = await fetch(base + path, { signal: AbortSignal.timeout(10000) });
   assert.equal(response.status, 401, 'Anonymous school route must stay private.');
 }
 const reset = 'a'.repeat(64);
-const recovery = await fetch(base + '/?reset=' + reset, { headers: { Accept: 'text/html' } });
-assert.match(await recovery.text(), new RegExp('name="reset" value="' + reset + '"'));
+const recovery = await fetch(base + '/?reset=' + reset, {
+  headers: { Accept: 'text/html' },
+  redirect: 'manual',
+});
+if (enrollment) {
+  assert.equal(recovery.status, 303);
+  assert.equal(recovery.headers.get('location'), '/join?reset=' + reset);
+} else assert.match(await recovery.text(), new RegExp('name="reset" value="' + reset + '"'));
 const wrongOrigin = await fetch(base + '/access', {
   method: 'POST',
   headers: {
@@ -138,6 +170,7 @@ console.log(
       'current public judge-progress assets200',
     ],
     publicAssets,
+    approvalRegistrationEnabled: enrollment,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),
