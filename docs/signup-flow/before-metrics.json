@@ -1,0 +1,33 @@
+{
+  "sourceCommit": "3cbcaba",
+  "environment": "local archived baseline with public enrollment API mocked; no account created",
+  "samples": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "documentHeight": 1166,
+      "primaryButtonBottom": 1024.5,
+      "buttonBelowFold": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "documentHeight": 1166,
+      "primaryButtonBottom": 1024.5,
+      "buttonBelowFold": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "documentHeight": 1352,
+      "primaryButtonBottom": 1244.109375,
+      "buttonBelowFold": true
+    }
+  ]
+}

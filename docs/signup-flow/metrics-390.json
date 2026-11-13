@@ -1,0 +1,30 @@
+{
+  "environment": "local Playwright with enrollment API mocked; no account created",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "samples": [
+    {
+      "step": "login",
+      "primaryButtonBottom": 640.6801147460938,
+      "viewportHeight": 844,
+      "noHorizontalOverflow": true,
+      "axeAaViolations": 0
+    },
+    {
+      "step": "account",
+      "primaryButtonBottom": 686.7464599609375,
+      "viewportHeight": 844,
+      "noHorizontalOverflow": true,
+      "axeAaViolations": 0
+    },
+    {
+      "step": "character",
+      "primaryButtonBottom": 757.6177978515625,
+      "viewportHeight": 844,
+      "noHorizontalOverflow": true,
+      "axeAaViolations": 0
+    }
+  ]
+}
