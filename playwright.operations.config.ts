@@ -15,14 +15,13 @@ export default defineConfig({
   use: {
     baseURL: process.env.OPS_BASE_URL,
     viewport: { width: 1440, height: 1000 },
-    httpCredentials:
-      railway
-        ? undefined
-        : {
-            username: process.env.OPS_ACCESS_USER!,
-            password: process.env.OPS_ACCESS_PASSWORD!,
-            send: 'always',
-          },
+    httpCredentials: railway
+      ? undefined
+      : {
+          username: process.env.OPS_ACCESS_USER!,
+          password: process.env.OPS_ACCESS_PASSWORD!,
+          send: 'always',
+        },
     launchOptions: {
       executablePath:
         process.env.CHROMIUM_PATH ||

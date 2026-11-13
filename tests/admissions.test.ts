@@ -254,21 +254,19 @@ test('MASTER queue is scoped; approval requires a local class and rejects generi
       'competition-class',
       JSON.stringify({ id: 'foreign-class', schoolId: 'foreign-school', name: '다른 학교' }),
     );
-  sqlite
-    .prepare('INSERT INTO users VALUES(?,?,?,?,?)')
-    .run(
-      'foreign-applicant',
-      'foreign-school',
-      'foreign@example.test',
-      '0:',
-      JSON.stringify({
-        id: 'foreign-applicant',
-        schoolId: 'foreign-school',
-        role: 'STUDENT',
-        status: 'PENDING',
-        admission: { revision: 0, requestedAt: new Date().toISOString() },
-      }),
-    );
+  sqlite.prepare('INSERT INTO users VALUES(?,?,?,?,?)').run(
+    'foreign-applicant',
+    'foreign-school',
+    'foreign@example.test',
+    '0:',
+    JSON.stringify({
+      id: 'foreign-applicant',
+      schoolId: 'foreign-school',
+      role: 'STUDENT',
+      status: 'PENDING',
+      admission: { revision: 0, requestedAt: new Date().toISOString() },
+    }),
+  );
   sqlite.close();
   assert.equal(
     (
