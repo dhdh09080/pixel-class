@@ -1,0 +1,10 @@
+{
+  "environment": "isolated Docker Railway HTTPS profile, not production student accounts",
+  "signupWithoutCode": true,
+  "approvalAndClass": true,
+  "pendingApiAndWssDenied": true,
+  "approvedWss101": 2,
+  "restartPersistence": true,
+  "mobileAndLaptop": true,
+  "pageErrors": []
+}

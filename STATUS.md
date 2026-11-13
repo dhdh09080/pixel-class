@@ -1,10 +1,16 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 가입 승인 및 반 배정 변경 — 검증 중
+## 가입 승인 및 반 배정 — 운영 적용 완료 (2026-11-13 13:10 KST)
 
-2026-11-13 KST. `feat/approval-registration`에서 코드 없는 가입 → MASTER 승인·반 배정 → 교실 입장을 구현하고 GitHub Actions에서 검증 중입니다. 운영은 아직 기존 초대 방식을 유지합니다. 세부 설계·접근 제한·활성화 및 롤백은 [ADMISSION_APPROVAL_REPORT.md](ADMISSION_APPROVAL_REPORT.md)를 참고하세요.
+학생은 https://pixel-class-private-test.up.railway.app/join 에서 코드 없이 가입을 신청합니다. MASTER는 **교무실 → 가입 승인 → 반 선택 → 승인하고 반 배정**으로 처리합니다. 승인 전에는 교실 API·자료·프로젝트·WSS를 차단하고, 승인 시 학적·반·책상을 원자적으로 저장합니다. 기존 계정·학생·데이터는 유지합니다.
 
-## 2026-11-13 자동 배포 실제 완주 확인
+- [PR #16](https://github.com/dhdh09080/pixel-class/pull/16) main 병합·배포 커밋: `0cf6a0763f830e3dd876f62b96de352112b0a70e`.
+- [main CI43362379799](https://github.com/dhdh09080/pixel-class/actions/runs/43362379799): 기존190개 + 서버 회귀7개 + 가입 HTTPS 시나리오1개 = **198개 통과, 실패0**. 서로 다른 실제 브라우저 계정의 가입·승인·반·인증 WSS101·프로젝트·서버 재시작은 격리 Docker HTTPS 환경에서 검증했습니다.
+- Railway 자동 배포 `a018a284-249b-4920-ba68-56a7a9f8db3b`: **SUCCESS**, 13:10:12 KST. 기존 SQLite·500MB `/app/data`·단일 인스턴스를 유지하고 `APPROVAL_REGISTRATION_ENABLED=true` 한 개를 추가했습니다. 기존17개 변수·비밀·요금제는 유지합니다.
+- [실제 외부 CI43363744235](https://github.com/dhdh09080/pixel-class/actions/runs/43363744235): 정확한 배포 커밋, 공개 가입 모드 true, 가입 화면200, 잘못된 가입 요청400, 미로그인 상태401, 익명 학교 API/WSS401 확인. 운영 DB에 QA 계정을 생성하지 않았으며 실제 소유자 계정의 외부 로그인·인증 WSS101은 이번에도 미검증입니다.
+- [운영 절차와 검증 보고서](ADMISSION_APPROVAL_REPORT.md) · [배포 증거](docs/admissions/release-check.json) · [화면 캡처](docs/admissions/qa/). 이 완료 기록과 캡처를 추가하는 커밋은 문서·증거만 변경합니다. 아래는 과거 이력입니다.
+
+## 과거 기록 — 2026-11-13 자동 배포 실제 완주 확인 (190개)
 
 실제 URL: https://pixel-class-private-test.up.railway.app/
 

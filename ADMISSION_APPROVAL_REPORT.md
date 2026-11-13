@@ -1,6 +1,8 @@
 # 가입 승인 및 반 배정
 
-2026-11-13 KST. 기존 계정, SQLite 데이터, 캐릭터와 교실 디자인을 보존하는 가입 절차 변경입니다.
+2026-11-13 13:10 KST 운영 적용 완료. 기존 계정, SQLite 데이터, 캐릭터와 교실 디자인을 보존하는 가입 절차 변경입니다.
+
+학생 가입 주소: https://pixel-class-private-test.up.railway.app/join
 
 ## 사용 방법
 
@@ -35,7 +37,12 @@
 
 ## 검증 상태
 
-구현 브랜치 `feat/approval-registration`에서 검증 중입니다. 운영 활성화 및 최종 CI 결과는 검증 완료 후 이 문서와 STATUS.md에 갱신합니다.
+[PR #16](https://github.com/dhdh09080/pixel-class/pull/16)을 main에 병합했습니다. 실제 배포 커밋은 `0cf6a0763f830e3dd876f62b96de352112b0a70e`이며, Railway 배포 `a018a284-249b-4920-ba68-56a7a9f8db3b`가 13:10:12 KST에 SUCCESS입니다. 배포 브랜치는 기존 `deploy/railway-verified`를 유지합니다.
+
+- [PR 최종 CI](https://github.com/dhdh09080/pixel-class/actions/runs/43361177889) 및 [main CI](https://github.com/dhdh09080/pixel-class/actions/runs/43362379799): 서버144·브라우저51·Docker HTTPS 운영3 = **198개 통과, 실패0**. 기존190개에 서버 회귀7개와 가입 운영 시나리오1개를 추가했습니다.
+- [실제 배포 외부 검사](https://github.com/dhdh09080/pixel-class/actions/runs/43363744235): 정확한 커밋의 HTTPS health, 공개 가입 모드 true, `/` → `/join`, 가입 HTML200, 잘못된 가입 요청400, 미로그인 신청 상태401, 익명 학교 API·WSS401, Origin 및 복구 링크 검사가 통과했습니다.
+- `APPROVAL_REGISTRATION_ENABLED=true` 한 개만 기존 서비스에 추가했습니다. 중간 재배포를 건너뛰고 검증 브랜치 자동 배포에서 적용했습니다. 기존17개 변수·단일 sfo 인스턴스·500MB `/app/data` 볼륨·도메인·요금제를 유지합니다. 새 키·유료 리소스·DB 초기화는 없습니다.
+- 최초 두 계정 가입·승인·반·WSS101·프로젝트·재시작 검사는 격리된 Railway Docker HTTPS 프로필에서 수행했습니다. **운영의 실제 MASTER 계정 로그인·인증 WSS101을 새로 시험한 것은 아닙니다.** 운영 DB에 QA 계정을 생성하지 않았습니다.
 
 검증 명령:
 
@@ -46,4 +53,10 @@
 - `npm run test:enrollment`: 별도 Docker/Railway HTTPS 환경에서 실제 MASTER·STUDENT 브라우저 세션, 코드 없는 가입, 승인 대기 API/WSS 차단, 반 생성/승인, 인증 WSS 2개, 프로젝트 저장, 서버 재시작, 모바일·노트북 캡처
 - `scripts/check-live.mjs`: 실제 배포의 공개 가입 shell·익명 학교 API 차단·잘못된 입력 거부·WSS 익명 차단. 운영 DB에는 계정을 생성하지 않습니다.
 
-브라우저 증거는 해당 GitHub Actions 실행의 `admission-browser-evidence` artifact 및 `docs/admissions/qa/` 출력에 저장합니다. 자동 테스트는 실제 사용성을 모두 보장하지 않습니다.
+main CI의 `playwright-report` artifact에서 아래 증거를 회수해 저장했습니다. 대기·승인 화면의 모바일/노트북 캡처를 직접 확인했으며, 대기 화면은 자동 WCAG A/AA 검사도 통과했습니다. 자동 테스트는 실제 사용성을 모두 보장하지 않습니다.
+
+- [노트북 대기 화면](docs/admissions/qa/waiting-1366.png), [모바일 대기 화면](docs/admissions/qa/waiting-390.png)
+- [노트북 가입 승인](docs/admissions/qa/master-approval-1366.png), [모바일 가입 승인](docs/admissions/qa/master-approval-390.png)
+- [격리 HTTPS 결과](docs/admissions/qa/result.json), [실제 배포 기록](docs/admissions/release-check.json)
+
+캡처는 운영 사용자 화면이 아니라 테스트 계정과 테스트 반으로 실행한 격리 환경입니다. 모바일 승인 목록은 기존 교무실 요약 아래에 있어 스크롤이 필요합니다. 반별 물리 교실 분리, 이메일 인증·MFA, 신청자에게 보내는 승인 이메일은 이번 범위에 포함하지 않습니다.
