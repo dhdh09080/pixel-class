@@ -27,6 +27,8 @@ jobs:
         run: npm run test:operations
       - name: Verify Railway volume guards and private HTTPS accounts
         run: npm run test:railway
+      - name: Verify code-free admission approval and class assignment over HTTPS
+        run: npm run test:enrollment
       - uses: actions/upload-artifact@v4
         if: always()
         with:

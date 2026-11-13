@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import https from 'node:https';
 
 const railway = process.argv.includes('--railway');
+const enrollment = process.argv.includes('--enrollment');
 const dir = mkdtempSync(join(tmpdir(), railway ? 'pixel-railway-' : 'pixel-operations-'));
 const project = `pixelops-${randomBytes(5).toString('hex')}`;
 const origin = `https://localhost:${process.env.OPS_HTTPS_PORT || (railway ? '8444' : '8443')}`;
@@ -22,6 +23,7 @@ for (const key of [
   delete dockerEnv[key];
 const env = {
   ...dockerEnv,
+  APPROVAL_REGISTRATION_ENABLED: enrollment ? 'true' : 'false',
   PIXEL_DOMAIN: 'localhost',
   PIXEL_HTTPS_PORT: new URL(origin).port,
   PIXEL_IMAGE: process.env.PIXEL_IMAGE || 'pixel-class:ops-test',
@@ -285,6 +287,7 @@ try {
     ...env,
     NODE_EXTRA_CA_CERTS: join(dir, 'root.crt'),
     OPS_BASE_URL: origin,
+    OPS_ENROLLMENT: enrollment ? 'true' : 'false',
     OPS_ACCESS_USER: username,
     OPS_DEPLOYMENT_PROFILE: railway ? 'railway' : 'compose',
     OPS_ACCESS_PASSWORD: password,
