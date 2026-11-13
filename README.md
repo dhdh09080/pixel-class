@@ -1,5 +1,7 @@
 # Pixel Class v0.6
 
+학생의 코드 없는 가입 및 MASTER 승인·반 배정 절차는 [ADMISSION_APPROVAL_REPORT.md](ADMISSION_APPROVAL_REPORT.md)를 참고하세요. 운영 활성화 여부와 검증 결과는 STATUS.md에 기록합니다.
+
 Railway 서비스 Source를 복구하고 **main push → 190개 검사 → 자동 배포 → 실제 커밋의 외부 인수**까지 완주했습니다. 앞으로 main 변경은 검사 통과 후 `deploy/railway-verified`를 통해 자동 배포됩니다. 추가 사용자 설정은 필요하지 않습니다. [자동화 설정과 실제 검증](AUTO_DEPLOY_REPORT.md)을 확인하세요.
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)

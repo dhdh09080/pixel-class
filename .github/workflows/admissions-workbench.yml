@@ -32,11 +32,12 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run build
       - run: docker build -t pixel-class:ops-test .
+      - run: npm run test:enrollment
+      - run: npm run test:e2e
       - run: npm run test:operations
       - run: npm run test:railway
-      - run: npm run test:enrollment
       - uses: actions/upload-artifact@v4
         if: always()
         with:
