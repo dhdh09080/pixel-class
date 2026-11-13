@@ -30,10 +30,16 @@ for (let i = 0; i < 60; i++) {
   await new Promise((r) => setTimeout(r, 10000));
 }
 assert.ok(ready, 'The expected live release did not become healthy.');
-const enrollmentResponse = await fetch(base + '/api/enrollment/config', { signal: AbortSignal.timeout(10000) });
-const enrollment = enrollmentResponse.status === 200 && (await enrollmentResponse.json()).approvalRegistrationEnabled === true;
+const enrollmentResponse = await fetch(base + '/api/enrollment/config', {
+  signal: AbortSignal.timeout(10000),
+});
+const enrollment =
+  enrollmentResponse.status === 200 &&
+  (await enrollmentResponse.json()).approvalRegistrationEnabled === true;
 const entrance = await fetch(base + '/', {
-  headers: { Accept: 'text/html' }, redirect: 'manual', signal: AbortSignal.timeout(10000),
+  headers: { Accept: 'text/html' },
+  redirect: 'manual',
+  signal: AbortSignal.timeout(10000),
 });
 if (enrollment) {
   assert.equal(entrance.status, 303);
@@ -42,11 +48,15 @@ if (enrollment) {
   assert.equal(join.status, 200);
   assert.match(await join.text(), /\/competition-assets\//);
   const invalid = await fetch(base + '/api/enrollment/register', {
-    method: 'POST', headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
-    body: '{}', signal: AbortSignal.timeout(10000),
+    method: 'POST',
+    headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
+    body: '{}',
+    signal: AbortSignal.timeout(10000),
   });
   assert.equal(invalid.status, 400, 'Invalid public signup must not create any account.');
-  const session = await fetch(base + '/api/enrollment/session', { signal: AbortSignal.timeout(10000) });
+  const session = await fetch(base + '/api/enrollment/session', {
+    signal: AbortSignal.timeout(10000),
+  });
   assert.equal(session.status, 401, 'Enrollment status requires an account session.');
 } else {
   assert.equal(entrance.status, 401);
@@ -58,7 +68,10 @@ for (const path of ['/api/config', '/api/state', '/api/teaching', '/api/operatio
   assert.equal(response.status, 401, 'Anonymous school route must stay private.');
 }
 const reset = 'a'.repeat(64);
-const recovery = await fetch(base + '/?reset=' + reset, { headers: { Accept: 'text/html' }, redirect: 'manual' });
+const recovery = await fetch(base + '/?reset=' + reset, {
+  headers: { Accept: 'text/html' },
+  redirect: 'manual',
+});
 if (enrollment) {
   assert.equal(recovery.status, 303);
   assert.equal(recovery.headers.get('location'), '/join?reset=' + reset);
