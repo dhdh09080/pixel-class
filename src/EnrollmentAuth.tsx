@@ -89,7 +89,7 @@ export function EnrollmentAuth({
     if (mismatch) confirmationInput.current?.focus();
   }, [mismatch]);
   function switchMode(next: Mode) {
-    if (requestBusy.current) return;
+    if (requestBusy.current || next === mode) return;
     setMode(next);
     setStep(1);
     setError('');

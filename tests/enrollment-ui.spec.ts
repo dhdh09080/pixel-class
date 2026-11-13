@@ -48,6 +48,8 @@ test('signup separates account and character, preserves back navigation, and wri
   await page.getByLabel('이름', { exact: true }).fill('처음 온 학생');
   await page.getByRole('button', { name: '캐릭터 스타일 2', exact: true }).click();
   const selected = await page.locator('.signup-preview img').getAttribute('src');
+  await page.getByRole('button', { name: '회원가입 신청', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '교실에서 만날 나의 모습' })).toBeVisible();
   await page.getByRole('button', { name: '이전 단계', exact: true }).click();
   await expect(page.getByLabel('이메일', { exact: true })).toHaveValue('learner@example.test');
   await expect(page.getByLabel('비밀번호', { exact: true })).toHaveValue('classroom-test-password');
