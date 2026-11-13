@@ -1,3 +1,4 @@
+import { approvalRegistrationEnabled } from './admission-policy.js';
 import type { Express, Request, Response } from 'express';
 import { scryptSync, randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
@@ -69,7 +70,8 @@ export function registerAccountRoutes(app: Express, d: Dependencies) {
     });
     res.json({ key, expiresAt: record.expiresAt });
   });
-  app.post('/api/account/recover', (req, res) => {
+  app.post(['/api/account/recover', '/api/enrollment/recover'], (req, res) => {
+    if (req.path === '/api/enrollment/recover' && !approvalRegistrationEnabled()) d.fail(404, '복구 링크를 확인해 주세요.');
     d.rate('recover:' + req.ip, 10);
     const v = z.object({ key: z.string().regex(/^[a-f0-9]{64}$/), password }).parse(req.body);
     const row = db
@@ -96,6 +98,7 @@ export function registerAccountRoutes(app: Express, d: Dependencies) {
   });
   app.post('/api/invitations/batch', (req, res) => {
     const u = d.master(req);
+    if (approvalRegistrationEnabled()) d.fail(410, '회원가입 링크를 공유해 주세요.');
     d.rate('batch-invite:' + u.id, 10);
     const { count, label } = z
       .object({ count: z.number().int().min(1).max(30), label: z.string().trim().min(1).max(40) })

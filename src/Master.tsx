@@ -1,3 +1,4 @@
+import { AdmissionsPanel } from './AdmissionsPanel';
 import { SegmentedControl } from './ui';
 import {
   MentoringSummary,
@@ -39,7 +40,7 @@ export function MasterPage({
   onProject: (id: string, initialTab?: string) => void;
   onToast: (text: string) => void;
 }) {
-  const [tab, setTab] = useState('students'),
+  const [tab, setTab] = useState((state.admissions || []).some(user => user.status === 'PENDING') ? 'admissions' : 'students'),
     [selected, setSelected] = useState(''),
     [status, setStatus] = useState<Membership>('ACTIVE'),
     [reason, setReason] = useState(''),
@@ -53,7 +54,7 @@ export function MasterPage({
     [mentoring, setMentoring] = useState('');
   const [studentFilter, setStudentFilter] = useState('ALL'),
     [studentQuery, setStudentQuery] = useState('');
-  const students = state.members.filter((m) => m.role === 'STUDENT');
+  const students = state.members.filter((m) => m.role === 'STUDENT' && !['PENDING', 'REJECTED'].includes(m.status));
   const reviews = state.projects.filter((p) => p.status === 'REVIEW');
   const needing = students.filter((m) => m.help);
   async function issue() {
@@ -113,7 +114,7 @@ export function MasterPage({
           ['students', '학생과 학적', Users],
           ['projects', '프로젝트 지도', FolderKanban],
           ['questions', '질문과 상담', Mail],
-          ['invites', '입학 초대', Mail],
+          state.approvalRegistrationEnabled || state.admissions?.length ? ['admissions', '가입 승인 (' + (state.admissions || []).filter(user => user.status === 'PENDING').length + ')', Mail] : ['invites', '입학 초대', Mail],
           ['classroom', '책상 배치', LayoutGrid],
           ['notices', '공지 보내기', Send],
         ].map(([key, text, Icon]) => {
@@ -129,6 +130,7 @@ export function MasterPage({
           };
         })}
       />
+      {tab === 'admissions' && <AdmissionsPanel state={state} mutate={mutate} onToast={onToast} />}
       {tab === 'students' && (
         <>
           <RecoveryControls state={state} onToast={onToast} />
@@ -166,6 +168,7 @@ export function MasterPage({
                   <div>
                     <strong>{m.name}</strong>
                     <p className="muted">
+                      {state.approvalRegistrationEnabled && <>{state.classes?.find(group => group.id === m.classId)?.name || '기본반'} · </>}
                       프로젝트 {state.projects.filter((p) => p.ownerId === m.id).length}개 ·{' '}
                       {m.deskId ? '책상 배정됨' : '책상 미배정'}
                     </p>

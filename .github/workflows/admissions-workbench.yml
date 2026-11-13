@@ -1,0 +1,47 @@
+name: Admission feature workbench
+on:
+  push:
+    branches: [feat/approval-registration]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/feat/approval-registration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Format feature branch without changing main
+        run: |
+          npm run format
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -u
+            git commit -m "style: format admission approval implementation"
+            git push origin HEAD:feat/approval-registration
+          fi
+          git rev-parse HEAD
+      - run: npm run format:check
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: docker build -t pixel-class:ops-test .
+      - run: npm run test:operations
+      - run: npm run test:railway
+      - run: npm run test:enrollment
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: admission-browser-evidence
+          path: |
+            playwright-report/
+            test-results/
+            docs/admissions/qa/
+          retention-days: 7

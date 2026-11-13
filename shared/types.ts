@@ -8,7 +8,7 @@ import type {
   Attachment,
 } from './learning';
 export type Role = 'MASTER' | 'STUDENT';
-export type Membership = 'INVITED' | 'ACTIVE' | 'ON_LEAVE' | 'GRADUATED' | 'REVOKED';
+export type Membership = 'INVITED' | 'PENDING' | 'REJECTED' | 'ACTIVE' | 'ON_LEAVE' | 'GRADUATED' | 'REVOKED';
 export type ProjectStatus =
   'IDEA' | 'PLANNING' | 'BUILDING' | 'TESTING' | 'REVIEW' | 'COMPLETED' | 'PAUSED';
 export type Appearance = {
@@ -60,7 +60,9 @@ export type Member = {
   workStatus: 'IDLE' | 'BUILDING' | 'MENTORING';
   deskId: string | null;
   previousDeskId?: string | null;
+  admission?: { requestedAt: string; revision: number; reviewedAt?: string; reviewedBy?: string; approvedAt?: string; reason?: string };
 };
+export type Admission = Member & { email: string };
 export type Task = { id: string; text: string; done: boolean };
 export type Entry = {
   id: string;
@@ -148,6 +150,8 @@ export type History = {
   createdAt: string;
 };
 export type AppState = {
+  approvalRegistrationEnabled?: boolean;
+  admissions?: Admission[];
   classes?: import('./competitions').SchoolClass[];
   competitionEvent?: import('./competitions').CompetitionClassroomEvent;
   school?: import('./school').SchoolSettings;
@@ -176,6 +180,8 @@ export const statusLabels: Record<ProjectStatus, string> = {
 };
 export const membershipLabels: Record<Membership, string> = {
   INVITED: '입학 대기',
+  PENDING: '승인 대기',
+  REJECTED: '가입 거절',
   ACTIVE: '재학',
   ON_LEAVE: '휴학',
   GRADUATED: '졸업',
