@@ -1,6 +1,6 @@
 # 로그인과 단계형 회원가입 UX
 
-2026-11-13 KST. 코드 없는 가입·MASTER 승인·반 배정 API와 기존 학생 데이터를 유지하며 첫 방문 화면을 개선했습니다.
+2026-11-13 16:03 KST 운영 적용 완료. 코드 없는 가입·MASTER 승인·반 배정 API와 기존 학생 데이터를 유지하며 첫 방문 화면을 개선했습니다.
 
 ## 사용자 흐름
 
@@ -40,6 +40,14 @@
 - `npm run build`, `npm run typecheck`: 통과.
 - `npm test`: 기존 서버144개 통과.
 - `npx playwright test tests/enrollment-ui.spec.ts`: 신규 UI7개 통과. 단계 분리·API 호출 시점·뒤로 이동·비밀번호 불일치·중복 요청·오류 보존·상세 꾸미기 취소·복구·대기 로그인·모션·3종 해상도·접근성을 검사합니다.
-- `npm run test:enrollment`: 기존 실제 HTTPS 두 계정 가입·승인·반·인증 WSS·재시작 시나리오를 새 화면 흐름에 맞춰 유지합니다. 최종 CI에서 전체 서버144·브라우저58·운영3 = 205개를 검증합니다.
+- `npm run test:enrollment`: 기존 실제 HTTPS 두 계정 가입·승인·반·인증 WSS·재시작 시나리오를 새 화면 흐름에 맞춰 유지했습니다. [PR 최종 CI](https://github.com/dhdh09080/pixel-class/actions/runs/43380213445)와 [main CI](https://github.com/dhdh09080/pixel-class/actions/runs/43381557934)에서 전체 서버144·브라우저58·운영3 = **205개 통과, 실패0**입니다.
 
-기존 일반 교실·프로젝트 UI, 최초 MASTER 부트스트랩, 기본 로컬 초대 모드는 유지합니다. Railway 변수·비밀·볼륨·AI 비용 설정 변경은 필요하지 않습니다. 최종 병합·실제 배포 결과는 STATUS.md에 기록합니다.
+기존 일반 교실·프로젝트 UI, 최초 MASTER 부트스트랩, 기본 로컬 초대 모드를 유지했습니다. 선택된 계정 메뉴를 다시 클릭했을 때 단계와 비밀번호가 초기화되는 문제도 재현 테스트 후 수정했습니다.
+
+## 실제 배포
+
+[PR #17](https://github.com/dhdh09080/pixel-class/pull/17)을 main에 병합했습니다. 실제 앱 커밋은 `fc66972a563b90ad0fb6858728df9007abc8459b`이며 Railway 배포 `cd815b01-cddf-4451-9438-81c0f3ec2eac`가 16:02:45 KST에 SUCCESS입니다.
+
+[실제 외부 검사](https://github.com/dhdh09080/pixel-class/actions/runs/43382904812)에서 HTTPS의 커밋 일치, 가입 모드 true, 실제 공개 JS의 계정/캐릭터 단계(`stagedSignupAssetsVerified:true`), 익명 학교 API/WSS 차단 및 기존 경진대회 자산을 확인했습니다. 실제 소유자 계정의 운영 로그인·인증 WSS를 새로 검사한 것은 아닙니다. 양성 인증 흐름은 위 격리 Docker HTTPS 두 계정으로 검증했습니다.
+
+Railway 변수18개·비밀·SQLite·영구 볼륨·단일 인스턴스·요금제를 변경하지 않았고 운영 QA 계정을 만들지 않았습니다. [실제 배포 기록](docs/signup-flow/release-check.json)과 STATUS.md를 함께 참고하세요.

@@ -1,0 +1,61 @@
+{
+  "checkedAt": "2026-11-13T07:03:01.8112201Z",
+  "url": "https://pixel-class-private-test.up.railway.app/join",
+  "pullRequest": "https://github.com/dhdh09080/pixel-class/pull/17",
+  "commit": "fc66972a563b90ad0fb6858728df9007abc8459b",
+  "ci": {
+    "pullRequestRun": 43380213445,
+    "mainRun": 43381557934,
+    "conclusion": "success",
+    "server": 144,
+    "browser": 58,
+    "httpsProfiles": 3,
+    "total": 205
+  },
+  "railway": {
+    "projectId": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+    "environmentId": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "deploymentId": "cd815b01-cddf-4451-9438-81c0f3ec2eac",
+    "status": "SUCCESS",
+    "updatedAt": "2026-11-13T07:02:45.723Z",
+    "sourceBranch": "deploy/railway-verified",
+    "replicas": 1,
+    "volumeId": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+    "volumeMountPath": "/app/data",
+    "variableCount": 18,
+    "configurationChanged": false,
+    "newPaidResources": 0,
+    "databaseInitializedOrDeleted": false
+  },
+  "external": {
+    "runId": 43382904812,
+    "jobId": 131744602872,
+    "conclusion": "success",
+    "exactCommitHealth": true,
+    "approvalRegistrationEnabled": true,
+    "stagedSignupAssetsVerified": true,
+    "publicEntryAsset": "/competition-assets/index-BmeB3JHx.js",
+    "anonymousSchoolApi": 401,
+    "anonymousWss": 401,
+    "productionAccountsCreated": 0,
+    "authenticatedProductionLoginVerified": false,
+    "authenticatedProductionWssVerified": false
+  },
+  "isolatedHttpsProfile": {
+    "actualMasterAndStudentAccounts": true,
+    "stagedSignup": true,
+    "masterApprovalAndClassAssignment": true,
+    "authenticatedWss101": 2,
+    "restartPersistence": true
+  },
+  "visualEvidence": {
+    "environment": "local Playwright; public enrollment API mocked; no account created",
+    "viewports": ["1366x768", "1280x720", "390x844"],
+    "screenshots": "docs/signup-flow/",
+    "baselineCommit": "3cbcabaf823a17dcfe58d9c37fee5ed69f9c0955",
+    "primaryButtonsInsideViewport": true,
+    "horizontalOverflow": false,
+    "axeAaViolations": 0
+  }
+}
