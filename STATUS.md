@@ -1,14 +1,19 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 2026-11-13 Source 복구·현재 배포 정상 — 후속 자동 push 검증 중
+## 2026-11-13 자동 배포 실제 완주 확인
 
 실제 URL: https://pixel-class-private-test.up.railway.app/
 
-비어 있던 서비스 Source를 재연결했습니다. 실제 환경 설정은 `dhdh09080/pixel-class` / **`deploy/railway-verified`**, `checkSuites:false`, 커밋 고정 없음·대기 변경 없음입니다. 기존 500MB Volume `/app/data`·17개 변수·단일 인스턴스·계정·도메인을 유지합니다.
+**main push → 190개 검사 → 검증 브랜치 승격 → Railway 자동 배포 → 배포 완료 이벤트 외부 인수**를 별도 source/Deploy 호출 없이 확인했습니다. 이제 코드 변경은 main의 전체 검사 통과 후 자동 배포됩니다.
 
-현재 배포 `84dce27e-4ba4-4662-9c5c-80a3365aeec0`, 실제 커밋 `4c1269f3a4022cf6e3b95f4b5aec6dcd716ce01b`는 SUCCESS입니다. [배포 전 CI43327398751](https://github.com/dhdh09080/pixel-class/actions/runs/43327398751)의 190개 검사·승격과 [자동 deployment_status 외부 CI43338551053](https://github.com/dhdh09080/pixel-class/actions/runs/43338551053)도 성공입니다. 정확한 HTTPS 커밋·비공개 입구·익명 API/로그인/WSS 차단·공개 자산을 확인했습니다. 정상 계정 로그인·인증 WSS101은 미검증입니다.
+- 실제 검증/배포 커밋: `63af1c4debfea671a2a97f8b65544c4c2f8af33a`.
+- [배포 전 CI43338786895](https://github.com/dhdh09080/pixel-class/actions/runs/43338786895): 서버137·브라우저51·운영2 = **190개 및 publish 모두 성공**.
+- 09:47:53 KST 자동 승격 후 09:47:54에 새 배포 생성, 09:48:19 **SUCCESS**. 배포 `38dfd8ba-9f3d-4d50-8a48-abf487e92eef`, Online·1 running.
+- [자동 외부 CI43339980903](https://github.com/dhdh09080/pixel-class/actions/runs/43339980903): 실제 HTTPS 커밋 일치, 비공개 입구·익명 API/로그인/WSS 차단·공개 자산 성공. 정상 계정 외부 로그인·인증 WSS101은 미검증.
+- Source는 `dhdh09080/pixel-class` / **`deploy/railway-verified`**, 고정 커밋 없음, checkSuites:false. Auto deploy 활성은 API와 사용자 화면에서 확인했습니다. GitHub CI가 검증 브랜치를 보호하므로 Railway Wait for CI는 꺼둡니다.
+- 기존 500MB Volume `/app/data`·17개 변수·단일 인스턴스·계정·도메인·요금제를 보존했습니다. 새 키·유료 리소스·DB 초기화 없음. 변경 내역이 빈 stage 메타데이터는 실제 설정 변경 0건이며 자동 배포에 영향이 없었습니다.
 
-이 확인 기록의 후속 push로 추가 source/Deploy 호출 없는 자동 재배포를 검증 중입니다. Source 복구 배포를 무인 push 성공으로 계산하지 않습니다. [자동화 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 관측](docs/automation/state.json). 아래 기록은 과거 이력입니다.
+[자동화 보고서](AUTO_DEPLOY_REPORT.md) · [실제 증거](docs/automation/state.json). 최종 기록 커밋은 문서·관측만 바뀌며 위 검증 커밋과 앱 런타임은 같습니다. 기록 자체의 후속 CI/배포는 별도 실행입니다. 아래 기록은 과거 이력입니다.
 
 ## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 

@@ -1,6 +1,6 @@
 # Pixel Class v0.6
 
-비어 있던 Railway 서비스 Source를 복구했고, 190개 검사·실제 배포·배포 완료 이벤트의 외부 인수가 성공했습니다. 현재 Source는 `deploy/railway-verified`를 사용합니다. 후속 push의 무인 자동 배포를 확인 중입니다. [자동화 설정과 검증 범위](AUTO_DEPLOY_REPORT.md)를 확인하세요.
+Railway 서비스 Source를 복구하고 **main push → 190개 검사 → 자동 배포 → 실제 커밋의 외부 인수**까지 완주했습니다. 앞으로 main 변경은 검사 통과 후 `deploy/railway-verified`를 통해 자동 배포됩니다. 추가 사용자 설정은 필요하지 않습니다. [자동화 설정과 실제 검증](AUTO_DEPLOY_REPORT.md)을 확인하세요.
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
 
