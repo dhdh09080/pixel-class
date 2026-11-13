@@ -5,6 +5,7 @@ import { api } from './api';
 import { InlineNotice } from './ui';
 import { Field, Avatar } from './components';
 import { CharacterEditor } from './CharacterEditor';
+import { EnrollmentAuth } from './EnrollmentAuth';
 export type Config = {
   demo: boolean;
   bootstrap: boolean;
@@ -13,7 +14,20 @@ export type Config = {
   acceptingApplications?: boolean;
   schoolName?: string;
 };
-export function Auth({
+type AuthProps = {
+  config: Config;
+  onSuccess: () => void;
+  onToast: (s: string) => void;
+  embedded?: boolean;
+};
+export function Auth(props: AuthProps) {
+  return props.config.approvalRegistrationEnabled && !props.config.bootstrap ? (
+    <EnrollmentAuth {...props} />
+  ) : (
+    <LegacyAuth {...props} />
+  );
+}
+function LegacyAuth({
   config,
   onSuccess,
   onToast,

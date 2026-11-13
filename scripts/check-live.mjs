@@ -41,12 +41,33 @@ const entrance = await fetch(base + '/', {
   redirect: 'manual',
   signal: AbortSignal.timeout(10000),
 });
+let stagedSignupAssetsVerified = false;
 if (enrollment) {
   assert.equal(entrance.status, 303);
   assert.equal(entrance.headers.get('location'), '/join');
   const join = await fetch(base + '/join', { signal: AbortSignal.timeout(10000) });
   assert.equal(join.status, 200);
-  assert.match(await join.text(), /\/competition-assets\//);
+  const joinHtml = await join.text();
+  const signupEntry = joinHtml.match(
+    /<script[^>]+src="(\/competition-assets\/[A-Za-z0-9_-]+\.js)"/i,
+  )?.[1];
+  assert.ok(signupEntry, 'The enrollment entry must be public at the trusted build asset path.');
+  const signupBundle = await fetch(new URL(signupEntry, base), {
+    signal: AbortSignal.timeout(10000),
+  });
+  assert.equal(signupBundle.status, 200);
+  const signupCode = await signupBundle.text();
+  assert.match(
+    signupCode,
+    /다음: 캐릭터 선택/,
+    'The account step must be present in the actual deployed entry.',
+  );
+  assert.match(
+    signupCode,
+    /가입 신청 보내기/,
+    'The final character step must be present in the actual deployed entry.',
+  );
+  stagedSignupAssetsVerified = true;
   const invalid = await fetch(base + '/api/enrollment/register', {
     method: 'POST',
     headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
@@ -171,6 +192,7 @@ console.log(
     ],
     publicAssets,
     approvalRegistrationEnabled: enrollment,
+    stagedSignupAssetsVerified,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),

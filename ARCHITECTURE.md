@@ -172,3 +172,5 @@ AI 입력은 redaction 후 프로젝트 6000자·최근10개 대화 총16000자�
 ## 가입 승인 경계
 
 `server/admission-policy.ts`가 공개 가입 경로의 정확한 method/path 예외를 정의합니다. `server/admissions.ts`는 서버 고정 STUDENT/PENDING 생성과 본인 상태 DTO, MASTER의 원자적 승인·반·책상 배정을 담당합니다. 기존 인증·세션·Secure Cookie와 SQLite 스키마를 재사용하며 반은 `competition-class`와 `Member.classId`를 사용합니다. `src/Enrollment.tsx`와 `AdmissionsPanel.tsx`가 대기 및 승인 화면을 분리합니다. 기능 플래그가 false여도 대기 계정은 기존 auth 경계에서 차단됩니다.
+
+공개 가입 모드의 인증 UI는 `EnrollmentAuth.tsx`의 두 단계 폼입니다. 계정 단계에서는 서버에 쓰지 않고, 캐릭터 선택 후 최종 신청에서 기존 등록 API를 한 번 호출합니다. 비밀번호는 메모리에만 두며 상태 전환 포커스·모달 복귀·중복 제출 제어를 포함합니다. `Auth.tsx`는 부트스트랩/기존 초대 UI와 공개 가입 UI를 별도 컴포넌트로 선택하므로 조건부 훅 호출이 생기지 않습니다. 전용 스타일은 `enrollment-auth.css`의 진입 화면 범위에 한정합니다.

@@ -59,25 +59,24 @@ test('public signup → waiting → MASTER approval and class → real HTTPS/WSS
       .getByRole('textbox', { name: '이메일', exact: true })
       .fill('master@approval.example');
     await masterPage.getByLabel('비밀번호', { exact: true }).fill(password);
-    await masterPage.getByRole('button', { name: '교실 입장하기', exact: true }).click();
-    await expect(
-      masterPage.getByRole('heading', { name: '테스트 선생님님, 환영해요' }),
-    ).toBeVisible();
-    await masterPage.getByRole('button', { name: '교실 입장하기', exact: true }).click();
+    await masterPage.getByRole('button', { name: '로그인하고 교실로', exact: true }).click();
     await expect(masterPage.locator('canvas')).toBeVisible();
 
     await studentPage.goto('/');
     await expect(studentPage).toHaveURL(/\/join$/);
-    await expect(studentPage.getByRole('heading', { name: '회원가입을 신청해요' })).toBeVisible();
+    await expect(studentPage.getByRole('heading', { name: '교실에 로그인해요' })).toBeVisible();
+    await studentPage.getByRole('button', { name: '회원가입 신청', exact: true }).click();
+    await expect(studentPage.getByRole('heading', { name: '먼저 계정을 만들어요' })).toBeVisible();
     await expect(studentPage.getByLabel('입학 초대 KEY')).toHaveCount(0);
-    await studentPage.getByRole('textbox', { name: '이름', exact: true }).fill('승인 테스트 학생');
     await studentPage
       .getByRole('textbox', { name: '이메일', exact: true })
       .fill('student@approval.example');
     await studentPage.getByLabel('비밀번호', { exact: true }).fill(password);
     await studentPage.getByLabel('비밀번호 확인', { exact: true }).fill(password);
+    await studentPage.getByRole('button', { name: '다음: 캐릭터 선택' }).click();
+    await studentPage.getByRole('textbox', { name: '이름', exact: true }).fill('승인 테스트 학생');
     await studentPage.getByRole('button', { name: '캐릭터 스타일 2', exact: true }).click();
-    await studentPage.getByRole('button', { name: '가입 신청하기', exact: true }).click();
+    await studentPage.getByRole('button', { name: '가입 신청 보내기', exact: true }).click();
     await expect(studentPage.getByRole('heading', { name: '가입 신청을 보냈어요' })).toBeVisible();
     expect((await student.request.get('/api/state')).status()).toBe(401);
     expect(

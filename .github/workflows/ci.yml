@@ -37,6 +37,7 @@ jobs:
             playwright-report/
             test-results/enrollment/
             docs/admissions/qa/
+            docs/signup-flow/
           retention-days: 7
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

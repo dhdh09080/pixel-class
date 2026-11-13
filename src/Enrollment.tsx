@@ -112,7 +112,7 @@ export default function Enrollment() {
     );
   if (!session)
     return (
-      <main>
+      <main className="enrollment-entry">
         {error && (
           <InlineNotice kind="error" title="다시 확인해 주세요">
             {error}

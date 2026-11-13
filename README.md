@@ -1,6 +1,6 @@
 # Pixel Class v0.6
 
-운영 학교는 **코드 없는 회원가입 → MASTER 승인·반 배정 → 교실 입장** 방식입니다. [학생 회원가입](https://pixel-class-private-test.up.railway.app/join) · [승인 절차와 검증 결과](ADMISSION_APPROVAL_REPORT.md).
+운영 학교는 **코드 없는 회원가입 → MASTER 승인·반 배정 → 교실 입장** 방식입니다. [학생 회원가입](https://pixel-class-private-test.up.railway.app/join) · [승인 절차](ADMISSION_APPROVAL_REPORT.md) · [단계형 가입 UX와 검증](SIGNUP_UX_REPORT.md).
 
 Railway 서비스 Source를 복구하고 **main push → 190개 검사 → 자동 배포 → 실제 커밋의 외부 인수**까지 완주했습니다. 앞으로 main 변경은 검사 통과 후 `deploy/railway-verified`를 통해 자동 배포됩니다. 추가 사용자 설정은 필요하지 않습니다. [자동화 설정과 실제 검증](AUTO_DEPLOY_REPORT.md)을 확인하세요.
 
@@ -164,7 +164,7 @@ NODE_ENV=production DEMO_MODE=false DATABASE_PATH=/persistent/school.sqlite \
 아래는 main에 구현된 기능입니다. 실제 서비스에 해당 릴리스가 배포됐는지 [STATUS.md](STATUS.md)에서 먼저 확인하세요.
 
 1. 온라인 학교의 [로그인 화면](https://pixel-class-private-test.up.railway.app/join?login=1)에서 기존 MASTER 계정으로 로그인합니다. 최초 학교 개설만 `/admin-entry`의 비공개 설정 입구를 사용합니다. 소유자 계정 인계 이력은 [MASTER_HANDOFF.md](MASTER_HANDOFF.md)에 있습니다.
-2. 학생에게 [회원가입 주소](https://pixel-class-private-test.up.railway.app/join)를 보냅니다. 초대 코드나 공용 접근 암호를 전달할 필요가 없습니다. 학생은 이름·이메일·10자 이상 비밀번호·캐릭터로 신청한 뒤 승인 대기 화면을 확인합니다.
+2. 학생에게 [회원가입 주소](https://pixel-class-private-test.up.railway.app/join)를 보냅니다. **회원가입 신청 → 이메일·비밀번호 설정 → 다음 화면에서 이름·캐릭터 선택 → 가입 신청 보내기** 순서입니다. 초대 코드나 공용 접근 암호를 전달할 필요가 없습니다. 마지막 신청 시에만 계정을 생성하고 승인 대기 화면을 표시합니다.
 3. MASTER는 **교무실 → 가입 승인**에서 신청자를 확인하고 기존 반을 선택하거나 새 반을 만든 뒤 **승인하고 반 배정**을 누릅니다. 승인 후 학생은 배정된 반을 확인하고 교실에 입장하며 책상이 자동 배정됩니다. 거절 사유 안내·재검토도 가능합니다. 기존 학생은 재가입할 필요가 없습니다.
 4. 학생들이 입학한 뒤 **수업과 과제 → 새 과제 배정하기**에서 재학생 전체 또는 한 학생에게 제목·안내·마감일을 배정합니다. 마감일 입력과 표시는 **Asia/Seoul** 기준입니다. 배정 당시의 학생 목록을 보존하므로 이후 입학생에게는 별도 과제를 배정합니다.
 5. 학생은 **수업과 과제**에서 내용과 결과물 링크를 제출합니다. 늦은 제출도 받으며 지각 여부를 기록합니다. 선생님은 미제출/제출/지각/확인 인원을 확인하고 **학생별 제출물과 피드백**에서 확인 또는 보완 요청을 남깁니다. 수정본은 재제출할 수 있고 충돌 시 기존 입력을 보존합니다.
