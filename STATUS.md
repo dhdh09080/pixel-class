@@ -1,16 +1,14 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 2026-11-13 현재 운영 정상·자동 CI 성공 — Railway 후속 시작 미확인
+## 2026-11-13 Source 복구·현재 배포 정상 — 후속 자동 push 검증 중
 
 실제 URL: https://pixel-class-private-test.up.railway.app/
 
-현재 배포 `0468e159-4eb1-4b81-9cf2-5bc18939eb5c`, 실제 커밋 `8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb`는 SUCCESS입니다. [CI43320443111](https://github.com/dhdh09080/pixel-class/actions/runs/43320443111)의 정확한 HTTPS 커밋·비공개 입구·익명 API/로그인/WSS 차단·공개 기능 자산 확인도 성공했습니다. 정상 계정 외부 로그인·인증된 WSS 101은 미검증입니다.
+비어 있던 서비스 Source를 재연결했습니다. 실제 환경 설정은 `dhdh09080/pixel-class` / **`deploy/railway-verified`**, `checkSuites:false`, 커밋 고정 없음·대기 변경 없음입니다. 기존 500MB Volume `/app/data`·17개 변수·단일 인스턴스·계정·도메인을 유지합니다.
 
-최신 코드 `594b620`의 [CI43324847422](https://github.com/dhdh09080/pixel-class/actions/runs/43324847422)는 **190개 검사(서버137·브라우저51·운영2)와 publish 모두 성공**입니다. 배포 브랜치도 해당 커밋으로 정상 갱신됐습니다. 배포 후 검사는 별도 deployment_status workflow로 분리했습니다. 현재 앱과의 차이는 CI/문서이며 서버·프런트·의존성은 같습니다.
+현재 배포 `84dce27e-4ba4-4662-9c5c-80a3365aeec0`, 실제 커밋 `4c1269f3a4022cf6e3b95f4b5aec6dcd716ce01b`는 SUCCESS입니다. [배포 전 CI43327398751](https://github.com/dhdh09080/pixel-class/actions/runs/43327398751)의 190개 검사·승격과 [자동 deployment_status 외부 CI43338551053](https://github.com/dhdh09080/pixel-class/actions/runs/43338551053)도 성공입니다. 정확한 HTTPS 커밋·비공개 입구·익명 API/로그인/WSS 차단·공개 자산을 확인했습니다. 정상 계정 로그인·인증 WSS101은 미검증입니다.
 
-초기 설정은 적용됐으나 후속 push의 Railway 배포 이벤트는 관측되지 않았습니다. 따라서 **완전 자동 배포 완료는 아닙니다.** 같은 연결 재등록으로 시작한 현재 배포를 무인 push 증거로 세지 않습니다. Source의 자동 배포 버튼/연결 권한 상태를 사용자에게 확인 중입니다. 해당 값은 연결 도구에서 노출되지 않고 브라우저 조작 연결도 실패했습니다. UI 상태나 원인을 추정해 완료 처리하지 않습니다.
-
-기존 500MB Volume `/app/data`·17개 변수·단일 인스턴스·계정·도메인·요금제를 보존했습니다. 새 키·유료 리소스·DB 초기화는 없습니다. [자동화 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 관측](docs/automation/state.json). 아래 기록은 과거 이력입니다.
+이 확인 기록의 후속 push로 추가 source/Deploy 호출 없는 자동 재배포를 검증 중입니다. Source 복구 배포를 무인 push 성공으로 계산하지 않습니다. [자동화 보고서](AUTO_DEPLOY_REPORT.md) · [범위별 관측](docs/automation/state.json). 아래 기록은 과거 이력입니다.
 
 ## 2026-11-12 운영 개선 — main 병합 완료, Railway 적용 대기
 

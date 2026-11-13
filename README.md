@@ -1,6 +1,6 @@
 # Pixel Class v0.6
 
-자동 검증·배포 브랜치 승격 코드를 main에 반영했고 190개 검사를 통과했습니다. 현재 학교 배포와 외부 익명 보호 검사는 정상입니다. **후속 push의 Railway 자동 시작은 아직 관측되지 않아 완전 자동 배포 완료로 판정하지 않습니다.** Source의 자동 배포 상태를 추가 확인 중입니다. [자동화 설정과 검증 범위](AUTO_DEPLOY_REPORT.md)를 확인하세요.
+비어 있던 Railway 서비스 Source를 복구했고, 190개 검사·실제 배포·배포 완료 이벤트의 외부 인수가 성공했습니다. 현재 Source는 `deploy/railway-verified`를 사용합니다. 후속 push의 무인 자동 배포를 확인 중입니다. [자동화 설정과 검증 범위](AUTO_DEPLOY_REPORT.md)를 확인하세요.
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
 

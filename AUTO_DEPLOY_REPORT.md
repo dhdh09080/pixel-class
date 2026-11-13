@@ -2,6 +2,14 @@
 
 2026-11-13 KST. 기존 SQLite·500MB Volume·17개 환경 변수·비공개 입구·단일 인스턴스를 보존합니다. 새 키·유료 리소스·요금제 변경 없이 GitHub Actions의 짧은 수명 GITHUB_TOKEN으로 배포 브랜치만 갱신합니다.
 
+## 2026-11-13 Source 복구·배포 완료 이벤트 확인
+
+GitHub 계정 연결 뒤에도 서비스 Source 자체가 비어 있는 상태를 API에서 확인했습니다. 기존 `pixel-class` 서비스에 `dhdh09080/pixel-class`를 다시 연결했고, 최종 설정은 `branch: deploy/railway-verified`, `checkSuites: false`, 커밋 고정 없음·대기 변경 없음입니다. Volume·17개 변수·단일 인스턴스·도메인은 유지합니다.
+
+배포 `84dce27e-4ba4-4662-9c5c-80a3365aeec0` / `4c1269f`는 SUCCESS입니다. [배포 전 CI43327398751](https://github.com/dhdh09080/pixel-class/actions/runs/43327398751)와 [deployment_status로 자동 실행된 외부 CI43338551053](https://github.com/dhdh09080/pixel-class/actions/runs/43338551053)도 성공했습니다. 실제 HTTPS 커밋·익명 API/로그인/WSS 차단·공개 자산을 확인했습니다. 정상 계정 로그인·인증된 WSS101은 미검증입니다.
+
+이 복구 기록을 main에 올려, 추가 source 연결이나 Deploy 호출 없이 후속 push가 자동 배포되는지 확인합니다. 현재 Source 복구와 배포 완료 이벤트 검사는 성공이며, 후속 무인 push는 검증 중입니다. 아래는 이전 진단 이력입니다.
+
 ## 최신 판정 — 운영 정상, Railway 무인 시작은 미확인
 
 2026-11-13 08:15 KST 관측. 사용자의 초기 설정은 적용됐고 현재 배포 `0468e159-4eb1-4b81-9cf2-5bc18939eb5c` / `8a3f4a8`은 SUCCESS입니다. 실제 커밋 일치·HTTPS·익명 API/로그인/WSS 차단·공개 자산은 [CI43320443111](https://github.com/dhdh09080/pixel-class/actions/runs/43320443111)에서 통과했습니다. 정상 계정의 외부 로그인·인증된 WSS 101은 미검증입니다.

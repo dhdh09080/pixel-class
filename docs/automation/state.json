@@ -68,7 +68,7 @@
     "authenticatedWssVerified": false
   },
   "newAutomaticDeploymentObserved": false,
-  "scope": "Application deployment and external anonymous protections are healthy. CI verification and automatic ref promotion are proven. Unattended Railway deployment remains unverified; no root cause is asserted.",
+  "scope": "Service source was restored and exact-commit deployment-status smoke succeeded. Follow-up unattended push verification is in progress; no new source/Deploy calls are planned during that probe.",
   "connectionRepair": {
     "firstProbeCommit": "8a3f4a80ec9b1410fa1029f141b925ba2e4c5cbb",
     "firstProbeRun": 43320443111,
@@ -168,5 +168,44 @@
       "result": "Complete pre-deploy workflow succeeded after separating post-deploy checks; no new Railway deployment observed."
     }
   ],
-  "nativeAutodeploySwitch": "Unknown; not exposed by available tools. Browser control failed; user was asked for Settings > Source button state."
+  "nativeAutodeploySwitch": "Unknown; not exposed by available tools. Browser control failed; user was asked for Settings > Source button state.",
+  "sourceRestored": {
+    "sourceWasMissing": true,
+    "source": {
+      "repo": "dhdh09080/pixel-class",
+      "branch": "deploy/railway-verified",
+      "checkSuites": false
+    },
+    "pendingChanges": 0,
+    "deploymentId": "84dce27e-4ba4-4662-9c5c-80a3365aeec0",
+    "deploymentCommit": "4c1269f3a4022cf6e3b95f4b5aec6dcd716ce01b",
+    "status": "SUCCESS",
+    "predeployRun": 43327398751,
+    "releaseRun": 43338551053,
+    "releaseEvent": "deployment_status",
+    "proof": {
+      "ok": true,
+      "url": "https://pixel-class-private-test.up.railway.app",
+      "release": "0.6.0",
+      "expectedCommit": "4c1269f3a4022cf6e3b95f4b5aec6dcd716ce01b",
+      "checks": [
+        "HTTPS health",
+        "guided entrance",
+        "anonymous data blocked",
+        "recovery link preserved",
+        "foreign Origin blocked",
+        "incorrect access code rejected",
+        "anonymous WSS handshake rejected401",
+        "anonymous login API blocked401",
+        "new public competition shell200",
+        "current public judge-progress assets200"
+      ],
+      "publicAssets": {
+        "entryAsset": "/competition-assets/index-Dsx7D9se.js",
+        "featureAsset": "/competition-assets/PublicCompetition-CjRcizL0.js"
+      },
+      "authenticatedLoginVerified": false,
+      "authenticatedWssVerified": false
+    }
+  }
 }
