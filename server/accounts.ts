@@ -71,7 +71,8 @@ export function registerAccountRoutes(app: Express, d: Dependencies) {
     res.json({ key, expiresAt: record.expiresAt });
   });
   app.post(['/api/account/recover', '/api/enrollment/recover'], (req, res) => {
-    if (req.path === '/api/enrollment/recover' && !approvalRegistrationEnabled()) d.fail(404, '복구 링크를 확인해 주세요.');
+    if (req.path === '/api/enrollment/recover' && !approvalRegistrationEnabled())
+      d.fail(404, '복구 링크를 확인해 주세요.');
     d.rate('recover:' + req.ip, 10);
     const v = z.object({ key: z.string().regex(/^[a-f0-9]{64}$/), password }).parse(req.body);
     const row = db

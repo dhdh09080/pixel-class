@@ -100,7 +100,12 @@ app.use((req, res, next) => {
   }
   if (req.path.startsWith('/api')) res.setHeader('Cache-Control', 'no-store');
   const publicEnrollment = isPublicEnrollmentRequest(req.method, req.path);
-  if (publicEnrollment && req.method === 'POST' && (!req.headers.origin || !allowedOrigin(req.headers.origin, req.headers.host, process.env.PUBLIC_ORIGIN)))
+  if (
+    publicEnrollment &&
+    req.method === 'POST' &&
+    (!req.headers.origin ||
+      !allowedOrigin(req.headers.origin, req.headers.host, process.env.PUBLIC_ORIGIN))
+  )
     return res.status(403).json({ error: '학교 주소에서 다시 시도해 주세요.' });
   if (railway) {
     // Never cache gated assets at a shared edge. Only the minimal liveness probe is public.
@@ -121,11 +126,20 @@ app.use((req, res, next) => {
       !privateAccess(req.headers.authorization, accessSecret) &&
       !validAccessPass(req.headers.cookie, accessSecret)
     ) {
-      if (req.method === 'GET' && req.path === '/' && req.get('accept')?.includes('text/html') && approvalRegistrationEnabled()) {
+      if (
+        req.method === 'GET' &&
+        req.path === '/' &&
+        req.get('accept')?.includes('text/html') &&
+        approvalRegistrationEnabled()
+      ) {
         const reset = entranceInvite(req.query.reset);
         return res.redirect(303, reset ? '/join?reset=' + reset : '/join');
       }
-      if (req.method === 'GET' && ['/', '/admin-entry'].includes(req.path) && req.get('accept')?.includes('text/html'))
+      if (
+        req.method === 'GET' &&
+        ['/', '/admin-entry'].includes(req.path) &&
+        req.get('accept')?.includes('text/html')
+      )
         return res
           .status(401)
           .send(
@@ -209,26 +223,45 @@ function grantSchoolAccess(res: Response) {
   if (!railway) return;
   const secret = process.env.STAGING_ACCESS_KEY;
   if (!secret) fail(503, '학교 접근 설정을 확인해 주세요.');
-  res.cookie(accessCookie, createAccessPass(secret!), { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: accessDuration });
+  res.cookie(accessCookie, createAccessPass(secret!), {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: accessDuration,
+  });
 }
 function restrictSchoolAccess(res: Response) {
-  if (railway) res.clearCookie(accessCookie, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
+  if (railway)
+    res.clearCookie(accessCookie, { httpOnly: true, secure: true, sameSite: 'lax', path: '/' });
 }
 function logout(req: Request, res: Response) {
-  const token = req.headers.cookie?.split(';').map(v => v.trim()).find(v => v.startsWith('pixel_session='))?.slice(14);
+  const token = req.headers.cookie
+    ?.split(';')
+    .map((v) => v.trim())
+    .find((v) => v.startsWith('pixel_session='))
+    ?.slice(14);
   if (token) {
     db.prepare('DELETE FROM sessions WHERE token_hash=?').run(digest(token));
     res.once('finish', () => closeSessionSockets(digest(token)));
   }
-  res.clearCookie('pixel_session', { httpOnly: true, sameSite: 'strict', secure: process.env.COOKIE_SECURE === 'true', path: '/' });
+  res.clearCookie('pixel_session', {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.COOKIE_SECURE === 'true',
+    path: '/',
+  });
   if (approvalRegistrationEnabled()) restrictSchoolAccess(res);
 }
 function verifyCredentials(email: string, password: string): Member {
   rate('login-account:' + digest(email), 12);
-  const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(email) as { password: string; body: string } | undefined;
+  const row = db.prepare('SELECT password,body FROM users WHERE email=?').get(email) as
+    { password: string; body: string } | undefined;
   const [salt, hash] = (row?.password || '0:').split(':');
-  const actual = scryptSync(password, salt, 64), expected = Buffer.from(hash || '', 'hex');
-  if (!row || actual.length !== expected.length || !timingSafeEqual(actual, expected)) fail(401, '이메일 또는 비밀번호가 올바르지 않습니다.');
+  const actual = scryptSync(password, salt, 64),
+    expected = Buffer.from(hash || '', 'hex');
+  if (!row || actual.length !== expected.length || !timingSafeEqual(actual, expected))
+    fail(401, '이메일 또는 비밀번호가 올바르지 않습니다.');
   return JSON.parse(row!.body) as Member;
 }
 function auth(req: Request): Member {
@@ -464,7 +497,10 @@ app.post('/api/login', (req, res) => {
   login(res, u, req);
   res.json({ ok: true });
 });
-app.post('/api/logout', (req, res) => { logout(req, res); res.json({ ok: true }); });
+app.post('/api/logout', (req, res) => {
+  logout(req, res);
+  res.json({ ok: true });
+});
 app.post('/api/bootstrap', (req, res) => {
   rate(`bootstrap:${req.ip}`, 5);
   if (demo || !process.env.MASTER_BOOTSTRAP_KEY)
@@ -575,9 +611,13 @@ app.get('/api/state', (req, res) => {
     me: u,
     ...competitionClassroomState(u),
     school: schoolSettings(u.schoolId),
-    members: isActive ? members(u.schoolId).filter(m => u.role === 'MASTER' || !isApplicant(m)) : [u],
+    members: isActive
+      ? members(u.schoolId).filter((m) => u.role === 'MASTER' || !isApplicant(m))
+      : [u],
     ...(approvalRegistrationEnabled() ? { approvalRegistrationEnabled: true } : {}),
-    ...(u.role === 'MASTER' && (approvalRegistrationEnabled() || admissionQueue(u.schoolId).length) ? { admissions: admissionQueue(u.schoolId) } : {}),
+    ...(u.role === 'MASTER' && (approvalRegistrationEnabled() || admissionQueue(u.schoolId).length)
+      ? { admissions: admissionQueue(u.schoolId) }
+      : {}),
     projects: list<Project>('project', u.schoolId)
       .filter((p) => p.ownerId === u.id || (isActive && (u.role === 'MASTER' || p.isPublic)))
       .map((p) => projectView(p, u)),
@@ -864,7 +904,8 @@ app.patch('/api/members/:id', (req, res) => {
     const m = userById(String(req.params.id));
     if (!m || m.schoolId !== u.schoolId || m.role === 'MASTER')
       fail(403, '해당 학생을 관리할 수 없습니다.');
-    if (m!.admission && !m!.admission.approvedAt) fail(409, '가입 승인 메뉴에서 승인과 반 배정을 함께 처리해 주세요.');
+    if (m!.admission && !m!.admission.approvedAt)
+      fail(409, '가입 승인 메뉴에서 승인과 반 배정을 함께 처리해 주세요.');
     const previous = m!.status;
     m!.status = v.status;
     if (
@@ -1188,7 +1229,19 @@ registerAccountRoutes(app, {
     for (const c of connections) if (c.userId === userId) c.ws.close(1008, 'password changed');
   },
 });
-registerAdmissionRoutes(app, { sessionUser, master, active, login, logout, grantAccess: grantSchoolAccess, restrictAccess: restrictSchoolAccess, verifyCredentials, fail, rate, changed });
+registerAdmissionRoutes(app, {
+  sessionUser,
+  master,
+  active,
+  login,
+  logout,
+  grantAccess: grantSchoolAccess,
+  restrictAccess: restrictSchoolAccess,
+  verifyCredentials,
+  fail,
+  rate,
+  changed,
+});
 app.post('/api/events/read-all', (req, res) => {
   const u = auth(req);
   for (const e of list<PersonalEvent>('personal-event', u.schoolId).filter(
@@ -1253,7 +1306,14 @@ if (process.env.NODE_ENV === 'production') {
   });
   app.get('/join', (_req, res) => {
     if (!approvalRegistrationEnabled()) return res.status(404).end();
-    return res.type('html').send(readFileSync(resolve('dist/index.html'), 'utf8').replaceAll('/assets/', '/competition-assets/'));
+    return res
+      .type('html')
+      .send(
+        readFileSync(resolve('dist/index.html'), 'utf8').replaceAll(
+          '/assets/',
+          '/competition-assets/',
+        ),
+      );
   });
   app.get('/admin-entry', (_req, res) => res.redirect(303, '/'));
   app.use(express.static(resolve('dist')));

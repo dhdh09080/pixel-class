@@ -166,7 +166,9 @@ export function RecoveryControls({
           setLink('');
           void api<{ key: string; expiresAt: string }>(`/members/${student}/recovery`, 'POST')
             .then((v) => {
-              setLink(`${location.origin}/${state.approvalRegistrationEnabled ? 'join' : ''}?reset=${v.key}`);
+              setLink(
+                `${location.origin}/${state.approvalRegistrationEnabled ? 'join' : ''}?reset=${v.key}`,
+              );
               setExpiry(v.expiresAt);
             })
             .catch((e) => onToast(e.message))

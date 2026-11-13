@@ -8,7 +8,8 @@ import type {
   Attachment,
 } from './learning';
 export type Role = 'MASTER' | 'STUDENT';
-export type Membership = 'INVITED' | 'PENDING' | 'REJECTED' | 'ACTIVE' | 'ON_LEAVE' | 'GRADUATED' | 'REVOKED';
+export type Membership =
+  'INVITED' | 'PENDING' | 'REJECTED' | 'ACTIVE' | 'ON_LEAVE' | 'GRADUATED' | 'REVOKED';
 export type ProjectStatus =
   'IDEA' | 'PLANNING' | 'BUILDING' | 'TESTING' | 'REVIEW' | 'COMPLETED' | 'PAUSED';
 export type Appearance = {
@@ -60,7 +61,14 @@ export type Member = {
   workStatus: 'IDLE' | 'BUILDING' | 'MENTORING';
   deskId: string | null;
   previousDeskId?: string | null;
-  admission?: { requestedAt: string; revision: number; reviewedAt?: string; reviewedBy?: string; approvedAt?: string; reason?: string };
+  admission?: {
+    requestedAt: string;
+    revision: number;
+    reviewedAt?: string;
+    reviewedBy?: string;
+    approvedAt?: string;
+    reason?: string;
+  };
 };
 export type Admission = Member & { email: string };
 export type Task = { id: string; text: string; done: boolean };

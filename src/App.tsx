@@ -75,7 +75,18 @@ type Overlay =
   | 'auth'
   | null;
 export default function App() {
-  if (location.pathname === '/join') return <Suspense fallback={<div className="initial-loading" role="status">학교를 불러오고 있어요…</div>}><Enrollment /></Suspense>;
+  if (location.pathname === '/join')
+    return (
+      <Suspense
+        fallback={
+          <div className="initial-loading" role="status">
+            학교를 불러오고 있어요…
+          </div>
+        }
+      >
+        <Enrollment />
+      </Suspense>
+    );
   const competitionRoute = location.pathname.match(/^\/competition\/([A-Za-z0-9_-]+)\/?$/);
   if (competitionRoute)
     return (
@@ -139,7 +150,12 @@ function SchoolApp() {
       const next = await fetchState();
       if (sequence === loadSequence.current) {
         applyState(next);
-        setConfig({ demo: next.demo, bootstrap: false, aiConfigured: next.aiConfigured, approvalRegistrationEnabled: next.approvalRegistrationEnabled });
+        setConfig({
+          demo: next.demo,
+          bootstrap: false,
+          aiConfigured: next.aiConfigured,
+          approvalRegistrationEnabled: next.approvalRegistrationEnabled,
+        });
       }
     } catch (e) {
       if (sequence !== loadSequence.current) return;
@@ -172,7 +188,10 @@ function SchoolApp() {
         try {
           applyState(await fetchState());
         } catch (e) {
-          if (c.approvalRegistrationEnabled && e instanceof ApiError && e.status === 403) { location.replace('/join'); return; }
+          if (c.approvalRegistrationEnabled && e instanceof ApiError && e.status === 403) {
+            location.replace('/join');
+            return;
+          }
           if (
             c.demo &&
             !sessionStorage.getItem('pixel-signed-out') &&
@@ -527,7 +546,12 @@ function SchoolApp() {
             </div>
           ) : page === 'classroom' ? (
             <>
-              {state.approvalRegistrationEnabled && me.role === 'STUDENT' && <p className="class-assignment">내 반 · {state.classes?.find(group => group.id === me.classId)?.name || '기본반'}</p>}
+              {state.approvalRegistrationEnabled && me.role === 'STUDENT' && (
+                <p className="class-assignment">
+                  내 반 ·{' '}
+                  {state.classes?.find((group) => group.id === me.classId)?.name || '기본반'}
+                </p>
+              )}
               <div className="classroom-intro">
                 <div>
                   <p className="eyebrow">
