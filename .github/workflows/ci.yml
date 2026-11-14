@@ -38,6 +38,7 @@ jobs:
             test-results/enrollment/
             docs/admissions/qa/
             docs/signup-flow/
+            docs/rounded-120/
           retention-days: 7
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

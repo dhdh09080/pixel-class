@@ -42,6 +42,7 @@ const entrance = await fetch(base + '/', {
   signal: AbortSignal.timeout(10000),
 });
 let stagedSignupAssetsVerified = false;
+let roundedCharacterAssetsVerified = false;
 if (enrollment) {
   assert.equal(entrance.status, 303);
   assert.equal(entrance.headers.get('location'), '/join');
@@ -68,6 +69,12 @@ if (enrollment) {
     'The final character step must be present in the actual deployed entry.',
   );
   stagedSignupAssetsVerified = true;
+  assert.match(
+    signupCode,
+    /rounded-native-120-v1/,
+    'The current native 120×160 character renderer must be in the actual deployed entry.',
+  );
+  roundedCharacterAssetsVerified = true;
   const invalid = await fetch(base + '/api/enrollment/register', {
     method: 'POST',
     headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
@@ -193,6 +200,7 @@ console.log(
     publicAssets,
     approvalRegistrationEnabled: enrollment,
     stagedSignupAssetsVerified,
+    roundedCharacterAssetsVerified,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),

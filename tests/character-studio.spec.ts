@@ -93,7 +93,7 @@ for (const width of [1440, 390])
       width: image.naturalWidth,
       height: image.naturalHeight,
     }));
-    expect(dimensions).toEqual({ width: 60, height: 80 });
+    expect(dimensions).toEqual({ width: 120, height: 160 });
     await dialog.getByRole('button', { name: '캐릭터 오른쪽으로 돌리기' }).click();
     await expect(preview).not.toHaveAttribute('src', src!);
     await dialog.getByRole('button', { name: '캐릭터 왼쪽으로 돌리기' }).click();
@@ -142,9 +142,13 @@ test('every visual catalog option renders distinct pixels, with matching logical
     const characterPath = '/src/game/character.ts',
       appearancePath = '/shared/appearance.ts',
       typePath = '/shared/types.ts';
-    const { characterCanvas, CHARACTER_SCALE, CHARACTER_WIDTH, CHARACTER_HEIGHT } = await import(
-      characterPath
-    );
+    const {
+      characterCanvas,
+      CHARACTER_SCALE,
+      CHARACTER_WIDTH,
+      CHARACTER_HEIGHT,
+      CHARACTER_DENSITY,
+    } = await import(characterPath);
     const { appearanceOptions } = await import(appearancePath);
     const { defaultAppearance } = await import(typePath);
     const counts: Record<string, number[]> = {};
@@ -179,14 +183,15 @@ test('every visual catalog option renders distinct pixels, with matching logical
         .getContext('2d')!
         .getImageData(0, 0, CHARACTER_WIDTH, CHARACTER_HEIGHT).data;
       let count = 0;
-      for (let y = 32; y < 51; y++)
-        for (let x = 15; x < 45; x++) {
+      for (let y = 32 * CHARACTER_DENSITY; y < 51 * CHARACTER_DENSITY; y++)
+        for (let x = 15 * CHARACTER_DENSITY; x < 45 * CHARACTER_DENSITY; x++) {
           const at = (y * CHARACTER_WIDTH + x) * 4;
           if (pixels[at] > pixels[at + 1] * 2 && pixels[at] > pixels[at + 2] * 2) count++;
         }
       let gaps = 0;
-      for (let y = 43; y < 55; y++)
-        for (let x = 29; x < 34; x++) if (!pixels[(y * CHARACTER_WIDTH + x) * 4 + 3]) gaps++;
+      for (let y = 43 * CHARACTER_DENSITY; y < 55 * CHARACTER_DENSITY; y++)
+        for (let x = 29 * CHARACTER_DENSITY; x < 34 * CHARACTER_DENSITY; x++)
+          if (!pixels[(y * CHARACTER_WIDTH + x) * 4 + 3]) gaps++;
       rearHeadGaps.push(gaps);
       return count;
     });
@@ -204,8 +209,8 @@ test('every visual catalog option renders distinct pixels, with matching logical
   expect(result.rearFacePixels).toEqual(Array(result.counts.hairstyle[1]).fill(0));
   expect(result.rearHeadGaps).toEqual(Array(result.counts.hairstyle[1]).fill(0));
   expect(result.poses).toHaveLength(12);
-  for (const pose of result.poses) expect(pose).toEqual([60, 80]);
-  expect(result.seated).toEqual([60, 80]);
+  for (const pose of result.poses) expect(pose).toEqual([120, 160]);
+  expect(result.seated).toEqual([120, 160]);
   expect(result.logicalHeight).toBeCloseTo(64 * 1.15);
 });
 
@@ -319,7 +324,7 @@ test('low-resolution native sprites use a bounded solid palette while preserving
         }).toDataURL(),
     };
   });
-  expect(result.character).toEqual([60, 80]);
+  expect(result.character).toEqual([120, 160]);
   expect(result.logical[0]).toBeCloseTo(55.2);
   expect(result.logical[1]).toBeCloseTo(73.6);
   expect(result.world).toEqual([2240, 1400]);
@@ -329,6 +334,7 @@ test('low-resolution native sprites use a bounded solid palette while preserving
   expect(result.deskLogical).toEqual([132, 116]);
   expect(result.characterDetails.colors).toBeLessThanOrEqual(32);
   expect(result.characterDetails.colors).toBeGreaterThan(12);
+  expect(result.characterDetails.blocks).toBeGreaterThan(250);
   expect(result.worldDetails.blocks).toBeGreaterThan(100);
   expect(result.deskDetails.blocks).toBeGreaterThan(30);
   expect(result.characterDetails.partial).toBe(0);
