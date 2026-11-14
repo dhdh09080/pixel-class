@@ -1,0 +1,28 @@
+{
+  "baselineTests": 205,
+  "newRasterTests": 5,
+  "newBrowserTests": 4,
+  "unitAndApiPassed": 149,
+  "browserPassed": 62,
+  "httpsProfilesPassed": 3,
+  "totalPassed": 214,
+  "failures": 0,
+  "formatCheck": "passed",
+  "build": "passed",
+  "containerBuild": "Environment-only Dockerfile uses a BuildKit-mounted session CA with strict TLS; repository Dockerfile unchanged",
+  "profiles": {
+    "ops": {
+      "browserPassed": true,
+      "httpsPersistenceBackupPassed": true
+    },
+    "railway": {
+      "browserPassed": true,
+      "httpsPersistenceBackupPassed": true
+    },
+    "enrollment": {
+      "browserPassed": true,
+      "httpsPersistenceBackupPassed": true
+    }
+  },
+  "scope": "Isolated local API/browser/Docker tests. Production owner login and authenticated WSS were not exercised."
+}

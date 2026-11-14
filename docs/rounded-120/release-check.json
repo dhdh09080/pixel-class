@@ -1,0 +1,91 @@
+{
+  "sourceCommit": "e83d0e5ee2b0d009b774915b5c9a31e4136b739c",
+  "pullRequest": "https://github.com/dhdh09080/pixel-class/pull/18",
+  "prCi": {
+    "id": 43632976870,
+    "conclusion": "success",
+    "evidence": [
+      "2026-11-14T19:36:49.0702853Z ℹ tests 149",
+      "2026-11-14T19:36:49.0703420Z ℹ pass 149",
+      "2026-11-14T19:45:24.4547903Z   62 passed (8.3m)",
+      "2026-11-14T19:46:20.5488868Z   1 passed (23.9s)",
+      "2026-11-14T19:46:20.5821162Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+      "2026-11-14T19:47:19.0857083Z   1 passed (47.9s)",
+      "2026-11-14T19:47:19.1244138Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+      "2026-11-14T19:47:40.6483675Z   1 passed (11.0s)",
+      "2026-11-14T19:47:40.6801696Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created."
+    ]
+  },
+  "mainCi": {
+    "id": 43634110185,
+    "conclusion": "success",
+    "evidence": [
+      "2026-11-14T19:49:36.8067994Z ℹ tests 149",
+      "2026-11-14T19:49:36.8068648Z ℹ pass 149",
+      "2026-11-14T19:57:22.5506041Z   62 passed (7.1m)",
+      "2026-11-14T19:58:23.4793039Z   1 passed (28.6s)",
+      "2026-11-14T19:58:23.5119206Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+      "2026-11-14T19:59:23.8277711Z   1 passed (46.3s)",
+      "2026-11-14T19:59:23.8636993Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+      "2026-11-14T19:59:45.6152113Z   1 passed (10.7s)",
+      "2026-11-14T19:59:45.6609441Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created."
+    ]
+  },
+  "railway": {
+    "project": "pixel-class",
+    "environment": "private-test",
+    "service": "pixel-class",
+    "deploymentId": "5383bc46-023c-4c8b-866d-73bda96d515e",
+    "status": "SUCCESS",
+    "commit": "e83d0e5ee2b0d009b774915b5c9a31e4136b739c",
+    "createdAt": "2026-11-14T20:00:03.462Z",
+    "updatedAt": "2026-11-14T20:00:39.736Z",
+    "configUnchanged": true,
+    "variableNamesUnchanged": true,
+    "variableCount": 18,
+    "volumeMounts": {
+      "2e639437-1dd9-4ba4-a078-976d2eb2136d": {
+        "mountPath": "/app/data"
+      }
+    },
+    "source": {
+      "repo": "dhdh09080/pixel-class",
+      "branch": "deploy/railway-verified",
+      "checkSuites": false
+    },
+    "stagedChanges": null
+  },
+  "externalCi": {
+    "id": 43635159586,
+    "jobId": 132570247425,
+    "conclusion": "success",
+    "result": {
+      "ok": true,
+      "url": "https://pixel-class-private-test.up.railway.app",
+      "release": "0.6.0",
+      "expectedCommit": "e83d0e5ee2b0d009b774915b5c9a31e4136b739c",
+      "checks": [
+        "HTTPS health",
+        "guided entrance",
+        "anonymous data blocked",
+        "recovery link preserved",
+        "foreign Origin blocked",
+        "incorrect access code rejected",
+        "anonymous WSS handshake rejected401",
+        "anonymous login API blocked401",
+        "new public competition shell200",
+        "current public judge-progress assets200"
+      ],
+      "publicAssets": {
+        "entryAsset": "/competition-assets/index-oDgxem0x.js",
+        "featureAsset": "/competition-assets/PublicCompetition-Cp690I_g.js"
+      },
+      "approvalRegistrationEnabled": true,
+      "stagedSignupAssetsVerified": true,
+      "roundedCharacterAssetsVerified": true,
+      "authenticatedLoginVerified": false,
+      "authenticatedWssVerified": false
+    }
+  },
+  "scope": "Production read-only/negative access and actual current assets verified. Positive two-account HTTPS/WSS flows verified in isolated Docker only."
+}
