@@ -1,4 +1,4 @@
-/** Integer-only raster painter. Every layer has an explicit one-pixel outline. */
+/** Native integer-grid rasterizer. Fractional design coordinates map to native dots via density. */
 export type PixelPoint = readonly [number, number];
 export const shade = (hex: string, target: string, ratio: number) =>
   '#' +
@@ -18,6 +18,7 @@ export class PixelArt {
   constructor(
     readonly width: number,
     readonly height: number,
+    readonly density = 1,
   ) {
     this.pixels = new Uint32Array(width * height);
   }
@@ -35,12 +36,19 @@ export class PixelArt {
     return n;
   }
   rect(x: number, y: number, w: number, h: number, hex: string) {
+    this.rawRect(x * this.density, y * this.density, w * this.density, h * this.density, hex);
+  }
+  private rawRect(x: number, y: number, w: number, h: number, hex: string) {
     const col = this.color(hex);
     for (let yy = Math.max(0, Math.round(y)); yy < Math.min(this.height, Math.round(y + h)); yy++)
       for (let xx = Math.max(0, Math.round(x)); xx < Math.min(this.width, Math.round(x + w)); xx++)
         this.pixels[yy * this.width + xx] = col;
   }
   poly(points: readonly PixelPoint[], hex: string) {
+    const native = points.map(([x, y]) => [x * this.density, y * this.density] as PixelPoint);
+    this.rawPoly(native, hex);
+  }
+  private rawPoly(points: readonly PixelPoint[], hex: string) {
     const min = Math.max(0, Math.floor(Math.min(...points.map((p) => p[1])))),
       max = Math.min(this.height, Math.ceil(Math.max(...points.map((p) => p[1]))));
     for (let y = min; y < max; y++) {
@@ -53,7 +61,7 @@ export class PixelArt {
       }
       crossings.sort((a, b) => a - b);
       for (let i = 0; i + 1 < crossings.length; i += 2)
-        this.rect(
+        this.rawRect(
           Math.ceil(crossings[i] - 0.5),
           y,
           Math.ceil(crossings[i + 1] - 0.5) - Math.ceil(crossings[i] - 0.5),
@@ -63,14 +71,21 @@ export class PixelArt {
     }
   }
   oval(x: number, y: number, w: number, h: number, hex: string) {
+    x *= this.density;
+    y *= this.density;
+    w *= this.density;
+    h *= this.density;
     for (let j = 0; j < h; j++) {
       const inset = Math.round(
         (w / 2) * (1 - Math.sqrt(Math.max(0, 1 - ((j + 0.5 - h / 2) / (h / 2)) ** 2))),
       );
-      this.rect(x + inset, y + j, w - inset * 2, 1, hex);
+      this.rawRect(x + inset, y + j, w - inset * 2, 1, hex);
     }
   }
   line(points: readonly PixelPoint[], hex: string) {
+    points = points.map(
+      ([x, y]) => [Math.round(x * this.density), Math.round(y * this.density)] as PixelPoint,
+    );
     for (let i = 0; i < points.length - 1; i++) {
       let [x, y] = points[i];
       const [bx, by] = points[i + 1],
@@ -80,7 +95,7 @@ export class PixelArt {
         sy = y < by ? 1 : -1;
       let err = dx + dy;
       while (true) {
-        this.rect(x, y, 1, 1, hex);
+        this.rawRect(x, y, 1, 1, hex);
         if (x === bx && y === by) break;
         const e = err * 2;
         if (e >= dy) {
@@ -94,8 +109,84 @@ export class PixelArt {
       }
     }
   }
+  /** Closed Bezier silhouettes rasterized on the native grid, without antialiasing. */
+  path(commands: readonly (readonly [string, ...number[]])[], hex: string) {
+    const points: PixelPoint[] = [];
+    let x = 0,
+      y = 0;
+    for (const [op, ...v] of commands) {
+      if (op === 'M' || op === 'L') {
+        x = v[0];
+        y = v[1];
+        points.push([x, y]);
+      } else if (op === 'C' || op === 'Q') {
+        const sx = x,
+          sy = y,
+          steps = 24;
+        for (let n = 1; n <= steps; n++) {
+          const t = n / steps,
+            u = 1 - t;
+          if (op === 'C') {
+            x = u * u * u * sx + 3 * u * u * t * v[0] + 3 * u * t * t * v[2] + t * t * t * v[4];
+            y = u * u * u * sy + 3 * u * u * t * v[1] + 3 * u * t * t * v[3] + t * t * t * v[5];
+          } else {
+            x = u * u * sx + 2 * u * t * v[0] + t * t * v[2];
+            y = u * u * sy + 2 * u * t * v[1] + t * t * v[3];
+          }
+          points.push([x, y]);
+        }
+      }
+    }
+    this.poly(points, hex);
+  }
+  curve(points: readonly PixelPoint[], hex: string) {
+    const [a, b, c, d] = points;
+    const samples: PixelPoint[] = [];
+    for (let n = 0; n <= 32; n++) {
+      const t = n / 32,
+        u = 1 - t;
+      samples.push([
+        u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0],
+        u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1],
+      ]);
+    }
+    this.line(samples, hex);
+  }
+  ring(x: number, y: number, w: number, h: number, hex: string, thickness = 0.5) {
+    const s = this.density,
+      col = this.color(hex),
+      rx = (w * s) / 2,
+      ry = (h * s) / 2,
+      cx = (x + w / 2) * s,
+      cy = (y + h / 2) * s,
+      inset = thickness * s;
+    for (
+      let yy = Math.max(0, Math.floor(y * s));
+      yy < Math.min(this.height, Math.ceil((y + h) * s));
+      yy++
+    )
+      for (
+        let xx = Math.max(0, Math.floor(x * s));
+        xx < Math.min(this.width, Math.ceil((x + w) * s));
+        xx++
+      ) {
+        const dx = xx + 0.5 - cx,
+          dy = yy + 0.5 - cy;
+        if (
+          (dx / rx) ** 2 + (dy / ry) ** 2 <= 1 &&
+          (dx / (rx - inset)) ** 2 + (dy / (ry - inset)) ** 2 >= 1
+        )
+          this.pixels[yy * this.width + xx] = col;
+      }
+  }
+  roundRect(x: number, y: number, w: number, h: number, r: number, hex: string) {
+    this.rect(x + r, y, w - 2 * r, h, hex);
+    this.rect(x, y + r, w, h - 2 * r, hex);
+    for (const xx of [x, x + w - 2 * r])
+      for (const yy of [y, y + h - 2 * r]) this.oval(xx, yy, 2 * r, 2 * r, hex);
+  }
   layer(draw: (p: PixelArt) => void, outline = '#262333') {
-    const part = new PixelArt(this.width, this.height);
+    const part = new PixelArt(this.width, this.height, this.density);
     draw(part);
     const ink = this.color(outline);
     for (let y = 0; y < this.height; y++)

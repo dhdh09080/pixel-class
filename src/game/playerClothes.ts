@@ -8,11 +8,11 @@ export function playerClothes(
   seated: boolean,
 ) {
   const main = a.outfitColor,
-    dark = shade(main, '#202339', 0.4),
+    dark = shade(main, '#283147', 0.3),
     light = shade(main, '#fff3d5', 0.24),
     trim = a.accentColor,
     white = '#fff1da',
-    ink = '#262333',
+    ink = shade(main, '#29283c', 0.62),
     skin = a.skin,
     skinShadow = shade(skin, '#aa6c66', 0.25);
   const dress = [3, 24].includes(a.outfit),
@@ -28,7 +28,7 @@ export function playerClothes(
       [33, -step],
     ]) {
       const foot = seated ? 70 : 76 + move;
-      q.rect(x, 64, 5, foot - 64, dress || shorts ? skin : dark);
+      q.roundRect(x, 64, 5, foot - 64, 1, dress || shorts ? skin : dark);
       q.rect(x, 65, 1, Math.max(1, foot - 66), dress || shorts ? skinShadow : light);
       q.poly(
         [
@@ -46,14 +46,15 @@ export function playerClothes(
     }
   });
   p.layer((q) => {
-    q.poly(
+    q.path(
       [
-        [left + 2, 55],
-        [right - 2, 55],
-        [right + 1, 58],
-        [right, 66],
-        [left, 66],
-        [left - 1, 58],
+        ['M', left + 3, 55],
+        ['L', right - 3, 55],
+        ['Q', right + 1, 55.5, right + 1, 59],
+        ['L', right, 66],
+        ['L', left, 66],
+        ['L', left - 1, 59],
+        ['Q', left - 1, 55.5, left + 3, 55],
       ],
       main,
     );
@@ -65,28 +66,75 @@ export function playerClothes(
     ]) {
       const y = 57 + (seated ? 0 : move),
         short = [1, 3, 11, 24].includes(a.outfit);
-      q.rect(x, y, 4, short ? 5 : 8, main);
-      q.rect(x, y, 1, short ? 4 : 7, light);
-      const handY = y + (short ? 5 : 8);
-      q.oval(x, handY, 4, 4, skin);
-      q.rect(x + 3, handY + 1, 1, 2, skinShadow);
-      q.rect(x + 1, handY + 1, 1, 1, shade(skin, '#fff1da', 0.2));
-    }
-    if (dress) {
-      q.poly(
+      q.path(
         [
-          [left + 2, 62],
-          [right - 2, 62],
-          [right + 3, 70],
-          [right + 2, 71],
-          [left - 2, 71],
-          [left - 3, 70],
+          ['M', x + 1, y],
+          ['Q', x + 4, y, x + 4, y + 2],
+          ['L', x + 3.5, y + (short ? 5 : 8)],
+          ['L', x + 0.5, y + (short ? 5 : 8)],
+          ['Q', x - 0.5, y + 2, x + 1, y],
         ],
         main,
       );
-      q.rect(left - 1, 69, right - left + 2, 1, trim);
-      q.rect(left + 3, 64, 1, 5, light);
-      q.rect(right - 4, 65, 1, 4, dark);
+      q.curve(
+        [
+          [x + 0.5, y + 1],
+          [x, y + 2],
+          [x + 0.5, y + 3],
+          [x + 0.5, y + (short ? 4 : 6)],
+        ],
+        light,
+      );
+      const handY = y + (short ? 5 : 8);
+      q.oval(x + 0.5, handY, 3.5, 3.5, skin);
+      q.curve(
+        [
+          [x + 3, handY + 1],
+          [x + 4, handY + 2],
+          [x + 3, handY + 3],
+          [x + 2, handY + 3],
+        ],
+        skinShadow,
+      );
+      q.rect(x + 1, handY + 1, 1, 1, shade(skin, '#fff1da', 0.2));
+    }
+    if (dress) {
+      q.path(
+        [
+          ['M', left + 2, 62],
+          ['L', right - 2, 62],
+          ['Q', right, 65, right + 3, 70],
+          ['Q', right, 72, right - 3, 71.5],
+          ['L', left + 3, 71.5],
+          ['Q', left, 72, left - 3, 70],
+          ['Q', left, 65, left + 2, 62],
+        ],
+        main,
+      );
+      q.curve(
+        [
+          [left - 2, 70],
+          [left + 4, 71],
+          [right - 4, 71],
+          [right + 2, 70],
+        ],
+        trim,
+      );
+      for (const [x, bend] of [
+        [left + 4, -1],
+        [29, 0],
+        [right - 4, 1],
+      ]) {
+        q.curve(
+          [
+            [x, 64],
+            [x + bend, 66],
+            [x + bend, 68],
+            [x + bend * 2, 69],
+          ],
+          bend > 0 ? dark : light,
+        );
+      }
     }
     if (coat) {
       q.rect(left, 62, right - left, 8, main);

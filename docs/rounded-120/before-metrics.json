@@ -1,0 +1,24 @@
+{
+  "width": 60,
+  "height": 80,
+  "worldHeight": 73.60000000000001,
+  "catalogCounts": {
+    "hairstyle": {
+      "expected": 18,
+      "unique": 18
+    },
+    "eyeShape": {
+      "expected": 10,
+      "unique": 10
+    },
+    "outfit": {
+      "expected": 25,
+      "unique": 25
+    },
+    "helmetStyle": {
+      "expected": 15,
+      "unique": 15
+    }
+  },
+  "environment": "isolated local browser; no school accounts created"
+}
