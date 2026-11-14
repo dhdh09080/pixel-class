@@ -14,11 +14,11 @@ import {
 import { X, ArrowUpRight, Check, ExternalLink } from 'lucide-react';
 import type { Appearance, ProjectStatus } from '../shared/types';
 import { statusLabels } from '../shared/types';
-import { characterCanvas, type Direction } from './game/character';
+import { characterCanvas, CHARACTER_ART_VERSION, type Direction } from './game/character';
 // Bounded value-keyed cache avoids rerendering identical sprites after every state refresh.
 const avatarImages = new Map<string, string>();
 function avatarImage(appearance: Appearance, direction: Direction = 'down') {
-  const key = JSON.stringify([appearance, direction]);
+  const key = JSON.stringify([CHARACTER_ART_VERSION, appearance, direction]);
   let source = avatarImages.get(key);
   if (!source) {
     source = characterCanvas(appearance, direction).toDataURL();

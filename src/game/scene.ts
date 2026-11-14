@@ -1,4 +1,4 @@
-import { CHARACTER_SCALE, CHARACTER_HEIGHT } from './character';
+import { CHARACTER_SCALE, CHARACTER_HEIGHT, CHARACTER_ART_VERSION } from './character';
 import Phaser from 'phaser';
 import { NameplateLayoutCache } from '../../shared/nameplates';
 import type { AppState, Member } from '../../shared/types';
@@ -279,7 +279,7 @@ export class ClassroomScene extends Phaser.Scene {
     const usedCharacterTextures = new Set<string>();
     for (const member of state.members.filter((m) => m.status === 'ACTIVE')) {
       let p = this.players.get(member.id);
-      const texturePrefix = `char-${JSON.stringify(member.appearance)}`;
+      const texturePrefix = `char-${CHARACTER_ART_VERSION}-${JSON.stringify(member.appearance)}`;
       for (const direction of ['down', 'up', 'left', 'right'] as Direction[])
         for (let frame = 0; frame < 3; frame++) {
           const key = `${texturePrefix}-${direction}-${frame}`;
