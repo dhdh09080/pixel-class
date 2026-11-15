@@ -81,7 +81,9 @@ export default function Classroom({
     const preventPageScroll = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const arrow = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key);
-      const gameButton = target?.closest('button') && container.current?.contains(target);
+      const gameButton =
+        target?.closest('button') &&
+        (container.current?.contains(target) || target.closest('.sidebar-avatar'));
       if (
         latest.current.enabled &&
         ((arrow && gameButton) ||

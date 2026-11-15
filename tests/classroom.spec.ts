@@ -124,6 +124,8 @@ test('customization saves the same character across reload and role changes', as
   await openClass(page);
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기' }).click();
   const modal = page.getByRole('dialog');
+  const oldEditor = modal.getByRole('button', { name: '이전 캐릭터 스타일', exact: true });
+  if (await oldEditor.count()) await oldEditor.click();
   await modal.getByLabel('이름', { exact: true }).fill('김민수');
   await modal.getByRole('button', { name: '헤어스타일: 실키 롱', exact: true }).click();
   await modal.getByRole('button', { name: '얼굴', exact: true }).click();

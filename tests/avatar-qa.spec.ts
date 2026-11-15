@@ -7,9 +7,12 @@ test('occupational headwear keeps front insignia off rear views while preserving
   const result = await page.evaluate(async () => {
     const characterPath = '/src/game/character.ts',
       typesPath = '/shared/types.ts';
-    const { characterCanvas, CHARACTER_WIDTH, CHARACTER_HEIGHT, CHARACTER_DENSITY } = await import(
-        characterPath
-      ),
+    const {
+        legacyCharacterCanvas: characterCanvas,
+        CHARACTER_WIDTH,
+        CHARACTER_HEIGHT,
+        CHARACTER_DENSITY,
+      } = await import(characterPath),
       { defaultAppearance } = await import(typesPath);
     return [5, 6, 7, 8].map((helmetStyle) => {
       const count = (direction: 'down' | 'up') => {

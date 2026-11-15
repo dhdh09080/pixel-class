@@ -21,7 +21,12 @@ import {
 } from '../shared/appearance';
 import { type Direction } from './game/character';
 import { Button } from './ui';
-import { Avatar, Field } from './components';
+import { Avatar as BaseAvatar, Field } from './components';
+import { SpriteCharacterEditor } from './SpriteCharacterEditor';
+import { archiveSpriteAppearance } from '../shared/sprite-appearance';
+const Avatar = (props: React.ComponentProps<typeof BaseAvatar>) => (
+  <BaseAvatar {...props} appearance={{ ...props.appearance, sprite: { version: 1 } }} />
+);
 const categories = [
   { key: 'hair', label: '헤어', icon: Scissors },
   { key: 'face', label: '얼굴', icon: Smile },
@@ -54,19 +59,25 @@ const colorTitles: Record<ColorKey, string> = {
 };
 const directions: Direction[] = ['down', 'right', 'up', 'left'];
 
-export function CharacterEditor({
+function LegacyCharacterEditor({
   member,
   onSave,
   busy = false,
   onCancel,
+  onUseNew,
+  initial,
 }: {
   member?: Member;
   onSave: (name: string, appearance: Appearance) => void;
   busy?: boolean;
   onCancel?: () => void;
+  onUseNew: (name: string, appearance: Appearance) => void;
+  initial?: { name: string; appearance: Appearance };
 }) {
-  const [name, setName] = useState(member?.name || '');
-  const [a, setA] = useState(() => normalizeAppearance(member?.appearance || defaultAppearance));
+  const [name, setName] = useState(initial?.name ?? member?.name ?? '');
+  const [a, setA] = useState(() =>
+    normalizeAppearance(initial?.appearance ?? member?.appearance ?? defaultAppearance),
+  );
   const [category, setCategory] = useState<Category>('hair');
   const [rotation, setRotation] = useState(0);
   const choose = <K extends keyof Appearance>(key: K, value: Appearance[K]) =>
@@ -133,7 +144,7 @@ export function CharacterEditor({
       className="character-editor character-studio"
       onSubmit={(event) => {
         event.preventDefault();
-        if (!busy) onSave(name, a);
+        if (!busy) onSave(name, archiveSpriteAppearance(a));
       }}
     >
       <aside className="character-preview">
@@ -185,6 +196,12 @@ export function CharacterEditor({
           <span className="studio-live">
             <i /> 실시간 미리보기
           </span>
+        </div>
+        <div className="sprite-studio-mode">
+          <span>이전 스타일을 그대로 편집하고 있어요</span>
+          <button type="button" onClick={() => onUseNew(name, a)} disabled={busy}>
+            새 캐릭터로 꾸미기
+          </button>
         </div>
         <div className="studio-categories" role="group" aria-label="꾸미기 카테고리">
           {categories.map(({ key, label, icon: Icon }) => (
@@ -325,5 +342,43 @@ export function CharacterEditor({
         </div>
       </section>
     </form>
+  );
+}
+
+export function CharacterEditor(props: {
+  member?: Member;
+  onSave: (name: string, appearance: Appearance) => void;
+  busy?: boolean;
+  onCancel?: () => void;
+}) {
+  const [draft, setDraft] = useState(() => ({
+    name: props.member?.name || '',
+    appearance: props.member?.appearance || defaultAppearance,
+  }));
+  const [legacy, setLegacy] = useState(props.member?.appearance.sprite?.version === 1);
+  const change = (name: string, appearance: Appearance, next: boolean) => {
+    setDraft({ name, appearance });
+    setLegacy(next);
+  };
+  return legacy ? (
+    <LegacyCharacterEditor
+      {...props}
+      initial={draft}
+      member={
+        props.member
+          ? { ...props.member, name: draft.name, appearance: draft.appearance }
+          : undefined
+      }
+      onUseNew={(name, a) => change(name, a, false)}
+    />
+  ) : (
+    <SpriteCharacterEditor
+      initialName={draft.name}
+      initialAppearance={draft.appearance}
+      onSave={props.onSave}
+      onCancel={props.onCancel}
+      busy={props.busy}
+      onLegacy={(name, a) => change(name, a, true)}
+    />
   );
 }

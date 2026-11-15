@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { Config } from './Auth';
 import { defaultAppearance, type Appearance } from '../shared/types';
+import { upgradeSprite } from '../shared/sprite-appearance';
 import { defaultSchoolSettings } from '../shared/school';
 import { appearancePresets, professionPresets } from '../shared/appearance';
 import { Avatar, Field, Modal } from './components';
@@ -20,7 +21,7 @@ import { api, ApiError } from './api';
 import './enrollment-auth.css';
 
 type Mode = 'login' | 'register' | 'recover';
-const looks: { label: string; appearance: Appearance }[] = [
+const legacyLooks: { label: string; appearance: Appearance }[] = [
   { label: '네이비 워커', appearance: defaultAppearance },
   { label: '동글 안경', appearance: { ...defaultAppearance, hairstyle: 1, accessory: 1 } },
   { label: '포레스트', appearance: { ...defaultAppearance, ...appearancePresets[3].changes } },
@@ -39,6 +40,8 @@ const looks: { label: string; appearance: Appearance }[] = [
     },
   },
 ];
+
+const looks = legacyLooks.map((look) => ({ ...look, appearance: upgradeSprite(look.appearance) }));
 
 export function EnrollmentAuth({
   config,
@@ -62,7 +65,7 @@ export function EnrollmentAuth({
     [password, setPassword] = useState(''),
     [confirmation, setConfirmation] = useState('');
   const [name, setName] = useState(''),
-    [appearance, setAppearance] = useState<Appearance>(defaultAppearance);
+    [appearance, setAppearance] = useState<Appearance>(() => upgradeSprite(defaultAppearance));
   const [key, setKey] = useState(resetKey),
     [showPassword, setShowPassword] = useState(false);
   const [customize, setCustomize] = useState(false),

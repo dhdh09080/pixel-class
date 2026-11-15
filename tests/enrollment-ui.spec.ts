@@ -122,6 +122,10 @@ test('character studio cancellation preserves the chosen look and recovery is a 
   const original = await page.locator('.signup-preview img').getAttribute('src');
   await page.getByRole('button', { name: '더 자세히 꾸미기', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: '이전 캐릭터 스타일', exact: true })
+    .click();
   await page.getByRole('button', { name: '헤어스타일: 웨이브 단발', exact: true }).click();
   await page.getByRole('button', { name: '취소', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
