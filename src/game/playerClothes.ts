@@ -2,7 +2,7 @@ import type { Appearance } from '../../shared/types';
 import { PixelArt, shade } from './pixelArt';
 export function playerClothes(
   p: PixelArt,
-  a: Required<Appearance>,
+  a: Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'>,
   back: boolean,
   step: number,
   seated: boolean,

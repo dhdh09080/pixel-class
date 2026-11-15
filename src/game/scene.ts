@@ -1,4 +1,9 @@
-import { CHARACTER_SCALE, CHARACTER_HEIGHT, CHARACTER_ART_VERSION } from './character';
+import {
+  CHARACTER_SCALE,
+  CHARACTER_HEIGHT,
+  CHARACTER_ART_VERSION,
+  characterOrigin,
+} from './character';
 import Phaser from 'phaser';
 import { NameplateLayoutCache } from '../../shared/nameplates';
 import type { AppState, Member } from '../../shared/types';
@@ -299,7 +304,7 @@ export class ClassroomScene extends Phaser.Scene {
           y = isMe ? spawn.y : d ? d.y + 81 : 245;
         const sprite = this.add
           .sprite(x, y, `${texturePrefix}-down-0`)
-          .setOrigin(0.5, 1)
+          .setOrigin(characterOrigin(member.appearance).x, characterOrigin(member.appearance).y)
           .setScale(CHARACTER_SCALE)
           .setInteractive({ useHandCursor: true });
         sprite.on('pointerdown', (pointer: Phaser.Input.Pointer) =>
@@ -740,7 +745,11 @@ export class ClassroomScene extends Phaser.Scene {
       const prefix = p.sprite.getData('prefix') as string;
       const frame =
         p.moving && !this.reducedMotion ? [0, 1, 0, 2][Math.floor(p.walkDistance / 18) % 4] : 0;
-      p.sprite.setOrigin(0.5, p.seated ? 1 + 32 / (CHARACTER_HEIGHT * CHARACTER_SCALE) : 1);
+      const origin = characterOrigin(p.member.appearance, p.seated ? 'up' : p.direction);
+      p.sprite.setOrigin(
+        origin.x,
+        origin.y + (p.seated ? 32 / (CHARACTER_HEIGHT * CHARACTER_SCALE) : 0),
+      );
       const texture = p.seated ? `${prefix}-sit` : `${prefix}-${p.direction}-${frame}`;
       if (p.sprite.texture.key !== texture) p.sprite.setTexture(texture);
       p.sprite.setDepth(p.sprite.y - (p.seated ? 40 : 0));
