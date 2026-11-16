@@ -66,13 +66,15 @@ test('each v2 shape, eye size/spacing and equipment choice changes actual art wi
   const counts = await page.evaluate(async () => {
     const cp = '/src/game/character.ts',
       sp = '/shared/sprite-appearance.ts',
-      tp = '/shared/types.ts';
+      tp = '/shared/types.ts',
+      ap = '/shared/appearance.ts';
     const { characterCanvas } = await import(cp),
       { upgradeSprite, spriteChoices } = await import(sp),
-      { defaultAppearance } = await import(tp);
+      { defaultAppearance } = await import(tp),
+      { appearanceOptions } = await import(ap);
     const a = upgradeSprite(defaultAppearance);
     a.sprite.headwear = 'none';
-    return Object.fromEntries(
+    const counts = Object.fromEntries(
       Object.entries(spriteChoices).map(([key, values]: [string, any]) => [
         key,
         [
@@ -85,6 +87,15 @@ test('each v2 shape, eye size/spacing and equipment choice changes actual art wi
         ],
       ]),
     );
+    counts.expression = [
+      new Set(
+        appearanceOptions.expression.map((_: string, expression: number) =>
+          characterCanvas({ ...a, expression }).toDataURL(),
+        ),
+      ).size,
+      appearanceOptions.expression.length,
+    ];
+    return counts;
   });
   for (const [key, values] of Object.entries(counts) as [string, number[]][])
     expect(values[0], key).toBe(values[1]);

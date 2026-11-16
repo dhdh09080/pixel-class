@@ -107,6 +107,7 @@ export function spriteCharacterCanvas(
       bodyCut?: number;
       clip?: (x: number, y: number) => boolean;
       leg?: boolean;
+      flipY?: boolean;
       only?: 'left' | 'right';
     } = {},
   ) => {
@@ -143,9 +144,10 @@ export function spriteCharacterCanvas(
           if (yy >= cut + destH) continue;
           py = sourceCut + Math.floor(((yy - cut) / destH) * (h - sourceCut));
         }
+        const sourceY = Math.min(asset.height - 1, Math.floor(py / scale));
         const at =
           src[
-            Math.min(asset.height - 1, Math.floor(py / scale)) * asset.width +
+            (opt.flipY ? asset.height - 1 - sourceY : sourceY) * asset.width +
               Math.min(asset.width - 1, Math.floor(xx / scaleX))
           ];
         const dx = Math.round(x) + xx,
@@ -179,9 +181,11 @@ export function spriteCharacterCanvas(
         ? 7
         : a.expression === 2
           ? 5
-          : a.expression === 4
-            ? 3
-            : s.eyeStyle;
+          : a.expression === 3
+            ? 8
+            : a.expression === 4
+              ? 3
+              : s.eyeStyle;
     const eyes = SPRITE_ASSETS['eyes-' + eyeStyle],
       scale = [0.9, 1, 1.1][s.eyeSize];
     const eyeY = rig.faces[s.faceShape].eyeY + bob + (a.expression === 2 ? -1 : 0);
@@ -194,11 +198,13 @@ export function spriteCharacterCanvas(
       scale,
       only: 'right',
     });
-    const brows = SPRITE_ASSETS['brows-' + s.browStyle];
-    stamp('brows-' + s.browStyle, eyeX + 1, eyeY - brows.height - 2);
-    const mouth = a.expression === 1 ? 1 : a.expression === 2 ? 2 : s.mouthStyle,
+    const browStyle = a.expression === 3 ? 1 : s.browStyle,
+      brows = SPRITE_ASSETS['brows-' + browStyle];
+    stamp('brows-' + browStyle, eyeX + 1, eyeY - brows.height - 2);
+    const mouth =
+        a.expression === 1 ? 1 : a.expression === 2 ? 2 : a.expression === 3 ? 0 : s.mouthStyle,
       m = SPRITE_ASSETS['mouth-' + mouth];
-    stamp('mouth-' + mouth, 67 - Math.round(m.width / 2), 76 + bob);
+    stamp('mouth-' + mouth, 67 - Math.round(m.width / 2), 76 + bob, { flipY: a.expression === 3 });
     stamp((hat ? 'hair-fringe-worn-' : 'hair-fringe-') + s.hairStyle, hx, hy + bob);
     stamp((hat ? 'hair-side-worn-' : 'hair-side-') + s.hairStyle, hx, hy + bob);
     const acc = s.accessoryStyle;
