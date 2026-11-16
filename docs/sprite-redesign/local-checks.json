@@ -1,0 +1,57 @@
+{
+  "sourceCommit": "1db8b144f7b5942ac6ac825f190187330852dc2e",
+  "counts": {
+    "unitApi": 153,
+    "browser": 71,
+    "dockerHttps": 3,
+    "total": 227,
+    "preservedBaseline": 214,
+    "added": 13
+  },
+  "commands": [
+    {
+      "command": "npm test",
+      "passed": 153
+    },
+    {
+      "command": "npm run test:e2e",
+      "passed": 71
+    },
+    {
+      "command": "PIXEL_IMAGE=pixel-class:v05 npm run test:operations",
+      "passed": 1
+    },
+    {
+      "command": "PIXEL_IMAGE=pixel-class:v05 npm run test:railway",
+      "passed": 1
+    },
+    {
+      "command": "PIXEL_IMAGE=pixel-class:v05 npm run test:enrollment",
+      "passed": 1
+    },
+    {
+      "command": "npm run format:check",
+      "passed": true
+    }
+  ],
+  "dockerImage": "sha256:63036c0fd269c9990c3d5933b4a5833b3cf226953f2b2ada6628af21436b2003",
+  "dockerBuildNote": "Normal local build encountered SELF_SIGNED_CERT_IN_CHAIN. A temporary external Dockerfile mounts the session CA as a BuildKit secret, with strict TLS retained; repository Dockerfile is unchanged. GitHub CI must verify the original Dockerfile independently.",
+  "supplementalEyeMatrix": {
+    "cases": 2592,
+    "bad": [],
+    "scope": "Supplemental local matrix: face4 × hair8 × eyes9 × size3 × gap3; bounds, binary alpha and iris within face only, not a beauty or occlusion guarantee. Neutral-expression matrix on the base art. The shy-expression follow-up reuses the same PNG bank and anchors; six expressions are checked separately.",
+    "sourceCommit": "7ce771c1ad3e9d2f7f052b4276a7b3d68b7c7f4c"
+  },
+  "authenticatedProductionOwnerLoginVerified": false,
+  "authenticatedProductionWssVerified": false,
+  "scope": "Isolated synthetic users and local/CI production profiles, not real student or owner accounts.",
+  "expressionRegression": {
+    "beforeDistinct": 5,
+    "afterDistinct": 6,
+    "expected": 6,
+    "firstReproducedFailure": true,
+    "fixedBrowserChecks": 9
+  },
+  "mergedCommit": "5203c4fb94e09c8dc6d360270ea5a0d30b368465",
+  "mergedRuntimeAndTestsMatchLocalSource": true
+}

@@ -1,0 +1,152 @@
+{
+  "finalizedAtUtc": "2026-11-16 00:40:42 UTC",
+  "github": {
+    "repository": "dhdh09080/pixel-class",
+    "artPr": 19,
+    "artHead": "7ce771c1ad3e9d2f7f052b4276a7b3d68b7c7f4c",
+    "artMerge": "94671553f4e637605c35f7af60a24d7ab774ccc3",
+    "artPrCi": 43777647192,
+    "artMainCi": 43778690161,
+    "expressionPr": 20,
+    "expressionHead": "1db8b144f7b5942ac6ac825f190187330852dc2e",
+    "expressionMerge": "5203c4fb94e09c8dc6d360270ea5a0d30b368465",
+    "expressionPrCi": 43779258287,
+    "mainCheck": {
+      "run": 43780576657,
+      "verifyJob": 133016599717,
+      "publishJob": 133019703175,
+      "status": "success",
+      "lines": [
+        "2026-11-16T00:29:02.3266144Z All matched files use Prettier code style!",
+        "2026-11-16T00:29:19.0825634Z ℹ tests 153",
+        "2026-11-16T00:29:19.0826255Z ℹ pass 153",
+        "2026-11-16T00:29:19.0826501Z ℹ fail 0",
+        "2026-11-16T00:36:23.2731532Z   71 passed (6.6m)",
+        "2026-11-16T00:37:08.8464829Z   1 passed (21.4s)",
+        "2026-11-16T00:38:03.0686620Z   1 passed (44.9s)",
+        "2026-11-16T00:38:22.4283116Z   1 passed (10.1s)"
+      ],
+      "sha": "5203c4fb94e09c8dc6d360270ea5a0d30b368465"
+    },
+    "externalWorkflow": 43781661352,
+    "externalJob": 133020006140
+  },
+  "railway": {
+    "projectId": "c46ee1d7-c441-4b23-a3f2-f1d349c9f504",
+    "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+    "environmentId": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+    "deployment": {
+      "id": "f970863a-ae56-4cb6-99fe-8637e68ecd85",
+      "status": "SUCCESS",
+      "createdAt": "2026-11-16T00:38:37.756Z",
+      "updatedAt": "2026-11-16T00:39:21.556Z",
+      "serviceId": "a64cd7e5-f18b-47ac-a714-d2322cca69e7",
+      "environmentId": "3a0dc4b5-3a92-4478-92e7-8a0927b1f09e",
+      "url": null,
+      "snapshotId": "b9363ae9-273c-420d-bb34-274122e2a1f2",
+      "creator": null,
+      "canRollback": true,
+      "canRedeploy": true,
+      "regions": ["sfo"],
+      "meta": {
+        "reason": "deploy",
+        "commitMessage": "Merge PR #20: render the missing shy expression\n\nRender the missing shy expression in the sprite studio",
+        "commitHash": "5203c4fb94e09c8dc6d360270ea5a0d30b368465",
+        "branch": "deploy/railway-verified"
+      }
+    },
+    "configuration": {
+      "unchanged": true,
+      "config": {
+        "source": {
+          "repo": "dhdh09080/pixel-class",
+          "branch": "deploy/railway-verified",
+          "checkSuites": false
+        },
+        "networking": {
+          "serviceDomains": {
+            "pixel-class-private-test.up.railway.app": {
+              "port": 8080
+            }
+          }
+        },
+        "build": {
+          "builder": "DOCKERFILE",
+          "buildEnvironment": "V3",
+          "dockerfilePath": "Dockerfile"
+        },
+        "deploy": {
+          "startCommand": "node scripts/start.mjs",
+          "healthcheckPath": "/api/health",
+          "healthcheckTimeout": 60,
+          "restartPolicyMaxRetries": 5,
+          "useLegacyStacker": false,
+          "ipv6EgressEnabled": false,
+          "runtime": "V2",
+          "multiRegionConfig": {
+            "sfo": {
+              "numReplicas": 1
+            }
+          },
+          "drainingSeconds": 15,
+          "overlapSeconds": 0
+        },
+        "volumeMounts": {
+          "2e639437-1dd9-4ba4-a078-976d2eb2136d": {
+            "mountPath": "/app/data"
+          }
+        }
+      },
+      "variableNames": [
+        "AI_ENABLED",
+        "AI_MAX_CONCURRENT",
+        "AI_SCHOOL_DAILY_CALLS",
+        "APPROVAL_REGISTRATION_ENABLED",
+        "COOKIE_SECURE",
+        "DATABASE_MODE",
+        "DATABASE_PATH",
+        "DEMO_MODE",
+        "HOST",
+        "MASTER_BOOTSTRAP_KEY",
+        "NODE_ENV",
+        "PIXEL_RUNTIME",
+        "PORT",
+        "PUBLIC_ORIGIN",
+        "RAILWAY_DOCKERFILE_PATH",
+        "RAILWAY_RUN_UID",
+        "STAGING_ACCESS_KEY",
+        "TRUST_PROXY_HOPS"
+      ],
+      "staged": null
+    }
+  },
+  "live": {
+    "ok": true,
+    "url": "https://pixel-class-private-test.up.railway.app",
+    "release": "0.6.0",
+    "expectedCommit": "5203c4fb94e09c8dc6d360270ea5a0d30b368465",
+    "checks": [
+      "HTTPS health",
+      "guided entrance",
+      "anonymous data blocked",
+      "recovery link preserved",
+      "foreign Origin blocked",
+      "incorrect access code rejected",
+      "anonymous WSS handshake rejected401",
+      "anonymous login API blocked401",
+      "new public competition shell200",
+      "current public judge-progress assets200"
+    ],
+    "publicAssets": {
+      "entryAsset": "/competition-assets/index-DyiaP-zj.js",
+      "featureAsset": "/competition-assets/PublicCompetition-BOEOIXaN.js"
+    },
+    "approvalRegistrationEnabled": true,
+    "stagedSignupAssetsVerified": true,
+    "roundedCharacterAssetsVerified": true,
+    "layeredSpriteAssetsVerified": true,
+    "authenticatedLoginVerified": false,
+    "authenticatedWssVerified": false
+  },
+  "scope": "Local and CI synthetic accounts verify positive login, WSS and persistence. External checks verify deployed commit/assets and anonymous protections; production-owner login/authenticated WSS remain unverified."
+}

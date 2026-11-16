@@ -1,10 +1,16 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## PNG 캐릭터 아트 시스템 v2 — 최종 검증 중 (2026-11-16 KST)
+## PNG 캐릭터 아트 시스템 v2 — 운영 적용 완료 (2026-11-16 09:39 KST)
 
-기존 코드 도형을 기본값에서 실제 PNG 부위 합성으로 교체했습니다. 새8종·얼굴/눈 크기/간격·독립 헤어/의상/장식·안전모와 `/character-art`의 원본/확대/전후/레이어 갤러리를 구현했습니다. 기존 계정·학교·SQLite·책상·외모 필드를 보존하고 마지막 새 외모를 가진 이전 스타일 복귀도 지원합니다. [실제 화면과 검증 범위](CHARACTER_ART_REDESIGN_REPORT.md) · [설계/제작 출처](CHARACTER_ART_SYSTEM.md).
+기본 캐릭터를 코드 도형에서 **실제 PNG 부위 합성**으로 교체했습니다. 새8종·얼굴4/눈매9/헤어8/의상8/장식7·눈 크기/간격·안전모와 [원본/확대/전후/레이어 갤러리](https://pixel-class-private-test.up.railway.app/character-art)를 제공합니다. 기존 계정·학교·SQLite·책상·외모 필드와 이전 스타일을 보존합니다. [실제 화면·검토·한계](CHARACTER_ART_REDESIGN_REPORT.md) · [아트 규격/출처/복구](CHARACTER_ART_SYSTEM.md).
 
-최종 전체 회귀·CI와 새 커밋의 Railway SUCCESS 확인 전입니다. 현재 확인한 운영 소스는 `5fa3b77`이며 아래 기록은 과거 릴리스입니다. 새 배포 완료로 해석하지 않습니다.
+- [PR #19](https://github.com/dhdh09080/pixel-class/pull/19) 아트 본체와 [PR #20](https://github.com/dhdh09080/pixel-class/pull/20) 수줍은 표정 보완을 main에 정상 병합했습니다. 실제 최종 배포 소스: **`5203c4fb94e09c8dc6d360270ea5a0d30b368465`**.
+- 로컬·[최종 PR CI43779258287](https://github.com/dhdh09080/pixel-class/actions/runs/43779258287)·[main CI43780576657](https://github.com/dhdh09080/pixel-class/actions/runs/43780576657): 기존214 + 신규13 = **227개 통과**(유닛/API153·브라우저71·Docker HTTPS3), main publish 성공. 최초 Docker CA 실패·초기 회귀 실패/수정·재실행 범위는 보고서에 기록했습니다.
+- Railway 자동 배포 **`f970863a-ae56-4cb6-99fe-8637e68ecd85` SUCCESS**,09:39:21 KST. 기존500MB `/app/data`·SQLite·단일 인스턴스·18개 변수·도메인·서비스 설정을 보존했고 대기 설정 없음입니다. 새 유료 리소스·플랜 변경·DB 초기화 없음.
+- [외부 CI43781661352](https://github.com/dhdh09080/pixel-class/actions/runs/43781661352): 실제 HTTPS 커밋 일치·`layeredSpriteAssetsVerified:true`, 단계형 가입 자산·익명 학교 API/WSS401·Origin 제한 유지. 운영 소유자 계정 로그인·인증 WSS는 미검증이며, 실제 두 테스트 계정의 긍정 흐름은 격리 HTTPS에서 검증했습니다.
+- 5개 해상도의 꾸미기 가로 넘침0·axe A/AA 위반0, 얼굴/눈 정렬과768개 포즈 경계 검사, 추가2,592개 눈 조합 검사. 8종 원본/2배/후면·실제 전후·표정6종 캡처를 저장했습니다. 물리 모바일/노트북 FPS나 미적 완성도99% 보장은 아닙니다.
+
+[실제 배포 증거](docs/sprite-redesign/release-check.json) · [로컬 검사](docs/sprite-redesign/local-checks.json). 이 완료 기록과 최신 캡처를 추가하는 커밋은 문서·증거만 바뀌며 실행 코드는 위 배포 소스와 같습니다. 기록 자체의 후속 CI/배포는 별도 실행입니다. 아래는 과거 이력입니다.
 
 ## 캐릭터 재설계 — 운영 적용 완료 (2026-11-15 05:00 KST)
 
@@ -79,7 +85,7 @@
 
 ## 기존 기능과 이력
 
-학생 입학·외모·책상·프로젝트·교안·과제·질문·피드백·알림·계정 복구, 반별 경진대회·독립 심사·명시적 결과 공개를 보존합니다. 현재 외모는 120×160 네이티브 도트, 헤어 18·눈 10·피부 8·눈 색 12·모자 15·의상 25·직업 코디 17종입니다. 성별 제한 없이 조합합니다.
+학생 입학·외모·책상·프로젝트·교안·과제·질문·피드백·알림·계정 복구, 반별 경진대회·독립 심사·명시적 결과 공개를 보존합니다. 기본 외모는 PNG 기반 v2입니다. 이전 캐릭터 스타일의120×160 도트·헤어18·눈10·피부8·눈 색12·모자15·의상25·직업 코디17종도 보존합니다. 성별 제한 없이 조합합니다.
 
 [기존 운영 보고](PRODUCTION_FINAL_REPORT.md) · [경진대회 사용법](COMPETITION_FINAL_REPORT.md) · [대회 설계](COMPETITION_ARCHITECTURE.md) · [이번 검증 자료](docs/overnight/README.md)
 

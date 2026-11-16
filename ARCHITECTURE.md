@@ -145,7 +145,7 @@ AI 입력은 redaction 후 프로젝트 6000자·최근10개 대화 총16000자�
 
 `character.ts`는 기본 `sprite-assets-v2` PNG/인덱스 합성기와 명시적v1 보존 렌더러의 facade입니다. 120×160 원본·scale0.46으로 기존55.2×73.6 월드 크기를 유지합니다. `sprite-assets/png/`의 실제103개 PNG와 픽셀 일치하는 RLE/재질 팔레트를 체크인하고 `spriteCharacter.ts`가 원화 부위를 stamp합니다. 4개 얼굴·8개 헤어 앞/옆/뒤와 안전모 착용 조각·8개 의상 앞뒤·9개 눈·장비를 `rig.json` 앵커로 정렬합니다. 발 기준(70,156), 좌향 반전 시(50,156)으로 sprite origin을 바꿔 좌우 이동 시 발이 뛰지 않게 합니다. 기존 `PixelArt`와 `playerFace/Hair/Clothes/Headwear.ts`는 v1 및 비교용으로 그대로 보존합니다.
 
-`shared/sprite-appearance.ts`는 계정과 분리된 외형 v2 타입·카탈로그·순수 읽기 매핑입니다. 기존 외모 필드를 지우거나 DB를 일괄 수정하지 않습니다. v1 복귀 시 마지막 v2를 `previous`로 보관해 재선택으로 복구합니다. 서버는 기존 `/api/me` 소유권과 strict 입력 스키마로 저장하며 원격 자산 URL은 허용하지 않습니다. 가입·실시간 교실도 같은 renderer를 씁니다. 부위 디코딩 WeakMap·부위당8팔레트·UI128완성 이미지와 Phaser 외모당13텍스처 공유/해제를 적용합니다. `SpriteMotion`의 걷기/앉기/깜빡임은 외형과 분리합니다. `/character-art`는 lazy-load된8종 원본/확대·v1비교·분해 갤러리이며 별도 학교 API나 학생 데이터를 노출하지 않습니다. [아트 규격·제작 출처·제한](CHARACTER_ART_SYSTEM.md)을 참고하세요.
+`shared/sprite-appearance.ts`는 계정과 분리된 외형 v2 타입·카탈로그·순수 읽기 매핑입니다. 기존 외모 필드를 지우거나 DB를 일괄 수정하지 않습니다. v1 복귀 시 마지막 v2를 `previous`로 보관해 재선택으로 복구합니다. 서버는 기존 `/api/me` 소유권과 strict 입력 스키마로 저장하며 원격 자산 URL은 허용하지 않습니다. 기존 appearance 병합은 새 sprite 필드를 모르는 옛 클라이언트의 저장에서도 누락된 레이어 데이터를 보존합니다. 가입·실시간 교실도 같은 renderer를 씁니다. 부위 디코딩 WeakMap·부위당8팔레트·UI128완성 이미지와 Phaser 외모당13텍스처 공유/해제를 적용합니다. `SpriteMotion`의 걷기/앉기/깜빡임은 외형과 분리합니다. `/character-art`는 lazy-load된8종 원본/확대·v1비교·분해 갤러리이며 별도 학교 API나 학생 데이터를 노출하지 않습니다. [아트 규격·제작 출처·제한](CHARACTER_ART_SYSTEM.md)을 참고하세요.
 
 월드 원본2240×(높이×2), 책상264×232, 로봇96×112와 `WORLD_ART_SCALE=0.5`는 유지합니다. 게임 좌표·충돌·발의 월드 위치·표시 크기를 보존합니다. 실제 카탈로그와 모든 뒤통수 연결·이진 알파·팔레트를 브라우저에서 검사합니다.
 

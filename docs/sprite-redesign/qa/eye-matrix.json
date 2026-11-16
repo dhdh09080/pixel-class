@@ -1,0 +1,6 @@
+{
+  "cases": 2592,
+  "bad": [],
+  "scope": "Supplemental local matrix: face4 × hair8 × eyes9 × size3 × gap3; bounds, binary alpha and iris within face only, not a beauty or occlusion guarantee. Neutral-expression matrix on the base art. The shy-expression follow-up reuses the same PNG bank and anchors; six expressions are checked separately.",
+  "sourceCommit": "7ce771c1ad3e9d2f7f052b4276a7b3d68b7c7f4c"
+}

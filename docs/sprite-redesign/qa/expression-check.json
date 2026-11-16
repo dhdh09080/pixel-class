@@ -1,0 +1,5 @@
+{
+  "expressions": ["차분한 표정", "행복한 표정", "놀란 표정", "수줍은 표정", "집중한 표정", "윙크"],
+  "distinct": 6,
+  "scope": "Actual PNG compositor, native and 2x expressions. Neutral and shy previously collided; all six are now distinct."
+}

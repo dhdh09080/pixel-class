@@ -36,7 +36,7 @@
 
 ```sh
 node scripts/compile-avatar-assets.mjs
-npx prettier --write src/game/sprite-assets/generated.ts
+npx prettier --write src/game/sprite-assets/generated.ts docs/sprite-redesign/source/layer-manifest.json
 node scripts/capture-sprite-lab.mjs final
 ```
 
@@ -54,13 +54,13 @@ Chromium과 기존 npm 의존성만 필요합니다. 운영 빌드는 체크인�
 
 선택지는 얼굴4, 헤어8, 의상8, 눈매9(열린 눈8+감은 눈1), 눈썹4, 입4, 액세서리7, 눈 크기3, 눈 간격3, 체형4, 안전모 on/off 및 기존 피부·머리·홍채·의상·포인트·모자 팔레트입니다. 성별 제한은 없습니다. 8개 프리셋은 피부·체형을 바꾸지 않습니다.
 
-v2가 없는 기존 외모는 `upgradeSprite()`로 **읽을 때만** 결정적으로 매핑합니다. DB DDL·일괄 UPDATE·학생 ID 교체가 없습니다. 기존 숫자/색 필드를 버리지 않으며 첫 명시적 저장에서만 v2가 추가됩니다. 이전 스타일을 선택해 저장하면 `version:1,previous:<마지막 v2>`로 보존하고, 다시 새 스타일을 선택하면 해당 v2를 복구합니다. v1 렌더링은 기존 기준 PNG와 RGBA 차이0을 검사합니다.
+v2가 없는 기존 외모는 `upgradeSprite()`로 **읽을 때만** 결정적으로 매핑합니다. DB DDL·일괄 UPDATE·학생 ID 교체가 없습니다. 기존 숫자/색 필드를 버리지 않으며 첫 명시적 저장에서만 v2가 추가됩니다. 기존 서버의 appearance 병합은 옛 클라이언트가 보내지 않은 sprite 필드도 보존합니다. 이전 스타일을 선택해 저장하면 `version:1,previous:<마지막 v2>`로 보존하고, 다시 새 스타일을 선택하면 해당 v2를 복구합니다. v1 렌더링은 기존 기준 PNG와 RGBA 차이0을 검사합니다.
 
 되돌리기는 꾸미기 창의 **이전 캐릭터 스타일**을 사용합니다. 옛 서버 버전으로 코드까지 롤백하면 v2를 모르는 입력 스키마가 저장 시 추가 필드를 제거할 수 있으므로, DB 백업·쓰기 중단 후 검토해야 합니다. 현 버전의 스타일 복귀는 그 위험을 피합니다.
 
 ## 동작·캐시·확장
 
-`SpriteMotion`은 외형과 분리된 idle/walk/sit/blink 상태와 phase입니다. 걷기는 기존 이동 거리 기반3프레임에 머리1px/다리 리그 변형을 재사용하고, 앉기는 다리를 줄인 실제 뒷모습입니다. UI에서 깜빡임 및 기존 표정(행복·집중·놀람·윙크)을 확인할 수 있습니다. 교실에서 자동 깜빡임을 재생하는 기능과 손 흔들기 전용 원화는 아직 없습니다.
+`SpriteMotion`은 외형과 분리된 idle/walk/sit/blink 상태와 phase입니다. 걷기는 기존 이동 거리 기반3프레임에 머리1px/다리 리그 변형을 재사용하고, 앉기는 다리를 줄인 실제 뒷모습입니다. UI에서 깜빡임 및 기존 표정(행복·수줍음·집중·놀람·윙크)을 확인할 수 있습니다. 교실에서 자동 깜빡임을 재생하는 기능과 손 흔들기 전용 원화는 아직 없습니다.
 
 부위 디코딩은 WeakMap, 재질 팔레트는 부위당 최근8개, UI 완성 이미지 캐시는128개로 제한합니다. Phaser는 기존 외모별13텍스처를 공유하고 더 이상 사용하지 않는 외모 텍스처를 해제합니다. 아트 갤러리는 lazy-load하며 걷기 타이머/미디어쿼리 리스너를 정리하고 reduced-motion 설정에 따라 루프를 멈춥니다.
 
