@@ -1,6 +1,11 @@
 import type { Appearance } from '../../shared/types';
 import { PixelArt, shade } from './pixelArt';
-export function playerHeadwear(p: PixelArt, a: Required<Appearance>, back: boolean, bob: number) {
+export function playerHeadwear(
+  p: PixelArt,
+  a: Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'>,
+  back: boolean,
+  bob: number,
+) {
   const ink = '#403b48',
     white = '#fff8e9';
   const hat = a.helmetStyle,

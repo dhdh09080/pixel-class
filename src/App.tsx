@@ -47,6 +47,9 @@ import { CharacterEditor } from './CharacterEditor';
 import { Auth, type Config } from './Auth';
 import type { GameAction } from './game/scene';
 const Classroom = lazy(() => import('./game/Classroom'));
+const CharacterArtLab = lazy(() =>
+  import('./CharacterArtLab').then((module) => ({ default: module.CharacterArtLab })),
+);
 const CompetitionsPage = lazy(() =>
   import('./Competitions').then((module) => ({ default: module.CompetitionsPage })),
 );
@@ -75,6 +78,18 @@ type Overlay =
   | 'auth'
   | null;
 export default function App() {
+  if (location.pathname === '/character-art')
+    return (
+      <Suspense
+        fallback={
+          <div className="initial-loading" role="status">
+            캐릭터 아트룸을 불러오고 있어요…
+          </div>
+        }
+      >
+        <CharacterArtLab />
+      </Suspense>
+    );
   if (location.pathname === '/join')
     return (
       <Suspense

@@ -305,3 +305,74 @@ test('profession wardrobe preserves identity and all added choices persist for M
     }
   }
 });
+
+test('v2 sprite appearance, independent face/eye settings and v1 recovery persist for both roles across restart', async () => {
+  const { upgradeSprite, archiveSpriteAppearance } = await import('../shared/sprite-appearance');
+  for (const cookie of [master, student]) {
+    const original = (await (await request('/state', 'GET', undefined, cookie)).json()).me
+      .appearance;
+    const a = upgradeSprite({ ...original, skin: '#734b38', eyes: '#278bd4' });
+    a.sprite = {
+      ...a.sprite,
+      faceShape: 3,
+      hairStyle: 7,
+      outfitStyle: 7,
+      eyeStyle: 1,
+      eyeSize: 2,
+      eyeSpacing: 0,
+      accessoryStyle: 3,
+      headwear: 'none',
+    };
+    assert.equal((await request('/me', 'PATCH', { appearance: a }, cookie)).status, 200);
+    assert.deepEqual(
+      (await (await request('/state', 'GET', undefined, cookie)).json()).me.appearance,
+      a,
+    );
+    assert.equal(
+      (
+        await request(
+          '/me',
+          'PATCH',
+          { appearance: { ...a, sprite: { ...a.sprite, eyeSize: 99 } } },
+          cookie,
+        )
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await request(
+          '/me',
+          'PATCH',
+          {
+            appearance: {
+              ...a,
+              sprite: { ...a.sprite, assetUrl: 'https://example.invalid/malicious.svg' },
+            },
+          },
+          cookie,
+        )
+      ).status,
+      400,
+    );
+    assert.deepEqual(
+      (await (await request('/state', 'GET', undefined, cookie)).json()).me.appearance,
+      a,
+    );
+  }
+  await stop();
+  await start();
+  for (const cookie of [master, student]) {
+    const a = (await (await request('/state', 'GET', undefined, cookie)).json()).me.appearance;
+    assert.equal(a.sprite.version, 2);
+    assert.equal(a.sprite.faceShape, 3);
+    assert.equal(a.sprite.eyeSize, 2);
+    const recovered = archiveSpriteAppearance(a);
+    assert.equal((await request('/me', 'PATCH', { appearance: recovered }, cookie)).status, 200);
+    assert.deepEqual(
+      (await (await request('/state', 'GET', undefined, cookie)).json()).me.appearance,
+      recovered,
+    );
+    assert.deepEqual(upgradeSprite(recovered), a);
+  }
+});

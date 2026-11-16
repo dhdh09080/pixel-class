@@ -1,3 +1,4 @@
+import type { SpriteAppearance } from './sprite-appearance';
 import type { PersonalEvent } from './events';
 import type {
   TechnicalAnalysis,
@@ -13,6 +14,7 @@ export type Membership =
 export type ProjectStatus =
   'IDEA' | 'PLANNING' | 'BUILDING' | 'TESTING' | 'REVIEW' | 'COMPLETED' | 'PAUSED';
 export type Appearance = {
+  sprite?: SpriteAppearance | { version: 1; previous?: SpriteAppearance };
   skin: string;
   hair: string;
   hairstyle: number;

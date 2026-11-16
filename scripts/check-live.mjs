@@ -43,6 +43,7 @@ const entrance = await fetch(base + '/', {
 });
 let stagedSignupAssetsVerified = false;
 let roundedCharacterAssetsVerified = false;
+let layeredSpriteAssetsVerified = false;
 if (enrollment) {
   assert.equal(entrance.status, 303);
   assert.equal(entrance.headers.get('location'), '/join');
@@ -71,10 +72,16 @@ if (enrollment) {
   stagedSignupAssetsVerified = true;
   assert.match(
     signupCode,
-    /rounded-native-120-v1/,
-    'The current native 120×160 character renderer must be in the actual deployed entry.',
+    /sprite-assets-v2/,
+    'The PNG/indexed sprite v2 renderer must be in the actual deployed entry.',
   );
   roundedCharacterAssetsVerified = true;
+  assert.match(
+    signupCode,
+    /hair-fringe-worn-0/,
+    'The actual authored sprite asset bank must be in the deployed entry.',
+  );
+  layeredSpriteAssetsVerified = true;
   const invalid = await fetch(base + '/api/enrollment/register', {
     method: 'POST',
     headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
@@ -201,6 +208,7 @@ console.log(
     approvalRegistrationEnabled: enrollment,
     stagedSignupAssetsVerified,
     roundedCharacterAssetsVerified,
+    layeredSpriteAssetsVerified,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),

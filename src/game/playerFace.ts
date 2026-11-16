@@ -1,7 +1,12 @@
 import type { Appearance } from '../../shared/types';
 import { PixelArt, shade, type PixelPoint } from './pixelArt';
 /** Face drawing uses half-logical-pixel features: one dot on the 120×160 source. */
-export function playerFace(p: PixelArt, a: Required<Appearance>, side: boolean, bob: number) {
+export function playerFace(
+  p: PixelArt,
+  a: Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'>,
+  side: boolean,
+  bob: number,
+) {
   const skin = a.skin,
     shadow = shade(skin, '#a66e73', 0.24),
     blush = shade(skin, '#ed97a4', 0.32),
@@ -239,7 +244,11 @@ export function playerFace(p: PixelArt, a: Required<Appearance>, side: boolean, 
           lip,
         );
 }
-export function playerFaceAccessory(p: PixelArt, a: Required<Appearance>, bob: number) {
+export function playerFaceAccessory(
+  p: PixelArt,
+  a: Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'>,
+  bob: number,
+) {
   const rim = shade(a.hair, a.skin, 0.35),
     blush = shade(a.skin, '#ed97a4', 0.32),
     shadow = shade(a.skin, '#a66e73', 0.24),

@@ -4,7 +4,7 @@ type Path = Parameters<PixelArt['path']>[0];
 /** Rounded silhouettes and grouped locks drawn at native density, not enlarged coarse tiles. */
 export function playerHair(
   p: PixelArt,
-  a: Required<Appearance>,
+  a: Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'>,
   back: boolean,
   front: boolean,
   bob: number,

@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { mkdirSync } from 'node:fs';
+const useLegacyStudio = async (page: import('@playwright/test').Page) => {
+  const button = page
+    .getByRole('dialog')
+    .getByRole('button', { name: '이전 캐릭터 스타일', exact: true });
+  if (await button.count()) await button.click();
+};
 const open = async (page: import('@playwright/test').Page) => {
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
@@ -76,6 +82,7 @@ for (const width of [1440, 390])
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await open(page);
     await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+    await useLegacyStudio(page);
     const dialog = page.getByRole('dialog');
     await expect(dialog.locator('select')).toHaveCount(0);
     await dialog.getByRole('button', { name: '헤어스타일: 양갈래 브레이드', exact: true }).click();
@@ -134,7 +141,7 @@ for (const width of [1440, 390])
     });
   });
 
-test('every visual catalog option renders distinct pixels, with matching logical character dimensions in every pose', async ({
+test('archived v1: every visual catalog option renders distinct pixels, with matching logical character dimensions in every pose', async ({
   page,
 }) => {
   await open(page);
@@ -143,7 +150,7 @@ test('every visual catalog option renders distinct pixels, with matching logical
       appearancePath = '/shared/appearance.ts',
       typePath = '/shared/types.ts';
     const {
-      characterCanvas,
+      legacyCharacterCanvas: characterCanvas,
       CHARACTER_SCALE,
       CHARACTER_WIDTH,
       CHARACTER_HEIGHT,
@@ -221,6 +228,7 @@ test('art-directed presets preserve skin and body, stay drafts until saved and r
   await open(page);
   const original = (await (await context.request.get('/api/state')).json()).me;
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  await useLegacyStudio(page);
   let dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '스타일 프리셋: 크림 리본', exact: true }).click();
   await expect(
@@ -244,6 +252,7 @@ test('art-directed presets preserve skin and body, stay drafts until saved and r
     accentColor: '#af7c91',
   });
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  await useLegacyStudio(page);
   dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '스타일 프리셋: 라벤더 웨이브', exact: true }).click();
   await dialog.getByRole('button', { name: '모자', exact: true }).click();
@@ -263,7 +272,7 @@ test('art-directed presets preserve skin and body, stay drafts until saved and r
   ).toBeTruthy();
 });
 
-test('low-resolution native sprites use a bounded solid palette while preserving world and desk footprints', async ({
+test('archived v1: low-resolution native sprites use a bounded solid palette while preserving world and desk footprints', async ({
   page,
 }) => {
   await open(page);
@@ -271,7 +280,7 @@ test('low-resolution native sprites use a bounded solid palette while preserving
     const cp = '/src/game/character.ts',
       wp = '/src/game/worldArt.ts',
       tp = '/shared/types.ts';
-    const { characterCanvas, CHARACTER_SCALE } = await import(cp),
+    const { legacyCharacterCanvas: characterCanvas, CHARACTER_SCALE } = await import(cp),
       { worldCanvas, deskCanvas, robotCanvas, WORLD_ART_SCALE } = await import(wp),
       { defaultAppearance } = await import(tp);
     const character = characterCanvas({
@@ -348,6 +357,7 @@ test('occupational wardrobe changes only clothes and headwear, with draft cancel
   await open(page);
   const original = (await (await context.request.get('/api/state')).json()).me.appearance;
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  await useLegacyStudio(page);
   let dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '의상', exact: true }).click();
   await expect(dialog.getByRole('button', { name: /^직업 코디:/ })).toHaveCount(17);
@@ -376,6 +386,7 @@ test('occupational wardrobe changes only clothes and headwear, with draft cancel
   ])
     expect(saved[key]).toEqual(original[key]);
   await page.getByRole('button', { name: '나의 캐릭터 꾸미기', exact: true }).click();
+  await useLegacyStudio(page);
   dialog = page.getByRole('dialog');
   await dialog.getByRole('button', { name: '의상', exact: true }).click();
   await dialog.getByRole('button', { name: '직업 코디: 셰프', exact: true }).click();

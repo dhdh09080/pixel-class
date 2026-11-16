@@ -2,9 +2,11 @@
 
 운영 학교는 **코드 없는 회원가입 → MASTER 승인·반 배정 → 교실 입장** 방식입니다. [학생 회원가입](https://pixel-class-private-test.up.railway.app/join) · [승인 절차](ADMISSION_APPROVAL_REPORT.md) · [단계형 가입 UX와 검증](SIGNUP_UX_REPORT.md).
 
-Railway 서비스 Source를 복구하고 **main push → 190개 검사 → 자동 배포 → 실제 커밋의 외부 인수**까지 완주했습니다. 앞으로 main 변경은 검사 통과 후 `deploy/railway-verified`를 통해 자동 배포됩니다. 추가 사용자 설정은 필요하지 않습니다. [자동화 설정과 실제 검증](AUTO_DEPLOY_REPORT.md)을 확인하세요.
+Railway 서비스 Source를 복구하고 **main push → 전체 회귀 검사 → 자동 배포 → 실제 커밋의 외부 인수**까지 완주했습니다. 앞으로 main 변경은 검사 통과 후 `deploy/railway-verified`를 통해 자동 배포됩니다. 추가 사용자 설정은 필요하지 않습니다. [자동화 설정과 실제 검증](AUTO_DEPLOY_REPORT.md)을 확인하세요.
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
+
+**새 캐릭터 아트:** 실제 PNG 레이어로 만든 독자적인 RPG 캐릭터8종, 얼굴·눈 크기/간격·헤어·의상·장비를 따로 고르는 꾸미기와 원본/확대/전후 비교 갤러리(`/character-art`)를 제공합니다. [실제 스크린샷과 검증](CHARACTER_ART_REDESIGN_REPORT.md) · [아트 규격·데이터 호환](CHARACTER_ART_SYSTEM.md).
 
 **Learn AI. Build Your Own Service.**
 
@@ -45,7 +47,8 @@ v0.5는 Railway 단일 서버·영구 Volume·비공개 HTTP/WSS 접근 제한·
 
 ## 할 수 있는 일
 
-- 120×160 네이티브 도트 레이어 캐릭터, 안전모·직업 모자15종과 의상25종·직업 코디17종, 이름표
+- 120×160 실제 PNG 레이어 캐릭터8종, 얼굴4·눈매9·헤어8·의상8·장식7, 안전모와 이름표
+- 이전 캐릭터 스타일의 직업 모자15·의상25·직업 코디17종도 보존, 새 스타일로 돌아올 때 마지막 설정 복구
 - 그림 카드로 고르는 이름·체형·피부·헤어·눈·눈썹·표정·입·장식, 모자 색상/패턴과 의상 색상, 4방향 실시간 미리보기
 - 학생 개인 프로젝트 생성·수정·삭제, 할 일·진행률·개발 기록·질문·검토 요청
 - 프로젝트별 서비스 형태·필요 기술·난이도(모르면 비워두기), 학생과 MASTER가 편집하는 로드맵
@@ -157,7 +160,7 @@ NODE_ENV=production DEMO_MODE=false DATABASE_PATH=/persistent/school.sqlite \
 - `tests/`: 서버 통합 및 Playwright 흐름 테스트
 - `docs/`: 브라우저에서 촬영한 데스크톱/모바일 스크린샷
 
-전체 구조와 Supabase/Tauri 확장 방향은 [ARCHITECTURE.md](ARCHITECTURE.md)를 참고하세요. 가구와 캐릭터는 코드로 직접 그렸으며 외부 게임 에셋을 복제하지 않았습니다.
+전체 구조와 Supabase/Tauri 확장 방향은 [ARCHITECTURE.md](ARCHITECTURE.md)를 참고하세요. 가구와 이전 캐릭터는 코드로 그렸고, 새 캐릭터는 독자적으로 생성·정제한 PNG 에셋을 합성합니다. 외부 게임 에셋을 복제하지 않았습니다.
 
 ## 오늘 교육 시작하기 (v0.6)
 

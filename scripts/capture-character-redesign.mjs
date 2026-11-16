@@ -22,8 +22,12 @@ try {
   );
   await page.goto('http://127.0.0.1:5189/');
   const result = await page.evaluate(async () => {
-    const { characterCanvas, CHARACTER_WIDTH, CHARACTER_HEIGHT, CHARACTER_SCALE } =
-      await import('/src/game/character.ts');
+    const {
+      legacyCharacterCanvas: characterCanvas,
+      CHARACTER_WIDTH,
+      CHARACTER_HEIGHT,
+      CHARACTER_SCALE,
+    } = await import('/src/game/character.ts');
     const { defaultAppearance } = await import('/shared/types.ts');
     const { appearancePresets, appearanceOptions } = await import('/shared/appearance.ts');
     const cases = [

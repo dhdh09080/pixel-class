@@ -169,7 +169,9 @@ export const appearanceColors = {
   ],
 } as const;
 /** Legacy accounts gain rendering defaults without rewriting their saved records. */
-export function normalizeAppearance(value: Appearance): Required<Appearance> {
+export function normalizeAppearance(
+  value: Appearance,
+): Required<Omit<Appearance, 'sprite'>> & Pick<Appearance, 'sprite'> {
   return {
     ...defaultAppearance,
     ...value,

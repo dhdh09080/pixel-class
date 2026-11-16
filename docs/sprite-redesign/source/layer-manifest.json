@@ -1,0 +1,414 @@
+{
+  "face-0": {
+    "sourceBounds": [72, 70, 319, 322],
+    "size": [64, 65]
+  },
+  "face-1": {
+    "sourceBounds": [516, 64, 304, 328],
+    "size": [64, 69]
+  },
+  "face-2": {
+    "sourceBounds": [1397, 80, 305, 306],
+    "size": [64, 64]
+  },
+  "face-3": {
+    "sourceBounds": [952, 513, 320, 321],
+    "size": [64, 64]
+  },
+  "hair-front-0": {
+    "sourceBounds": [53, 89, 324, 250],
+    "size": [96, 74]
+  },
+  "hair-back-0": {
+    "sourceBounds": [62, 88, 306, 262],
+    "size": [96, 82]
+  },
+  "body-front-0": {
+    "sourceBounds": [76, 67, 265, 404],
+    "size": [49, 74]
+  },
+  "body-back-0": {
+    "sourceBounds": [80, 64, 253, 420],
+    "size": [45, 74]
+  },
+  "eyes-0": {
+    "sourceBounds": [36, 143, 246, 92],
+    "size": [36, 13]
+  },
+  "hair-front-1": {
+    "sourceBounds": [401, 33, 344, 463],
+    "size": [96, 129]
+  },
+  "hair-back-1": {
+    "sourceBounds": [400, 33, 331, 455],
+    "size": [96, 132]
+  },
+  "body-front-1": {
+    "sourceBounds": [447, 59, 258, 415],
+    "size": [46, 74]
+  },
+  "body-back-1": {
+    "sourceBounds": [449, 58, 244, 426],
+    "size": [42, 74]
+  },
+  "eyes-1": {
+    "sourceBounds": [345, 151, 262, 83],
+    "size": [36, 11]
+  },
+  "hair-front-2": {
+    "sourceBounds": [784, 70, 334, 281],
+    "size": [96, 81]
+  },
+  "hair-back-2": {
+    "sourceBounds": [787, 70, 320, 288],
+    "size": [96, 86]
+  },
+  "body-front-2": {
+    "sourceBounds": [812, 60, 280, 415],
+    "size": [50, 74]
+  },
+  "body-back-2": {
+    "sourceBounds": [823, 60, 255, 425],
+    "size": [44, 74]
+  },
+  "eyes-2": {
+    "sourceBounds": [664, 139, 244, 97],
+    "size": [36, 14]
+  },
+  "hair-front-3": {
+    "sourceBounds": [1147, 33, 371, 413],
+    "size": [96, 107]
+  },
+  "hair-back-3": {
+    "sourceBounds": [1156, 33, 346, 407],
+    "size": [96, 113]
+  },
+  "body-front-3": {
+    "sourceBounds": [1191, 51, 281, 423],
+    "size": [49, 74]
+  },
+  "body-back-3": {
+    "sourceBounds": [1199, 52, 263, 433],
+    "size": [45, 74]
+  },
+  "eyes-3": {
+    "sourceBounds": [975, 156, 255, 76],
+    "size": [36, 11]
+  },
+  "hair-front-4": {
+    "sourceBounds": [17, 505, 386, 489],
+    "size": [100, 127]
+  },
+  "hair-back-4": {
+    "sourceBounds": [32, 500, 351, 495],
+    "size": [100, 141]
+  },
+  "body-front-4": {
+    "sourceBounds": [84, 567, 250, 409],
+    "size": [45, 74]
+  },
+  "body-back-4": {
+    "sourceBounds": [80, 566, 242, 425],
+    "size": [42, 74]
+  },
+  "eyes-4": {
+    "sourceBounds": [36, 464, 261, 78],
+    "size": [36, 11]
+  },
+  "hair-front-5": {
+    "sourceBounds": [443, 546, 315, 272],
+    "size": [96, 83]
+  },
+  "hair-back-5": {
+    "sourceBounds": [444, 544, 292, 287],
+    "size": [96, 94]
+  },
+  "body-front-5": {
+    "sourceBounds": [443, 560, 269, 416],
+    "size": [48, 74]
+  },
+  "body-back-5": {
+    "sourceBounds": [453, 563, 240, 427],
+    "size": [42, 74]
+  },
+  "eyes-5": {
+    "sourceBounds": [351, 437, 254, 110],
+    "size": [36, 16]
+  },
+  "hair-front-6": {
+    "sourceBounds": [786, 542, 335, 277],
+    "size": [96, 79]
+  },
+  "hair-back-6": {
+    "sourceBounds": [787, 538, 327, 293],
+    "size": [96, 86]
+  },
+  "body-front-6": {
+    "sourceBounds": [817, 568, 277, 408],
+    "size": [50, 74]
+  },
+  "body-back-6": {
+    "sourceBounds": [824, 568, 263, 423],
+    "size": [46, 74]
+  },
+  "eyes-6": {
+    "sourceBounds": [662, 453, 259, 89],
+    "size": [36, 12]
+  },
+  "hair-front-7": {
+    "sourceBounds": [1136, 526, 376, 480],
+    "size": [96, 123]
+  },
+  "hair-back-7": {
+    "sourceBounds": [1152, 525, 342, 478],
+    "size": [96, 134]
+  },
+  "body-front-7": {
+    "sourceBounds": [1187, 568, 286, 408],
+    "size": [52, 74]
+  },
+  "body-back-7": {
+    "sourceBounds": [1204, 568, 266, 423],
+    "size": [47, 74]
+  },
+  "eyes-7": {
+    "sourceBounds": [975, 483, 255, 48],
+    "size": [36, 7]
+  },
+  "eyes-8": {
+    "sourceBounds": [391, 222, 1229, 358],
+    "size": [36, 10]
+  },
+  "brows-0": {
+    "sourceBounds": [43, 778, 239, 19],
+    "size": [34, 3]
+  },
+  "mouth-0": {
+    "sourceBounds": [124, 1089, 71, 13],
+    "size": [7, 2]
+  },
+  "brows-1": {
+    "sourceBounds": [363, 766, 231, 31],
+    "size": [34, 5]
+  },
+  "mouth-1": {
+    "sourceBounds": [432, 1069, 84, 54],
+    "size": [8, 5]
+  },
+  "brows-2": {
+    "sourceBounds": [664, 757, 248, 38],
+    "size": [34, 5]
+  },
+  "mouth-2": {
+    "sourceBounds": [762, 1069, 42, 47],
+    "size": [5, 6]
+  },
+  "brows-3": {
+    "sourceBounds": [990, 770, 231, 31],
+    "size": [34, 5]
+  },
+  "mouth-3": {
+    "sourceBounds": [1058, 1082, 90, 19],
+    "size": [8, 2]
+  },
+  "equipment-0": {
+    "sourceBounds": [53, 107, 369, 245],
+    "size": [100, 43]
+  },
+  "equipment-1": {
+    "sourceBounds": [507, 98, 327, 258],
+    "size": [100, 47]
+  },
+  "equipment-2": {
+    "sourceBounds": [914, 158, 370, 154],
+    "size": [43, 18]
+  },
+  "equipment-3": {
+    "sourceBounds": [1462, 165, 174, 123],
+    "size": [11, 8]
+  },
+  "equipment-4": {
+    "sourceBounds": [113, 595, 226, 134],
+    "size": [48, 28]
+  },
+  "equipment-5": {
+    "sourceBounds": [492, 492, 338, 339],
+    "size": [88, 68]
+  },
+  "equipment-6": {
+    "sourceBounds": [952, 540, 311, 256],
+    "size": [25, 21]
+  },
+  "equipment-7": {
+    "sourceBounds": [1380, 559, 337, 222],
+    "size": [37, 24]
+  },
+  "earring-0": {
+    "sourceBounds": [113, 595, 226, 134],
+    "size": [6, 8]
+  },
+  "earring-1": {
+    "sourceBounds": [113, 595, 226, 134],
+    "size": [6, 8]
+  },
+  "hair-rear-0": {
+    "derivedFrom": "hair-front-0",
+    "size": [96, 74]
+  },
+  "hair-fringe-0": {
+    "derivedFrom": "hair-front-0",
+    "size": [96, 74]
+  },
+  "hair-side-0": {
+    "derivedFrom": "hair-front-0",
+    "size": [96, 74]
+  },
+  "hair-fringe-worn-0": {
+    "derivedFrom": "hair-fringe-0",
+    "size": [96, 74]
+  },
+  "hair-side-worn-0": {
+    "derivedFrom": "hair-side-0",
+    "size": [96, 74]
+  },
+  "hair-rear-1": {
+    "derivedFrom": "hair-front-1",
+    "size": [96, 129]
+  },
+  "hair-fringe-1": {
+    "derivedFrom": "hair-front-1",
+    "size": [96, 129]
+  },
+  "hair-side-1": {
+    "derivedFrom": "hair-front-1",
+    "size": [96, 129]
+  },
+  "hair-fringe-worn-1": {
+    "derivedFrom": "hair-fringe-1",
+    "size": [96, 129]
+  },
+  "hair-side-worn-1": {
+    "derivedFrom": "hair-side-1",
+    "size": [96, 129]
+  },
+  "hair-rear-2": {
+    "derivedFrom": "hair-front-2",
+    "size": [96, 81]
+  },
+  "hair-fringe-2": {
+    "derivedFrom": "hair-front-2",
+    "size": [96, 81]
+  },
+  "hair-side-2": {
+    "derivedFrom": "hair-front-2",
+    "size": [96, 81]
+  },
+  "hair-fringe-worn-2": {
+    "derivedFrom": "hair-fringe-2",
+    "size": [96, 81]
+  },
+  "hair-side-worn-2": {
+    "derivedFrom": "hair-side-2",
+    "size": [96, 81]
+  },
+  "hair-rear-3": {
+    "derivedFrom": "hair-front-3",
+    "size": [96, 107]
+  },
+  "hair-fringe-3": {
+    "derivedFrom": "hair-front-3",
+    "size": [96, 107]
+  },
+  "hair-side-3": {
+    "derivedFrom": "hair-front-3",
+    "size": [96, 107]
+  },
+  "hair-fringe-worn-3": {
+    "derivedFrom": "hair-fringe-3",
+    "size": [96, 107]
+  },
+  "hair-side-worn-3": {
+    "derivedFrom": "hair-side-3",
+    "size": [96, 107]
+  },
+  "hair-rear-4": {
+    "derivedFrom": "hair-front-4",
+    "size": [100, 127]
+  },
+  "hair-fringe-4": {
+    "derivedFrom": "hair-front-4",
+    "size": [100, 127]
+  },
+  "hair-side-4": {
+    "derivedFrom": "hair-front-4",
+    "size": [100, 127]
+  },
+  "hair-fringe-worn-4": {
+    "derivedFrom": "hair-fringe-4",
+    "size": [100, 127]
+  },
+  "hair-side-worn-4": {
+    "derivedFrom": "hair-side-4",
+    "size": [100, 127]
+  },
+  "hair-rear-5": {
+    "derivedFrom": "hair-front-5",
+    "size": [96, 83]
+  },
+  "hair-fringe-5": {
+    "derivedFrom": "hair-front-5",
+    "size": [96, 83]
+  },
+  "hair-side-5": {
+    "derivedFrom": "hair-front-5",
+    "size": [96, 83]
+  },
+  "hair-fringe-worn-5": {
+    "derivedFrom": "hair-fringe-5",
+    "size": [96, 83]
+  },
+  "hair-side-worn-5": {
+    "derivedFrom": "hair-side-5",
+    "size": [96, 83]
+  },
+  "hair-rear-6": {
+    "derivedFrom": "hair-front-6",
+    "size": [96, 79]
+  },
+  "hair-fringe-6": {
+    "derivedFrom": "hair-front-6",
+    "size": [96, 79]
+  },
+  "hair-side-6": {
+    "derivedFrom": "hair-front-6",
+    "size": [96, 79]
+  },
+  "hair-fringe-worn-6": {
+    "derivedFrom": "hair-fringe-6",
+    "size": [96, 79]
+  },
+  "hair-side-worn-6": {
+    "derivedFrom": "hair-side-6",
+    "size": [96, 79]
+  },
+  "hair-rear-7": {
+    "derivedFrom": "hair-front-7",
+    "size": [96, 123]
+  },
+  "hair-fringe-7": {
+    "derivedFrom": "hair-front-7",
+    "size": [96, 123]
+  },
+  "hair-side-7": {
+    "derivedFrom": "hair-front-7",
+    "size": [96, 123]
+  },
+  "hair-fringe-worn-7": {
+    "derivedFrom": "hair-fringe-7",
+    "size": [96, 123]
+  },
+  "hair-side-worn-7": {
+    "derivedFrom": "hair-side-7",
+    "size": [96, 123]
+  }
+}

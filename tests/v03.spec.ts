@@ -179,6 +179,8 @@ test('character preview updates instantly, cancellation discards changes, and ke
   const avatar = dialog.locator('.character-preview > .avatar');
   const image = await avatar.getAttribute('src');
   const options = ['내추럴 레이어', '실키 롱', '숏 크롭'];
+  const oldEditor = dialog.getByRole('button', { name: '이전 캐릭터 스타일', exact: true });
+  if (await oldEditor.count()) await oldEditor.click();
   await dialog
     .getByRole('button', {
       name: '헤어스타일: ' + options[(original.appearance.hairstyle + 1) % 3],

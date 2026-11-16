@@ -15,13 +15,14 @@ import { X, ArrowUpRight, Check, ExternalLink } from 'lucide-react';
 import type { Appearance, ProjectStatus } from '../shared/types';
 import { statusLabels } from '../shared/types';
 import { characterCanvas, CHARACTER_ART_VERSION, type Direction } from './game/character';
+import type { SpriteMotion } from './game/spriteTypes';
 // Bounded value-keyed cache avoids rerendering identical sprites after every state refresh.
 const avatarImages = new Map<string, string>();
-function avatarImage(appearance: Appearance, direction: Direction = 'down') {
-  const key = JSON.stringify([CHARACTER_ART_VERSION, appearance, direction]);
+function avatarImage(appearance: Appearance, direction: Direction = 'down', motion?: SpriteMotion) {
+  const key = JSON.stringify([CHARACTER_ART_VERSION, appearance, direction, motion]);
   let source = avatarImages.get(key);
   if (!source) {
-    source = characterCanvas(appearance, direction).toDataURL();
+    source = characterCanvas(appearance, direction, 0, false, motion).toDataURL();
     if (avatarImages.size >= 128) avatarImages.delete(avatarImages.keys().next().value!);
     avatarImages.set(key, source);
   }
@@ -33,17 +34,29 @@ export function Avatar({
   className = '',
   direction = 'down',
   decorative = false,
+  motion,
+  alignFoot = true,
 }: {
   appearance: Appearance;
   size?: number;
   className?: string;
   direction?: Direction;
   decorative?: boolean;
+  motion?: SpriteMotion;
+  alignFoot?: boolean;
 }) {
-  const image = useMemo(() => avatarImage(appearance, direction), [appearance, direction]);
+  const image = useMemo(
+    () => avatarImage(appearance, direction, motion),
+    [appearance, direction, motion],
+  );
   return (
     <img
       className={`avatar ${className}`}
+      style={
+        !alignFoot || appearance.sprite?.version === 1
+          ? undefined
+          : { translate: direction === 'left' ? '8.333333%' : '-8.333333%' }
+      }
       src={image}
       width={size * 0.75}
       height={size}
