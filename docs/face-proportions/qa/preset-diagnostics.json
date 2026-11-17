@@ -1,0 +1,77 @@
+{
+  "samples": [
+    {
+      "name": "워크숍 메이커",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 76,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "미드나잇 롱",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 65,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "허니 단발",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 80,
+      "irisVisible": [58, 73],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "베리 바시티",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 68,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "카라멜 포니",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 66,
+      "irisVisible": [71, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "테일러드 숏",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 60,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "세이지 컬",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 61,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    },
+    {
+      "name": "로즈 트윈",
+      "edgePixels": 0,
+      "partialAlpha": 0,
+      "colors": 83,
+      "irisVisible": [100, 100],
+      "irisOutsideFace": 0,
+      "eyeBaselineDifference": 0
+    }
+  ],
+  "legacyMismatches": 0
+}
