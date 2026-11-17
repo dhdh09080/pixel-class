@@ -1,5 +1,11 @@
 # PIXEL CLASS 캐릭터 아트 시스템 v2
 
+## 2026-11-17 얼굴 비율 보완
+
+현재 기본 아트는 `sprite-assets-v2-balanced-face`입니다. 얼굴 폭60px·턱83px·눈61/62px·눈 쌍34px(14/13px)·입(67,75)을 사용합니다. 부드러운 새 얼굴 PNG, 같은 시선의 눈 쌍,2~3px 눈썹과 피부 명도에 맞는 작은 입을 적용합니다. 발·옷깃·헤어/의상/장비82개 PNG·외형 ID/DB 형식은 유지합니다. [실제 전후와 검증](FACE_PROPORTIONS_REPORT.md).
+
+아래의 최초 v2 설명 중 얼굴 규격은 과거 기준입니다. 현재 앵커는 `rig.json`이 단일 기준이며 컴파일 소스는 기존 `docs/sprite-redesign/source/`(헤어/의상/장비)와 `docs/face-proportions/source/`(얼굴/눈/눈썹/입)입니다.
+
 ## 아트 방향과 원본
 
 기존 `playerFace/Hair/Clothes/Headwear.ts`는 SVG가 아니라 도형을 코드로 래스터화하는 방식이었습니다. 원본을 120×160으로 늘린 뒤에도 같은 얼굴·헤어 덩어리·옷 패턴을 재사용해 실루엣과 재질이 단조로웠습니다. 이번 기본 렌더러는 그 도형을 다듬는 대신 **실제 투명 PNG 부위 에셋을 합성**합니다.
@@ -36,8 +42,8 @@
 
 ```sh
 node scripts/compile-avatar-assets.mjs
-npx prettier --write src/game/sprite-assets/generated.ts docs/sprite-redesign/source/layer-manifest.json
-node scripts/capture-sprite-lab.mjs final
+npx prettier --write src/game/sprite-assets/generated.ts docs/face-proportions/source/layer-manifest.json
+node scripts/capture-face-proportions.mjs
 ```
 
 Chromium과 기존 npm 의존성만 필요합니다. 운영 빌드는 체크인된 데이터를 사용하므로 이미지 생성 API·외부 에셋 서버를 호출하지 않습니다. 컴파일 시 alpha180 기준·연결 성분 분석으로 이웃 셀/먼지를 제거하고, nearest-neighbor로 정규화하며, 재질별 한정 팔레트로 양자화합니다. 원본 PNG의 부드러운 경계는 게임 에셋에 남기지 않습니다. 부위 SHA와 PNG를 독립 디코딩한 RGBA/RLE 전체 픽셀 일치를 테스트합니다.

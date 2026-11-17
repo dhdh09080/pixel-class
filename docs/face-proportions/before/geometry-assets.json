@@ -1,0 +1,1338 @@
+{
+  "sourceCommit": "96680b7de564105f032c0e1e7eca1e3cfa172d3a",
+  "assets": {
+    "face-0": {
+      "width": 64,
+      "height": 65,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#210e09",
+          "material": "skin",
+          "tone": 0
+        },
+        {
+          "hex": "#f9bba6",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#ffdabd",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#e6937a",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#a86353",
+          "material": "skin",
+          "tone": 1
+        },
+        {
+          "hex": "#8b4a3b",
+          "material": "blush",
+          "tone": 3
+        }
+      ],
+      "rle": "GgAAEgABKQAABQABBAACCAADBAACAQADAQAEBAABJQAABQABEgACBAABIgAAAwABAQAEGQACAwABHgAAAgABAQAFHgACAQAFAgABGgAAAgABAQAFAgAEHwACAQADAgABFwAAAwABAQAEAQACBQAEHgACAQAFAQABFQAAAgABCAAEIAACAQAFAgABEwAAAQABAQAFBwAEIgACAgABEgAAAQABCAAEIwACAgAEAQABEAAAAQABCAAEJgACAQAFAQABDgAAAQABCQAEJwACAQABDQAAAQABAQAFCAAEKAACAQAFAgABCgAAAQAFAQABCQAEKQACAgABCgAAAQABAQAFCAAEFAACBgADEAACAgABCQAAAQABAQAFCAAEEgACAwADAgACBAADCQACBAADAwACAgAEAQABBwAAAQABAQAFCAAEEAACAQADAgACCQADAgACAgADBAACBgADBAACAQABBwAAAQABCQAEFAACCAADAgACAwADAgACCQADAgACAQABBgAAAQABAQAFCQAEEwACCAADAQACEAADAgACAQAEAgABBAAAAQABAQAFCAAEFQACBAADAgACAgADAQACCgADAQACAwADAQACAQADAgACAgABBAAAAQABCQAEDgACAQADAgACBgADAQACEAADAQACBgADAQACAgABAwAAAgABCQAEDQACAwADAQACAQADAQACBAADAQACDAADAgACCQADAQACAQAEAQABAgAAAgABCQAEDgACAgADAgACAQADBAACAQADAQACAQADAQACCQADAwACAgADAQACBwADAQACAQAFAQABAQAAAgABCQAECQACAQAEBAACAQADAQACAQADAQACAgADBQACBwADAgACAQADBgACAwADAQACAgADAwACAQAFAQABAQAAAgABCQAEBwACAgAEAQADCAACBAADAgACBgADAQACAwADAwACAQADAwACAwADAgACAQADAwACAQAFAQABAQAAAgABCQAEAwACBQAEAQACAQADCAACAQADAQACAgADAgACAwADAQACAgADCwACAQADAwACAwADAgACAQAFAgABAgAFEQAEDgACBQADAgACAQADDAACAwADAQACAQADAwACAQAEAgABAQAFEQAEBgACAgADBgACAQADAQACAQADAQACAQADAQACAQADAgACAQADCQACAQADAgACAwADAgACAQADAQACAQAEAgABAQAFEQAEBQADAQACAgADBgACAQADAgACAQADAwACAwADBAACAQADBgACAQADAgACAgADAQACAQADAQACAQAEAgABAQAFEAAEAQACAQADAQACBAADAQACAgADBQACAQADAgACAgADAgACBQADAwACAQADBQACAQADAQACAwADAwACAQAEAgABAQAFEAAEAQACAwADAwACAgADAgACAQADAQACAQADAwACAQADAgACAgADAQACAwADAQACAgADAQACAQADBQACAwADAQACAgADAgACAQAEAgABAQAFEAAEAQACAQADAQACAgADAQACAwADAgACAwADAgACAgADAwACBQADAgACAgADBAACAQADAgACAgADAgACAQADAgACAQAFAgABAQAFEAAEBAACAwADAgACAQADAwACAwADAQACAQADCQACAgADAwACAQADAQACAQADAQACAQADAQACAQADAQACAQADAQACAQADAQACAQAFAgABAQAFEAAEBAACAQADAQACAwADAQACAQADAQACAQADCAACAQADAwACAQADAwACAQADAQACAQADBwACAgADAQACAQADAQACAQAFAgABAQAFEAAEAQACCgADAgACAgADBgACAgADAQACAQADAQACAQADAwACAwADAQACAQADAQACAQADAgACAQADAgACAQADAQACAwABAgAFDwAEBAACAQADAQACAwADAQACAQADAQACAQADAQACAQADBAACAQADAQACAQADAgACAgADAwACAQADAQACAgADBAACAQADAgACAwADAgABAgAAAgABDwAEAQACBAADAQACBAADCQACAwADAgACAgADAgACAgADAQACAQADAQACBgADAQACAgADAQACAgABAgAAAgABDwAEAQACAgADAQACAwADAQACAQADAQACAQADBwACAQADAgACAwADBwACBAADAQACAgADAQACAQADAwACAgABAgAAAgABBwAEAwACBgAEBgADAQACAQADBQACAgADAwACBgADAQACBwADAgACAwADAQACAQADAQACAQADAwABAgAAAgABAQAFBAAEAQAFBQABBQAEAQACBQADAQACAQADAQACAQADBAACBwADAgACAgADCgACAQADAwACAgADAQABBgAAAQABAwAEAQABAQAFAgADAgACAQAEAQABAQAFBAAEAwACAgADAQACAgADAQACAQADBAACBgADAgACAgADBAACAQADAgACAgADBgACAQAFAQABBgAAAQABAgAEAQABCAACAQAGAwAEAQAGAwACBQADBwACAgADAQACBAADEAACAQAEAQAGAQABBgAAAwABAQAECQACAQAFAwAEAwACBgADAwACAwADAQACAgADAgACAwADAQACAgADAgACAwADAgACAQADAQACAwADAgABCAAAAQABAQAEBAACAQAEAQAFAQAGBAACAwAEAQACAQADAQACAQADAQACBwADAgACAgADAgACAgADAQACAwADAQACAwADAQACAQADAQACAwADAQACAQADAgACAgABCAAAAQABAgACAgADAwAEAgAGAQAEAgACBAAEAQADAQACCQADAgACAgADAQACBAADAgACAQADAQACAQADAQACAQADAgACBAADAQACAgADAQACAgABCAAAAQABAwACBgAEAQAGAwACAgAEAgACIwADAQACAgABCAAAAQABAgACAQADAgAEAwACAgAEAQAGAQAEBgACEAADAQACEgADAgABCAAAAQABAgACAQADBAACAwAEAQAGCAACEAADAgACAgADAgACCwADAQACAgABCAAAAQABAQAEBgACAwAEAQAGCQACAwADBgACAgADAQACAgADAQACAQADAQACCgADBgACAgABCAAAAgABAQAFBgACAwAEAQAGCQACAQADCQACAwADAQACAQADAQACBgADAgACAQADBwACAgABCQAAAQABAQAFAQAEBQACBAAEEwACDAADCgACAgABCgAAAgABAQAEHAACAgADAQACCQADCQACAgABCgAAAgABAQAFCgACAQAEEQACBQADAQACAQADAQACBAADAQACAQADBgACAQAGAgABDAAAAgABAQAEAQADAwACAgADAQACAQABAQAGAQAEDwACCAADAQACBwADAQACAgADAgACAQABDwAAAwABAgAEAwACAQAGAQABAQAGAgAEBQACAQADAQACAQADAgACDQADAQACBAADAQACAQADAgACAgADAQAGAQABEgAACAABBAAEAgACAgADAgACCwADBwACAwADAwACAgADAgABEgAABQABAgAAAgABAwAEBQACCwADBQACAQADBAACAQADBAACAQAFAQABGwAAAgABBAAEAgACCAADAQACAgADAgACAQADAQACAQADAQACAQADAwACAgADAwACAQAFAQABHQAAAgABAQAFAQAEAQACAgAEAQACBwADAgACAwADAQACAgADAwACAgADAgACAQADAQAEAgABIAAAAwABAQAFAwAEAQACAQADAgACAQADBgACAQADBAACBAADAQACAwABIwAABAABAQAFAQAEAgACAQADCwACAwADAQACAQAFAgABKQAABQABAQAEBQACAwADBAACAgABMAAABAABAQAEAQACBQADAQAEAgABMgAABQABAQAEBAAFAQAEAwABNgAACAABEwAA",
+      "sha256": "9454884d4f3f0adeaf4c9bd35cce7ce7e529be0eee2c812bf3270ee57e39d5c3"
+    },
+    "face-1": {
+      "width": 64,
+      "height": 69,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#220a0a",
+          "material": "skin",
+          "tone": 0
+        },
+        {
+          "hex": "#7c4c47",
+          "material": "skin",
+          "tone": 1
+        },
+        {
+          "hex": "#f4d0c2",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#ffe6d2",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#daa291",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#793f31",
+          "material": "blush",
+          "tone": 3
+        }
+      ],
+      "rle": "GgAAEQABKwAABAABAQACAgADAgAEAgADCQAEAQAFBAABJwAABAABAQAFDwADAQAFBAABJAAAAwABAQAFFwADAQAFAwABHgAAAwABAQAFHQADAQACAgABGgAAAgABAQACIwADAgABGAAAAgABAQAFIwADAgABFwAAAQABAQACAwAFIwADAQACAgABEwAAAgABBwAFIgADAQAFAgABEQAAAgABCAAFIwADAQAFAQACAQABDwAAAgABAQADBgAFJgADAQAFAQABDgAAAQABAQACCAAFJwADAQACAQABDAAAAQABAQACCAAFKQADAQABCwAAAgABAQADBwAFKgADAQACAgABCQAAAQABCAAFLAADAgABBwAAAgABAQACCAAFLAADAgABBwAAAgABCAAFLQADAQACAwABBAAAAQABAgACBwAFLgADAgAFAgABBAAAAQABAQACCAAFMAADAgABBAAAAQABAQACCAAFMAADAgABAwAAAQABAQACCAAFMQADAgABAwAAAQABAQACCAAFMQADAQAFAQACAQABAgAAAQABCQAFMgADAQACAQABAgAAAQABCAAFMwADAQACBAABCAAFMwADAQACAwABCAAFNAADAQACAwABBwAFNQADAQACAwABBwAFNQADAQACAwABBwAFNQADAQACAwABBwAFBwADAwAFKwADAQACAwABBwAFBAADBgAFKwADAQACAwABBwAFAwADBgAFLAADAQACAwABEAAFLAADAQACAwABDwAFLQADAQACAwABDwAFLQADAQACAwABDwAFLQADAQACAwABAQACDgAFLAADAQAFAgABAQAAAgABDgAFLAADAgABAwAAAQABDgAFLAADAgABAwAAAQABDgAFLAADAgABAwAAAQABDgAFLAADAgABAwAAAQABAQACBAAFBQABBAAFLAADAgABBAAAAQABAwAFAQACBQABBAAFLAADAgABBAAAAQABAgAFAgABAQAFBAADAQAGAQABAgAFLAADAgABBAAABAABBwADAQAFAQAGAQAFKwADAQAGAgABBQAAAgABCQADAgAFKgADAQACAQABBgAAAgABAQACAgADAQAEAQAFAgACAQAGAwADAQAFAgADAQAFJwADAgABBgAAAgABAQAFAgADAQAFAQACAgAFAgAGLQADAgABBgAAAgABAQAFAgADBQAFAQACAQAGLAADAgABBgAAAgABBwADAgAFAQAGAQACKwADAgABBgAAAgABBwADAQAFAgAGAQAFKwADAgABBgAAAgABAQAFBgADAgAFAgAGKwADAgABBwAAAgABAQAFBgADAgAFAQAGAQACKgADAgABBwAAAgABAQAFNAADAQACAQABCAAAAgABAQAFMwADAQACAQABCQAAAQABAQACAQADAQAECQADAQAFJwADAQAGAQABCgAAAgABAgAFBgADAQAFAQAGAgAFJgADAgABDAAAAgABAQACAwAFAgAGAgABAQAGJgADAQAFAgABDgAACQABBAAFIgADAgABDwAABgABAgAAAQABBAAFIQADAQAFAQABGAAAAQABAQAFAQACAgAFAQADAQAFHwADAgABGQAAAgABAQADBAAFHQADAQAFAQABGgAAAwABBAAFHAADAQACAgABGwAAAgABBgAFGQADAQAEAQACAQABHgAAAQABAQACAQAFGwADAQACAgABIAAABAABAgACAgAFEwADAQAFAwABJQAABQABDwAFAQACAwABKAAABgABDgACBAABLQAAEAABDwAA",
+      "sha256": "d8f64526c9cc819374e0c2b4b2dc5daa4e973d328d2c93f58dd89b6ab7d82191"
+    },
+    "face-2": {
+      "width": 64,
+      "height": 64,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#2f171f",
+          "material": "skin",
+          "tone": 0
+        },
+        {
+          "hex": "#99787c",
+          "material": "skin",
+          "tone": 1
+        },
+        {
+          "hex": "#e8ccc7",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#bb9a9c",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#fff5e8",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#d6adac",
+          "material": "blush",
+          "tone": 3
+        }
+      ],
+      "rle": "GgAAEQABKwAABAABAQACDwADAQAEBAABJgAABQABAQAEDwADAQAEBAABIwAABAABGAADAQAEAwABHgAAAgABAQACHAADAgAFAQAEAgABGwAAAwABIAADAQACAgABGAAAAwABAgAEIQADAQACAgABFgAAAgABBwAEIAADAQACAQABFAAAAQABAQACBwAEIgADAQAEAQABEQAAAgABBwAEJQADAQACAQABDwAAAgABCAAEJgADAQABAQACDgAAAQABAQACBwAEJwADAQAEAgABDAAAAQABAQACCAAEKAADAgABCwAAAgABCAAEKQADAgAEAQABCQAAAgABAQACBwAELAADAQABCAAAAQABAQACAQABCAAELAADAQACAQABBwAAAQABAgACBwAELQADAQAEAQABBgAAAgABCQAELgADAQABBgAAAQABCQAELwADAQAEAgABBAAAAQABCQAELwADAQAEAgABAwAAAQABAQACCAAELQADAQAFAwADAgABAgAAAgABCQAELQADAQAFAwADAgABAgAAAgABCQAEMQADAQACAQABAgAAAgABCQAEMQADAQAEAQACAwABAQACCAAEMwADAQAEAgABAQACCAAENAADAQAEAgABAQACCAAENAADAQAEAgABAQACCAAENAADAQAEAgABAQACCAAENAADAQAEAgABAQACCAAEBgADAgAELAADAQAEAwABAQACBwAEAwADBQAELAADAQACAQABAQAAAgABBwAEAgADBQAELQADAQACAQABAQAAAgABDgAELAADAQAEAQABAgAAAgABAQACDQAELAADAQACAQABBAAAAQABDQAELAADAgABBAAAAQABDQAEKwADAQAEAgABBAAAAQABAQACDAAEKwADAgACBgAAAQABDAAEKwADAQABBwAAAQABAwAEAQACBQABAwAEKgADAQAEAQABBwAAAgABAQACAgABBQADAgABAgAEKQADAQACCQAAAwABAQAFBgADAQABAgAGKAADAQAGAQABCQAAAgABCQADAQACAgAGJgADAQAGAQAEAQABCAAAAQABAQACAQAEAwADAQAEAQACAQAGBAADAwAGJQADAQAEAQABCQAAAQABAgAEAgADAwACAwAGAgADAQAGAgAEJQADAgABCQAAAQABAQAEAgADAQAEAQACAgAEBwAGAQAEAQAGJAADAgABCQAAAQABAQAEAgADAgAEAgADBQAGAQADAwAGAQAFIwADAgABCQAAAQABAQAEBgADBAAGAQAFBQAGIwADAgABCQAAAQABAQAEBgADBAAGAQADAwAGAgADAQAGIgADAgABCQAAAQABAQACAQAEBQADCwAGHAADBQAGAQADAgABCgAAAgABAQAEBAADCQAGBAADAgAGFwADBwAGAgABCwAAAgABCwADAwAGAwADAgAGFwADBwAGAgABDAAAAgABCAADAgAFAQAEAwAGAwADAQAGFwADBgAGAQACDwAAAQABAwACAQAGBAADAQAGAQACAQABAQAEAgAGHQADBAAGAQABEAAAAwABAQAEAQAGAgADAQAEAQACAgABAQAGAQAEAQAGIAADAQACAQABEwAABgABAgAAAQABAwAEHgADAQAEAQABHQAAAgABAgAEHAADAQAEAQABHwAAAQACAgABAQACGQADAQAEAgABIQAAAgABAQACAQAEGAADAQACAgABIwAAAgABAQACFAADAQAFAQAEAgABJwAAAwABAgAEDwADAQACAgABLAAAAwABAQAEDAADAgABMQAABAABAQAEBAADAQAEAwABMwAABAABBQAEAQACAwABNwAABgABFQAA",
+      "sha256": "14a46ad54eeedfbc4a32b3b12af65c8f119f165f9482bffbf8eb439024de4086"
+    },
+    "face-3": {
+      "width": 64,
+      "height": 64,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#160a05",
+          "material": "skin",
+          "tone": 0
+        },
+        {
+          "hex": "#5b3026",
+          "material": "skin",
+          "tone": 1
+        },
+        {
+          "hex": "#8b5341",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#c1795c",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#ce896a",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#a85e4c",
+          "material": "blush",
+          "tone": 3
+        }
+      ],
+      "rle": "GwAAEAABKgAABgABAQACDwADBAABJgAABgABAQADDwAEBAABIgAABAABAQADGAAEAQADAwABHAAAAwABAQACAgADHQAEAQACAgABGQAAAgABAQACBgADHQAEAQACAgABFgAAAgABCAADHgAEAgABFQAAAgABCAADIAAEAgABEgAAAgABAQACCAADIgAEAQACAgABDwAAAgABAQACCAADJAAEAgABDgAAAgABCQADJgAEAQADAQABDQAAAQABAQACCAADKAAEAgABCwAAAgABCQADKAAEAQADAgABCgAAAQABAQACCAADKgAEAgABCAAAAgABCQADFAAEDQAFCgAEAQADAQACAQABBwAAAgABCQADEQAEEwAFCAAEAQADAQABBwAAAQABAQACCAADDwAEGQAFBQAEAQADAQABBgAAAQABAQACCAADDwAEGwAFBAAEAQADAQACAQABBQAAAQABCQADDgAEHgAFAwAEAQADAQABBQAAAQABCQADDQAEIAAFAwAEAQABBAAAAQABCQADDQAEIgAFAgAEAQABBAAAAQABCQADDAAEJAAFAQAEAQACAgABAgAAAQABCAADDAAEJQAFAgAEAgABAQAAAgABCAADDAAEJQAFAgAEBAABAQACBwADCgAEAgADJwAFAQAEBAABCAADBgAEBQADKQAFBAABCAADBAAEBgADAQAEKQAFBAABCAADAwAEBwADKgAFBAABEQADAQAEKgAFBAABEQADKwAFBAABEQADKwAFBAABEAADAQAEKwAFBAABEAADLAAFBAABEAADLAAFBAABEAADKgAFAQAEAQADBAABAQACDwADKwAFAgABAQAAAgABAQACDwADKwAFAgABAwAAAQABDwADKwAFAgABAwAAAQABBgADBQABBAADKgAFAQADAgABAwAAAQABAwACAQADAQACBgABAgACAgADAQAEKQAFAQABBgAAAQABAgADAQACAQABAQADBQAEAQADAQACAwAGAQAEKAAFAQABBgAAAQABBAACBwAEAQADAwAGAQAEJwAFAQADAQABBgAABAABBAAEAwAFAgAEAwAGAQAEJwAFAQABCAAAAgABAQACAwAEBAACAwAEAwAGJwAFAQABCAAAAgABAQADAgAEAQACAQADAQACAQAGAgACAwAEAgAGJwAFAQABCAAAAgABAgAEBAADAwAGAQACAwAEAgAGJgAFAQABCAAAAgABAQADAQAEAgADAgAEAQAGAQADAQAGAQACAwAEAQAGAgAEJQAFAQABCAAAAgABAQADBQAEAwAGAQACBwAEJAAFAQABCAAAAgABAQADBQAEAwAGAQACAQADCAAEAQAFBwAEEwAFBQAGAQAEAQAFAQABCAAAAgABAQACBgAEAQADAgAGAQACCAAEAgAGBwAEEAAFAQAECAAGAQABCgAAAQABAQADBQAEAwADCAAEAwAGCAAEDwAFCQAGAQABCgAAAgABEAAEAwAGCAAEEAAFCAAGAQABCwAAAQABAQADCgAEAQAGAgAEAQAFCgAEEwAFBQAGAQAEAQAFAQABDAAAAQABAQADCAAEAQAGAQADAQAGAQAEAQAFBAAEHQAFAgAEAQADAQABDQAAAwABAQADAwAEAQADAQACAQABAwADAwAEIQAFAQABEQAABgABAQACBAADAgAEHgAFAQAEAgAFAQABEQAABgABAQACBQADAQAEIAAFAQADAQABFgAAAgABBgADAQAEHQAFAQAEAQADAQABGAAAAQABAQACCAADAQAFAgAEFQAFAwAEAQADAgABGQAAAgABAQACBwADBAAEBQAFAgAEDAAFAgAEAQACAQABHAAABAABAQACBwADAwAFAwAEAQAFBAAEBQAFAwAEAQADAwABIQAABwABBAADAgAEAQAFBwAEAwAFAQADAwABJAAAHAABKwAAEgABDwAA",
+      "sha256": "8462cf14f277938fdc7c1014b973735acf5a2c4e74f4e82af9ee2245e56c26de"
+    },
+    "eyes-0": {
+      "splitX": 22,
+      "width": 36,
+      "height": 13,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#5f3838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#703854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a67978",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#c0a39d",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#b99c9b",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#705454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#401c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1d021c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c7079",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c5470",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#d0b4ab",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#381c1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a28ca2",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c1635",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#a8a8a8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1e2958",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#202d5f",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#cdd7e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#818fad",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#fcfafc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#c4b6c4",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#e0c4d2",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#253e79",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#55cae1",
+          "material": "eyes",
+          "tone": 5
+        }
+      ],
+      "rle": "CQAAAQABBAACHgAAAQADAQAEAgAFAQAEAgAFAQAGDQAAAQACAgABCQAAAgAHAQAIAQAJAQAIAQAKAQAJAQAKAQAJAQAIAQALDAAAAQAMAQANAQAEAQAFAQADAQABBwAAAQAOAgAIBAAJAQAKAQAJAQAIAQAKCwAAAQACAQAPAQACAgAIAQAHAQABBQAAAgAIAgAJAQAIAQAJAQALBAAQAQAJAQAKAQAICgAAAQARAgAJAQAKAgAJAQAIBQAAAQAIAQAKAgAJAgARAQAQAwASAQATAQAUAQATAQAJCQAAAQAMAQAIAQAKAQAQAQAPAQAIAQAKAgAJAQAABQAIAQAOAgAPAgASAgATAQASAQAVAQAWAQAUAQAQAQAICAAAAQAJAgASAQAWAQAQAQAPAQAIAQAKBAAAAQAIAQAKAQAOAgAXAQAYAQAQAQATAgAZAQASAQATAQAZAQATAQAQCQAAAQAQAQASAQATAQAVAQAQAQARAQAOAQAKAgAIAwAAAgAIAQAYAgAWAQAQAQAZAgAVAQASAQATAQAVAQAZAQASCQAAAQATAQAZAQASAQAZAQAQAQAWAQAHAQAOBgAAAQAOAQAYAgAWAQASAQAZAgAaAQAVAQAZAgAVAQATCQAAAQAZAQAVAQAZAQAVAQATAQAWAQAHCAAAAQAOAwAWAQAZBQAaAQAVCgAAAQAVAwAaAQAUAQABCgAAAQAOAQAYAgAWAQAZAQAVAgAaAQAVAQAZCgAAAQATAgAaAQATAQAWAQAHCQAAAQAHAgAAAQAOAQAGAQACEgAAAQACAQAOBQAA",
+      "sha256": "083a93c8603e24465336ae1e659565c426acc437d142425437957daf3d081e3b"
+    },
+    "eyes-1": {
+      "splitX": 22,
+      "width": 36,
+      "height": 11,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#6c3840",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#541c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#957775",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#bfa49d",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#c7aaa6",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#d5bcb4",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#8c7070",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1b031c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#381c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#705454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#380e1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#ac98a8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c8c9a",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#383838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c2144",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#1f2c5c",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#fcf9fc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#5f6d94",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#cdc4cd",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#444d76",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#469bc6",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#9eebf6",
+          "material": "eyes",
+          "tone": 5
+        },
+        {
+          "hex": "#e0e0e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#543854",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "CAAAAQABAQACAwABHgAAAQADAQAEAQAFAwAGAQAFAgABDQAAAQACAQAEAQAHAQAAAQAIBQAABAAIAgAJAQAIAQAJAgAIAQAKAQAFAQAEAQALCwAAAgAEAwAIAgAABAAIAQAJAQAIAQAJAgAIAQAJAQAIAQAJAQAMAgAIAgAJAQAECgAAAQAEAQAIAwAJAgAIAQAMAwAAAQAIAgAMAQAJAQANAQAOAQAPAQAQAwARAQAJAwAICgAAAwAIAQAPAwAIBQAAAwAIAwAOAQARAQASAwARAQAPAQATAgAJCAAAAQAIAQAJAQAUAQAVAQARAQAOAQAIBwAAAgANAQAVAgATAgASAgAUAQASAQAWAgASCQAAAQARAgASAQAWAQARAQAOAQAQCAAAAQAKAwATAQAWAQAUAgAXAQAWAQASAQAXAQAWCQAAAQAWAQAXAQAWAQAUAQATAQANCQAAAQAKAQACAgATAQAVAQAUBAAYAQAXAQAWCQAAAgAXAQAYAQAUAQATAQACCwAAAQAKAQAZAQATAQAZAQAUAwAYAQAUCgAAAQAWAQAYAgAXAQAaCwAAAQAKAgAAAQAKGgAA",
+      "sha256": "413e0bbf1281f5ea05f81c7bf64da9fa45023ba5b06763ee75852732e38487b3"
+    },
+    "eyes-2": {
+      "splitX": 21,
+      "width": 36,
+      "height": 14,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#703854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#745460",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#481c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a38888",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#b2908b",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#5a3838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1d011c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#c5ada6",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#381c1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#85707e",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a892a8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#16183b",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#c2afbd",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#253466",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#1f2a59",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#fbfbfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#413d51",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#c4d2e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#fce0e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#377ab2",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#55bde4",
+          "material": "eyes",
+          "tone": 5
+        },
+        {
+          "hex": "#e0e0fc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#543854",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "CwAAAgABAQACHQAAAQADAQABAQACAwAEAQAFAQAEAQABAQAGCwAAAgABAQAGCwAAAQAGAQAHAgAIAQAJAQAIAgAHAQAIAQACCwAAAQAGAgAKAQACBwAAAQAHAgAAAQALAQAHAQAIAQAJAgAIBAAJAQAIAQALCQAAAQACAQAMAQADAQAHAQAIAQAHBwAABQAHAQAIAQAMAQANAwAOAQAIAQAJAQAHCQAAAQAMAQAHAgAIAgAHAQAIAQAHBQAAAQALAgAJAQAHAgAPAQAMAQAQAwARAgAOAQAIAQAJCAAAAQALAQAHAgAOAQANAQAIAgAJAgAABQAHAQALAwAPAQAOAwAQAgASAQAQAQAOAQATCAAAAQAIAQAOAQASAQAUAQAOAQADAQAHAQAJAQAHAwAAAwAHAQACAwAPAQARAQAQAgARAQAQAQANAgAQCAAAAQALAgARAQASAQAPAQAOAQANAQAJAQAHAgAAAwAHAQAJAQALAQAPAwASAQARAgATAQARAQAQAgATAQAQCAAAAQAOAQAQAQARAgAQAQAOAQAPBAAHAwAAAgAHAQAVAwASAQATAQAWAQAXAQAQAQATAgAWAQATCAAAAQARAQAWAQARAQATAQAWAQAOAQANAQADBwAAAQADAQAMAwASAQATAQAYAgAXAQAWAQAXAQAWAQATCQAAAwAXAQAWAQAUAQAGCQAAAQADAwASAQATAQAWBAAXAQAWCgAAAQAWAgAXAQATAQASAQADCQAAAQALAQAZAQAPAgASAQARAQAWAgAXAQAWDAAAAQAWAQATAQAYAQAGAQALCwAAAQADHAAA",
+      "sha256": "60158a608b2dc36dc3091071094634dcc1d8f5c076b0dffdb3e36e3c31c2cbda"
+    },
+    "eyes-3": {
+      "splitX": 22,
+      "width": 36,
+      "height": 11,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#543838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#703838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#703854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#381c1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#7e6565",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#a68c88",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#b69a94",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#baa19e",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#a88ca3",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#543854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1f011c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#707070",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#381c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#33304b",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#1a1f47",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#8c778c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1e2957",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#fcfafc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#e0e0ee",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#c4a8c4",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#2b487e",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#33649b",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#c4fcfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#47c6ef",
+          "material": "eyes",
+          "tone": 5
+        }
+      ],
+      "rle": "BwAAAgABAQACAQADHAAAAQAEAgAAAgAFAgAGAQAHAgAIAQAJAgABDQAAAQAKAQAHAQAGBAAAAQALAwAAAQAMAwANAQALAQANAwALAQAEAQAIDAAAAQACAQAIAQAGAQALAQANAQALAgAAAQALAQAAAQALAQAMAQANAgAMAwANAQAMAgANAQAMAgANAQALCwAAAQAOAQAPAwANAQAMAgALAwAAAwALAQANAQAKAgAJAQAQBAARAQALAQAMAQALCgAAAQAMAQALAgARAQASAQALAQAMBQAAAgALAQANAwAJAQARAQATAgAQAQARAQAUAQAVAQARAQAMCAAAAQALAQANAQARAQAUAQATAQASAQALAQAEBgAAAQAEAQAMAQAWAgAUAgATAQAXAQATAQAQAQAVAQAQAQATCQAAAQAQAgATAgAQAQAUAQAMCAAAAQAEAwAUAQAQAgAYAQATAgAXAQAYAQAXCgAAAQAXAQAQAQAYAQAQAQAUAQAECQAAAQASAgAUAgAYAQAZAQAaAQAXAQAaAQAYAQAXCgAAAgAaAQAYAQARAQAUCgAAAgABAgAUAQATBQAaAQAXCgAAAgAaAQAYAQAUAQAPDAAAAQAEAQAKAQADAQASAQAYAgAXFQAA",
+      "sha256": "44547cf0ae2cc21f63107a49591a1dd35f0698e20e75b1be22c5cc23f268205d"
+    },
+    "eyes-4": {
+      "splitX": 21,
+      "width": 36,
+      "height": 11,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#693138",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#703854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#bfa3a1",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#e4c5c0",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#b18c8c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#ecd5ce",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#8c5470",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#fce0e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#9f8383",
+          "material": "skin",
+          "tone": 2
+        },
+        {
+          "hex": "#3d1c2f",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1e011c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#9f7079",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c8ca8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a88ca8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1d2244",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#1e2a57",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#fcfcfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c708c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#bba8bb",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#e0c4cd",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#283967",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#2c457e",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#3770a6",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#b8f3f7",
+          "material": "eyes",
+          "tone": 5
+        }
+      ],
+      "rle": "CgAABQABGwAAAQACAgADBQAEAQADAQAFAQACCgAAAQABAQAFAQAGAQADAQAHCgAAAwADAQAEAQAIAQAGAQAIAgAEAQADAQAJCQAAAQAHAgADAQAEAgADAQAJCAAAAQAJAQADAgAEAgAJAgAKAwALAQAHCQAAAQADAQAEAgAIAQAFAQAMAQAJBgAABgALAQANAQALAQAOAQALAQANAQAOAQALAQANCQAAAQAFAQAOAQALAgAOAgANAQALAwAAAwALAQANAQAOAQANAQAOAQALAQANAwALAgANAQAOAQANAQALCAAABAANAgALAQAOAQANAQALBAAAAQAOAQANAQALAQAPAgAQAQARAwASAQARAQATAQASAQARCAAAAQALAgARAQATAQARAQAUAQAQAQALBgAAAgALAQAVAwAWAQAXAQAYAQAZAQARAQASAQAXAQAYAQASCAAAAQARAQAXAQASAgAXAQAVAQAUCQAAAQAKAwATAQAXAgAaAQAZAQAYAQAZAQAYCQAAAQAYAQAaAQAYAgAZAQATAQALCQAAAgALAQAMAgATAQAYAwAaAQAZCwAAAQAZAgAaAQAXAQAHAQAKCwAAAQAKHAAA",
+      "sha256": "250b8cab1be8583ebbcdb16176d1dafd981a23cf471bc72b64b4c35c6d1c2c13"
+    },
+    "eyes-5": {
+      "splitX": 22,
+      "width": 36,
+      "height": 16,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#6d384e",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#695454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c5454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#b59c97",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#cdb6b1",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#c4a59e",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#8c6770",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1d021c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000002",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a88c8c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#3f1c29",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#705470",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a28ca8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a8a8a8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#101132",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#242f61",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#243163",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#fcfcfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#c4acb8",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#695f7a",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#3870af",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#45c5e2",
+          "material": "eyes",
+          "tone": 5
+        },
+        {
+          "hex": "#e0e0e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a8c4c4",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "CgAAAQABAQACAgADAQABHgAAAwAEAQAFAQAGAQAEAQAHHAAABAAIAQAJAgAIAQAEAQAKAQABCwAAAwABCgAAAQALAQAIAgAJAQAIAQAMAQAJAgAMAQAIAQACCwAAAgAEAQAGAQAHAQANBgAABAAIAgAMBQAJAwAICgAAAQABAQAFAQACAQAJAQAIAQAAAQALBgAAAgAIAwAMAQAOAQAPAQAQAgARAQAQAQAJAQAMAQAICQAAAQAPAgAIAQAJAQAMAQAIBwAAAQAMAgAIAQANAgAPAQAQAQARAgASAQATAgAQAQAICQAAAQAMAQAJAQAIAQAJAQAIAgAMAQAIAQAABgAIAQALAQAUAQAPAQAVAQARAwASAgATAQARAQAQAQAIBwAAAQAIAQAMAQAQAQAVAQAQAQAPAgAMAwAABAAIAQAJAwAUAQARAgASAgARAQAQAgARAQAQAQAIBwAAAQAIAQAQAQAOAQATAQAQAQAPAQAMAQAIAQALBAAAAwAIAQAUAgATAQARAQASAQAVAQASAQARAQAQAQAVAQASAQAQCAAAAQAQAwARAQAQAQAOAQAJAQAIAQALAwAAAQAIAgALAQAIAwATAQASAgAWAgASAQARAgAVAQASCAAAAQARAQAVAQAQAQAVAQAQAQATAQAIAQALBgAAAgALAwATAQAVAQAWAQAXAQAWAQASAwAWCQAAAgAWAQAVAQAWAQAVAQATAQALCAAAAQALAwATAgAWBQAXAQASCQAAAQAWAQAXAgAWAQAXAQAUCgAAAQABAgATAQAYAQAVBQAXAQAVCQAAAQAVAgAXAQAWAQATAQAICgAAAQABAQALAQAPAgATAQASAQAWAgAXAQAVCwAAAgAVAQAZAQALKQAA",
+      "sha256": "77adc0ad10a53b53f743e8080e4165b71fde42bfa4a27657c94a220fb0d49402"
+    },
+    "eyes-6": {
+      "splitX": 21,
+      "width": 36,
+      "height": 12,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#705454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c5454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1d001c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#381c2a",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#7b6570",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#caada5",
+          "material": "skin",
+          "tone": 4
+        },
+        {
+          "hex": "#c9a79f",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#703846",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#541c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#9a8c93",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#000000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c1c1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#a89ab1",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#25294c",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#181d3e",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#c4afc4",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#e0d5e0",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#233469",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#fafcfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#345b9c",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#3d79b4",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#46c3e0",
+          "material": "eyes",
+          "tone": 5
+        },
+        {
+          "hex": "#543838",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "CAAAAQABAgACHQAAAgADAQAEAgABAQAFAQAGAQAHAQAIAQAJDgAAAQAIAQAKAQAHAwAAAQADAQAAAgADAwAAAgADAgALAgADAQAEAQAGAQAHAQAIDAAAAQAIAQAGAQAHAQADAQAMAgADAwAABgADAgALAQADAQALAQAMAQADAQANAQAHAQABCwAAAQAHAQAKAgADAQAMAQALAwADAgAAAQADAwAMAQANAgAOAQAPAgAQAQADAgALAQABCgAAAgAFAQAMAQADAQAKAgADAQAMAQADAwAAAwADAQABAQAKAgARAQAQAwAPAQAQAQALAgADCgAAAQALAgAQAQAFAQAKAQADBQAAAwADAgARAQASAQAQAQAPAgATAQAPAgAUAQAPAQANAQADCAAAAQADAQAQAgAUAQAKAQARAQAMBwAAAQAEAQASAgAUAQAQAwAVAQAPAQAQAwATCAAAAQANAQAPAQAQAgATAQAOAQASCAAAAQAEAQABAgAUAQAVAgAWAQAXAQATAQAVAQAWAQAVCgAAAQAVAQATAQAWAQAVAQAUAQAECQAAAQAEAwAUAQAVAQAWBAAXAQAPCgAAAQAWAQAXAQAWAQATAQAUAQAECQAAAQAYAQAJAQASAQAUAQASAQAWAwAXAQAWCwAAAQAVAQAXAQAWAQAUAQAJDAAAAQAEAQABAQAFGgAA",
+      "sha256": "d8a72bece7576fc94779018a0570203695c2d31c17eb2b2d3c1218b915cced5f"
+    },
+    "eyes-7": {
+      "splitX": 21,
+      "width": 36,
+      "height": 7,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#543838",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#703854",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#705454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#927271",
+          "material": "skin",
+          "tone": 3
+        },
+        {
+          "hex": "#8c7070",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#8c5454",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#bc9894",
+          "material": "skin",
+          "tone": 5
+        },
+        {
+          "hex": "#541c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c001c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "CQAAAQABAwACHwAAAQADAQAEAQAFAgAGAQAEDgAAAQACAgAHAQAAAQAIBwAAAQAJAQAABgAJAQAKAQAJDgAAAQAEAgAJAQAKAgAAAQAJAQAAAQAJAwAACwAJDQAABgAJAwAABgAJAQAKBgAAAQAKAQAJCwAAAQAJAQAKBwAJAwAAAwAJCgAAAQAJCQAAAQAJBgAAAgAJBAAAAQAJHgAAAQAJAQAA",
+      "sha256": "8ef028f103beeed0f5ea4cb5d8225985bea217be24ef43b3de1c6e3e3a903458"
+    },
+    "eyes-8": {
+      "splitX": 19,
+      "width": 36,
+      "height": 10,
+      "palette": [
+        {
+          "hex": "#000000",
+          "material": "transparent",
+          "tone": 0
+        },
+        {
+          "hex": "#381c1c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#38001c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#381c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c001c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#c4a8c4",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#0e0824",
+          "material": "eyes",
+          "tone": 0
+        },
+        {
+          "hex": "#fcfcfc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#19264d",
+          "material": "eyes",
+          "tone": 1
+        },
+        {
+          "hex": "#c4c4c4",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#203366",
+          "material": "eyes",
+          "tone": 2
+        },
+        {
+          "hex": "#5c6783",
+          "material": "eyes",
+          "tone": 3
+        },
+        {
+          "hex": "#8c708c",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#1c0000",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#fce0fc",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#705470",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#4186c5",
+          "material": "eyes",
+          "tone": 4
+        },
+        {
+          "hex": "#54aad3",
+          "material": "eyes",
+          "tone": 5
+        },
+        {
+          "hex": "#541c38",
+          "material": "fixed",
+          "tone": 0
+        },
+        {
+          "hex": "#fce0e0",
+          "material": "fixed",
+          "tone": 0
+        }
+      ],
+      "rle": "BgAAAgABAQACAQABAgACGwAAAQACAQABAgAABAABEQAAAwACCQAAAQABAwADAQABAgAEAgADDQAAAQACBQAAAwACAQAAAQACAgAAAgADAQABBwAEAQABDQAABQADAQABBAAAAQACAQABAQACAgAEAQAFAgAGAQAHAQAGAQAIAgAGAQACCgAAAQABBgAEAgADAQAAAQACAgAAAQABAQACAQAEAQAFAQAJAQAGAgAKAgAIAQAKAQAGCwAAAQAEAQAHAQALAQAIAQAGAQAFAQAMAgAEAQACBQAAAQANAQAOAQAHAQAKAgALAgAIAgALCgAAAQAEAQAGAQALAQAIAQAKAQALAQAOAQAPCQAAAwAHAgAQAQARAgAQAQAKCwAAAQAKAwAQAQALAQAOAQASCgAAAQAPAQAOAQAHBAARDQAAAwARAQATAQADDAAAAQADFgAAAQABBQAA",
+      "sha256": "225fb69914c2a19f5d990e86142c0d8fbe61277e8d16042340f7092798aa6c1b"
+    }
+  }
+}

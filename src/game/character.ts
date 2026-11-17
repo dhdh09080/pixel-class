@@ -13,7 +13,7 @@ export const CHARACTER_WIDTH = 120;
 export const CHARACTER_HEIGHT = 160;
 export const CHARACTER_DENSITY = 2;
 export const CHARACTER_SCALE = 0.46;
-export const CHARACTER_ART_VERSION = 'sprite-assets-v2';
+export const CHARACTER_ART_VERSION = 'sprite-assets-v2-balanced-face';
 export const characterOrigin = (a: Appearance, direction: Direction = 'down') =>
   a.sprite?.version === 1
     ? { x: 0.5, y: 1 }
