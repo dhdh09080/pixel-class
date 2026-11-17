@@ -103,6 +103,17 @@ function inkColor(ink: SpriteInk, a: Appearance) {
     0
   );
 }
+function eyeStyleFor(a: Appearance, blink = false) {
+  return blink || a.expression === 1
+    ? 7
+    : a.expression === 2
+      ? 5
+      : a.expression === 3
+        ? 8
+        : a.expression === 4
+          ? 3
+          : (a.sprite?.eyeStyle ?? defaultSprite.eyeStyle);
+}
 export const SPRITE_RIG = rig;
 /** PNG/indexed-layer compositor. No ellipse, polygon or vector art is drawn at runtime. */
 export function spriteCharacterCanvas(
@@ -199,16 +210,7 @@ export function spriteCharacterCanvas(
     stamp('hair-back-' + s.hairStyle, Math.round(60 - rear.width / 2), hy + bob);
   } else {
     stamp('face-' + s.faceShape, fx, fy + bob);
-    const eyeStyle =
-      blink || a.expression === 1
-        ? 7
-        : a.expression === 2
-          ? 5
-          : a.expression === 3
-            ? 8
-            : a.expression === 4
-              ? 3
-              : s.eyeStyle;
+    const eyeStyle = eyeStyleFor(a, blink);
     const eyes = SPRITE_ASSETS['eyes-' + eyeStyle],
       scale = [0.9, 1, 1.1][s.eyeSize];
     const eyeY = rig.faces[s.faceShape].eyeY + bob + (a.expression === 2 ? -1 : 0);
@@ -299,10 +301,10 @@ export function spriteLayerImages(input: Appearance) {
     return { label, key, x, y, width: asset.width, height: asset.height, src: canvas.toDataURL() };
   });
 }
-export function spriteDiagnostics(input: Appearance) {
+export function spriteDiagnostics(input: Appearance, direction: Direction = 'down') {
   const a = upgradeSprite(input),
     s = a.sprite,
-    canvas = spriteCharacterCanvas(a),
+    canvas = spriteCharacterCanvas(a, direction),
     image = canvas.getContext('2d')!.getImageData(0, 0, W, H),
     out = new Uint32Array(image.data.buffer);
   const colors = new Set<number>();
@@ -318,40 +320,59 @@ export function spriteDiagnostics(input: Appearance) {
         if (x === 0 || y === 0 || x === W - 1 || y === H - 1) edgePixels++;
       }
     }
-  const eye = SPRITE_ASSETS['eyes-' + s.eyeStyle],
-    data = indexes(eye),
-    split = eye.splitX ?? eye.width / 2,
-    scale = [0.9, 1, 1.1][s.eyeSize];
-  const eyeX = rig.eyeX - Math.round((Math.round(eye.width * scale) - rig.eyePairWidth) / 2),
-    eyeY = rig.faces[s.faceShape].eyeY;
+  const style = eyeStyleFor(a),
+    eye = SPRITE_ASSETS['eyes-' + style],
+    scale = [0.9, 1, 1.1][s.eyeSize],
+    sideView = direction === 'left' || direction === 'right';
+  const eyeX =
+      rig.eyeX +
+      (sideView ? 1 : 0) -
+      Math.round((Math.round(eye.width * scale) - rig.eyePairWidth) / 2),
+    eyeY = rig.faces[s.faceShape].eyeY + (a.expression === 2 ? -1 : 0);
   const total = [0, 0],
-    visible = [0, 0];
+    visible = [0, 0],
+    bottom = [0, 0];
   let irisOutsideFace = 0;
-  const bottom = [0, 0];
   const face = SPRITE_ASSETS['face-' + s.faceShape],
     facePixels = indexes(face),
     fx = rig.faces[s.faceShape].x,
     fy = rig.chinY - face.height;
-  for (let y = 0; y < eye.height; y++)
-    for (let x = 0; x < eye.width; x++) {
-      const index = data[y * eye.width + x],
-        side = x < split ? 0 : 1;
-      if (!index) continue;
-      bottom[side] = Math.max(bottom[side], y);
-      if (eye.palette[index].material !== 'eyes') continue;
-      const dx =
-          eyeX + Math.round(x * scale) + (side ? 1 : -1) * (s.eyeSpacing - 1) * rig.eyeGapStep,
-        dy = eyeY + Math.round(y * scale);
-      total[side]++;
-      if (out[dy * W + dx] === inkColor(eye.palette[index], a)) visible[side]++;
-      if (
-        dx < fx ||
-        dy < fy ||
-        dx >= fx + face.width ||
-        dy >= fy + face.height ||
-        !facePixels[(dy - fy) * face.width + dx - fx]
-      )
-        irisOutsideFace++;
+  if (direction !== 'up')
+    for (let side = 0; side < 2; side++) {
+      const asset = SPRITE_ASSETS['eyes-' + (side && a.expression === 5 ? 7 : style)],
+        data = indexes(asset),
+        width = Math.round(asset.width * scale),
+        height = Math.round(asset.height * scale),
+        split = Math.round((asset.splitX ?? asset.width / 2) * scale),
+        gap = (side ? 1 : -1) * (s.eyeSpacing - 1) * rig.eyeGapStep,
+        closedOffset = asset === SPRITE_ASSETS['eyes-7'] ? 4 : 0;
+      // Inspect destination pixels with the renderer's inverse nearest-neighbor sampling.
+      // Forward rounding of source coordinates misses pixels at noninteger eye scales.
+      for (let y = 0; y < height; y++)
+        for (let x = 0; x < width; x++) {
+          if ((side === 0 && x >= split) || (side === 1 && x < split)) continue;
+          const index =
+            data[
+              Math.min(asset.height - 1, Math.floor(y / scale)) * asset.width +
+                Math.min(asset.width - 1, Math.floor(x / scale))
+            ];
+          if (!index) continue;
+          bottom[side] = Math.max(bottom[side], y + closedOffset);
+          if (asset.palette[index].material !== 'eyes') continue;
+          const dx = eyeX + gap + x,
+            dy = eyeY + closedOffset + y,
+            visibleX = direction === 'left' ? W - 1 - dx : dx;
+          total[side]++;
+          if (out[dy * W + visibleX] === inkColor(asset.palette[index], a)) visible[side]++;
+          if (
+            dx < fx ||
+            dy < fy ||
+            dx >= fx + face.width ||
+            dy >= fy + face.height ||
+            !facePixels[(dy - fy) * face.width + dx - fx]
+          )
+            irisOutsideFace++;
+        }
     }
   return {
     edgePixels,

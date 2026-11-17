@@ -1,6 +1,7 @@
 {
-  "cases": 324,
+  "cases": 648,
   "bad": [],
+  "actualPixelBad": [],
   "contrast": [
     {
       "skin": "#f8dbc4",
