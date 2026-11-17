@@ -1,10 +1,16 @@
 # Pixel Class 운영 품질·반별 경진대회 현황
 
-## 얼굴 비율 보완 — 검증 중 (2026-11-17 KST)
+## 얼굴 비율 보완 — 운영 적용 완료 (2026-11-17 15:59 KST)
 
-눈 쌍의 과도한 크기 차이·넓은 턱/볼·중복되는 윗눈꺼풀·붉은 입 픽셀을 정리했습니다. 새4개 얼굴 PNG와 균형 잡힌 눈 쌍, 작은 입을 적용하며 기존 외형 선택값과 헤어/의상/장비82개 PNG를 보존합니다. [실제 변경 전후·검사 범위](FACE_PROPORTIONS_REPORT.md).
+눈 쌍의 크기·시선·높이, 볼/턱선·눈꺼풀·작은 입을 다시 정리했습니다. 기존 외형 선택값과 헤어/의상/장비82개 PNG를 보존합니다. [실제 전후·8종 얼굴·검토 및 한계](FACE_PROPORTIONS_REPORT.md).
 
-초기 후보의 로컬231개 통과 후 실제 픽셀 진단을 강화했고, 마지막 배치 보정의 전체 회귀 검사와 GitHub CI를 다시 확인하고 있습니다. 아직 이번 얼굴 보완을 운영 배포 완료로 판정하지 않습니다. 아래는 이전 릴리스 기록입니다.
+- [PR #21](https://github.com/dhdh09080/pixel-class/pull/21) main 병합. 실제 배포 소스 **`12a9cd27d2c6b1cb179c198bede5c3046cc8e467`**.
+- 로컬·[최종 PR CI](https://github.com/dhdh09080/pixel-class/actions/runs/44032024494)·[main CI](https://github.com/dhdh09080/pixel-class/actions/runs/44033593950) 모두 **231개 통과**(유닛/API155·브라우저73·Docker HTTPS3 = 기존227+신규4). main publish 성공. 중간 타입 오류와 홍채 가림 실패는 기준을 낮추지 않고 수정했습니다.
+- Railway **`6913dca3-1de9-4b87-9db1-ecb86a5b55c7` SUCCESS**,15:59:20 KST. [외부 CI](https://github.com/dhdh09080/pixel-class/actions/runs/44035250285)에서 실제 HTTPS 커밋·`balancedFaceAssetsVerified:true`·새 얼굴/눈 PNG 해시·익명 API/WSS401·Origin 제한 확인. 운영 소유자 로그인/인증 WSS는 새로 검증하지 않았습니다.
+- 기존 볼륨 `/app/data`·SQLite·단일 인스턴스·18개 변수 이름·서비스 설정 동일, 대기 설정 없음. DB/계정 초기화·비밀 변경·새 유료 리소스·강제 푸시 없음.
+- 실제 픽셀 기준648개 얼굴/눈/크기/간격/방향 조합에서 홍채 이탈0. 5개 화면 크기에서 가로 넘침0·axe A/AA 위반0. 이는 실제 기기 성능이나 미적 완성도99% 보장은 아닙니다.
+
+[로컬 검사](docs/face-proportions/local-checks.json) · [배포 증거](docs/face-proportions/release-check.json). 이 기록을 추가하는 커밋은 문서·증거만 변경하며 실행 코드는 위 배포 소스와 같습니다. 기록 커밋 자체의 후속 CI/배포는 별도 실행입니다. 아래는 과거 릴리스 이력입니다.
 
 ## PNG 캐릭터 아트 시스템 v2 — 운영 적용 완료 (2026-11-16 09:39 KST)
 

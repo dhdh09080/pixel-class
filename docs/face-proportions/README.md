@@ -9,3 +9,6 @@
 - `product/`: 합성 테스트 사용자로 캡처한5개 해상도의 실제 교실·꾸미기. 실제 학생 개인정보를 사용하지 않습니다.
 
 상세: [FACE_PROPORTIONS_REPORT.md](../../FACE_PROPORTIONS_REPORT.md). 실행·배포 상태는 [STATUS.md](../../STATUS.md)의 최신 기록을 확인하세요.
+
+- `local-checks.json`: 최종 로컬231개 검사와 범위/제한.
+- `release-check.json`: main/PR CI, 실제 Railway 커밋과 외부 HTTPS 자산 검증.

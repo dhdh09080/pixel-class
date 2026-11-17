@@ -6,7 +6,7 @@ Railway 서비스 Source를 복구하고 **main push → 전체 회귀 검사 �
 
 [운영 개선 보고서](OVERNIGHT_OPERATIONS_REPORT.md) · [최신 실행·검증 현황](STATUS.md)
 
-**얼굴 비율 보완:** 눈 쌍의 크기·시선·높이, 볼/턱선과 작은 입을 다시 정리했습니다. [동일 선택값의 전후 이미지와 검사](FACE_PROPORTIONS_REPORT.md).
+**얼굴 비율 보완 — 운영 적용:** 눈 쌍의 크기·시선·높이, 볼/턱선과 작은 입을 다시 정리했습니다. [동일 선택값의 전후 이미지와 검사](FACE_PROPORTIONS_REPORT.md).
 
 **새 캐릭터 아트:** 실제 PNG 레이어로 만든 독자적인 RPG 캐릭터8종, 얼굴·눈 크기/간격·헤어·의상·장비를 따로 고르는 꾸미기와 원본/확대/전후 비교 [운영 갤러리](https://pixel-class-private-test.up.railway.app/character-art)를 제공합니다. [실제 스크린샷과 검증](CHARACTER_ART_REDESIGN_REPORT.md) · [아트 규격·데이터 호환](CHARACTER_ART_SYSTEM.md).
 

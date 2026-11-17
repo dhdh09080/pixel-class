@@ -1,0 +1,79 @@
+{
+  "sourceCommit": "972eccf259d4c7342e24f0f49b2e537f87e621cb",
+  "results": [
+    {
+      "command": "npm test",
+      "passed": 155,
+      "failed": 0
+    },
+    {
+      "command": "npm run test:e2e",
+      "passed": 73,
+      "failed": 0
+    },
+    {
+      "command": "npm run test:operations",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "npm run test:railway",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "npm run test:enrollment",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "command": "npx playwright test tests/face-proportions.spec.ts tests/sprite-system.spec.ts",
+      "passed": 11,
+      "failed": 0,
+      "overlapsFullBrowserSuite": true
+    },
+    {
+      "command": "npm run format:check",
+      "passed": true
+    },
+    {
+      "command": "npm run typecheck",
+      "passed": true
+    }
+  ],
+  "totalNonoverlapping": 231,
+  "added": 4,
+  "baseline": 227,
+  "faceMatrix": 648,
+  "actualPixelBad": 0,
+  "dockerImage": "sha256:875e0ad2e73bb37831b24ac6d03f96e583e77d618d2d5fbf7114404284054899",
+  "limits": [
+    "Headless Chromium and device/CPU emulation, not physical device measurements.",
+    "Production owner login and authenticated WSS not newly tested.",
+    "Aesthetic quality requires human judgment."
+  ],
+  "mainMergeCommit": "12a9cd27d2c6b1cb179c198bede5c3046cc8e467",
+  "pr": "https://github.com/dhdh09080/pixel-class/pull/21",
+  "prCI": {
+    "id": 44032024494,
+    "head": "972eccf259d4c7342e24f0f49b2e537f87e621cb",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/dhdh09080/pixel-class/actions/runs/44032024494"
+  },
+  "prCISummaries": [
+    "2026-11-17T06:33:19.5310306Z All matched files use Prettier code style!",
+    "2026-11-17T06:33:42.3982500Z ℹ tests 155",
+    "2026-11-17T06:33:42.3983407Z ℹ pass 155",
+    "2026-11-17T06:33:42.3983782Z ℹ fail 0",
+    "2026-11-17T06:43:01.8980326Z   73 passed (9.0m)",
+    "2026-11-17T06:43:56.6238461Z   1 passed (24.1s)",
+    "2026-11-17T06:43:56.6637742Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+    "2026-11-17T06:44:57.0708230Z   1 passed (49.4s)",
+    "2026-11-17T06:44:57.1316184Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created.",
+    "2026-11-17T06:45:19.3933002Z   1 passed (11.3s)",
+    "2026-11-17T06:45:19.4310032Z Container HTTPS, real accounts, persistence and backup/restore verification passed. No external deployment was created."
+  ],
+  "recordedAtUTC": "2026-11-17 06:48:11 UTC",
+  "externalExecutionLimit": "This workspace's direct Node request failed with DNS EAI_AGAIN; its configured HTTPS proxy rejected CONNECT with 403. External release verification runs in GitHub Actions; no network/auth bypass was used."
+}

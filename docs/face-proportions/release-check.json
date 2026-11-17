@@ -1,0 +1,79 @@
+{
+  "recordedAtUTC": "2026-11-17 07:01:54 UTC",
+  "project": "dhdh09080/pixel-class",
+  "pullRequest": "https://github.com/dhdh09080/pixel-class/pull/21",
+  "sourceCommit": "12a9cd27d2c6b1cb179c198bede5c3046cc8e467",
+  "featureHead": "972eccf259d4c7342e24f0f49b2e537f87e621cb",
+  "ci": {
+    "pr": {
+      "id": 44032024494,
+      "conclusion": "success"
+    },
+    "main": {
+      "id": 44033593950,
+      "conclusion": "success",
+      "verifyJob": 133871046501,
+      "publishJob": 133876059495
+    },
+    "external": {
+      "id": 44035250285,
+      "job": 133876480420,
+      "conclusion": "success"
+    }
+  },
+  "deployment": {
+    "id": "6913dca3-1de9-4b87-9db1-ecb86a5b55c7",
+    "status": "SUCCESS",
+    "commit": "12a9cd27d2c6b1cb179c198bede5c3046cc8e467",
+    "createdAt": "2026-11-17T06:58:39.940Z",
+    "updatedAt": "2026-11-17T06:59:20.808Z",
+    "regions": ["sfo"],
+    "url": "https://pixel-class-private-test.up.railway.app"
+  },
+  "preservedInfrastructure": {
+    "unchangedLiveConfig": true,
+    "unchangedVariableNames": true,
+    "variableCount": 18,
+    "pendingChanges": false,
+    "volumeId": "2e639437-1dd9-4ba4-a078-976d2eb2136d",
+    "mountPath": "/app/data"
+  },
+  "live": {
+    "ok": true,
+    "url": "https://pixel-class-private-test.up.railway.app",
+    "release": "0.6.0",
+    "expectedCommit": "12a9cd27d2c6b1cb179c198bede5c3046cc8e467",
+    "checks": [
+      "HTTPS health",
+      "guided entrance",
+      "anonymous data blocked",
+      "recovery link preserved",
+      "foreign Origin blocked",
+      "incorrect access code rejected",
+      "anonymous WSS handshake rejected401",
+      "anonymous login API blocked401",
+      "new public competition shell200",
+      "current public judge-progress assets200"
+    ],
+    "publicAssets": {
+      "entryAsset": "/competition-assets/index-acd5ymXj.js",
+      "featureAsset": "/competition-assets/PublicCompetition-DtkwiRef.js"
+    },
+    "approvalRegistrationEnabled": true,
+    "stagedSignupAssetsVerified": true,
+    "roundedCharacterAssetsVerified": true,
+    "layeredSpriteAssetsVerified": true,
+    "balancedFaceAssetsVerified": true,
+    "authenticatedLoginVerified": false,
+    "authenticatedWssVerified": false
+  },
+  "testCount": 231,
+  "newTests": 4,
+  "localChecks": "local-checks.json",
+  "notes": [
+    "The successful deployment is the code commit above. This receipt and Markdown follow-up change documentation only; their own later CI/deployment are separate.",
+    "The execution workspace cannot directly connect to the Railway domain (DNS EAI_AGAIN / configured proxy CONNECT 403). External verification above ran in GitHub Actions.",
+    "Positive production-owner login/authenticated WSS were not newly tested. Positive two-account flows were tested in isolated HTTPS containers.",
+    "No database migration, account reset, volume reset, secret change, new paid resource, force push or plan upgrade."
+  ]
+}
