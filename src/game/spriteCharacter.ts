@@ -112,7 +112,9 @@ function eyeStyleFor(a: Appearance, blink = false) {
         ? 8
         : a.expression === 4
           ? 3
-          : (a.sprite?.eyeStyle ?? defaultSprite.eyeStyle);
+          : a.sprite?.version === 2
+            ? a.sprite.eyeStyle
+            : defaultSprite.eyeStyle;
 }
 export const SPRITE_RIG = rig;
 /** PNG/indexed-layer compositor. No ellipse, polygon or vector art is drawn at runtime. */
