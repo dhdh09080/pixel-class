@@ -20,7 +20,7 @@
     { "x": 10, "y": 9, "width": 96 },
     { "x": 10, "y": 8, "width": 96 }
   ],
-  "eyeX": 48,
+  "eyeX": 49,
   "eyePairWidth": 34,
   "eyeGapStep": 1,
   "mouth": [67, 75],

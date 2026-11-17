@@ -14,7 +14,7 @@
       "edgePixels": 0,
       "partialAlpha": 0,
       "colors": 65,
-      "irisVisible": [100, 100],
+      "irisVisible": [98, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -23,7 +23,7 @@
       "edgePixels": 0,
       "partialAlpha": 0,
       "colors": 80,
-      "irisVisible": [58, 73],
+      "irisVisible": [60, 68],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -41,7 +41,7 @@
       "edgePixels": 0,
       "partialAlpha": 0,
       "colors": 66,
-      "irisVisible": [71, 100],
+      "irisVisible": [55, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -67,7 +67,7 @@
       "name": "로즈 트윈",
       "edgePixels": 0,
       "partialAlpha": 0,
-      "colors": 83,
+      "colors": 82,
       "irisVisible": [100, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0

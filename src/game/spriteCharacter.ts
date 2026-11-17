@@ -127,8 +127,7 @@ export function spriteCharacterCanvas(
 ) {
   seated ||= motion.state === 'sit';
   const s = { ...defaultSprite, ...a.sprite },
-    back = direction === 'up',
-    side = direction === 'left' || direction === 'right';
+    back = direction === 'up';
   const phase = motion.phase ?? frame,
     bob = phase && !seated ? -1 : 0,
     blink = motion.state === 'blink';
@@ -217,7 +216,7 @@ export function spriteCharacterCanvas(
       scale = [0.9, 1, 1.1][s.eyeSize];
     const eyeY = rig.faces[s.faceShape].eyeY + bob + (a.expression === 2 ? -1 : 0);
     const eyeW = Math.round(eyes.width * scale),
-      eyeX = rig.eyeX + (side ? 1 : 0) - Math.round((eyeW - rig.eyePairWidth) / 2),
+      eyeX = rig.eyeX - Math.round((eyeW - rig.eyePairWidth) / 2),
       gap = (s.eyeSpacing - 1) * rig.eyeGapStep;
     stamp('eyes-' + eyeStyle, eyeX - gap, eyeY + (eyeStyle === 7 ? 4 : 0), { scale, only: 'left' });
     const rightEye = a.expression === 5 ? 7 : eyeStyle;
@@ -237,7 +236,7 @@ export function spriteCharacterCanvas(
     stamp((hat ? 'hair-fringe-worn-' : 'hair-fringe-') + s.hairStyle, hx, hy + bob);
     stamp((hat ? 'hair-side-worn-' : 'hair-side-') + s.hairStyle, hx, hy + bob);
     const acc = s.accessoryStyle;
-    if (acc === 1) stamp('equipment-2', rig.glasses[0] + (side ? 1 : 0), rig.glasses[1] + bob);
+    if (acc === 1) stamp('equipment-2', rig.glasses[0], rig.glasses[1] + bob);
     if (acc === 2) stamp('equipment-3', 34, 42 + bob);
     if (acc === 3) {
       stamp('earring-0', 30, 73 + bob);
@@ -324,12 +323,8 @@ export function spriteDiagnostics(input: Appearance, direction: Direction = 'dow
     }
   const style = eyeStyleFor(a),
     eye = SPRITE_ASSETS['eyes-' + style],
-    scale = [0.9, 1, 1.1][s.eyeSize],
-    sideView = direction === 'left' || direction === 'right';
-  const eyeX =
-      rig.eyeX +
-      (sideView ? 1 : 0) -
-      Math.round((Math.round(eye.width * scale) - rig.eyePairWidth) / 2),
+    scale = [0.9, 1, 1.1][s.eyeSize];
+  const eyeX = rig.eyeX - Math.round((Math.round(eye.width * scale) - rig.eyePairWidth) / 2),
     eyeY = rig.faces[s.faceShape].eyeY + (a.expression === 2 ? -1 : 0);
   const total = [0, 0],
     visible = [0, 0],

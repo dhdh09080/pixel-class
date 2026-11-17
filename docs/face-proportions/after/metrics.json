@@ -65,7 +65,7 @@
         "width": 96
       }
     ],
-    "eyeX": 48,
+    "eyeX": 49,
     "eyePairWidth": 34,
     "eyeGapStep": 1,
     "mouth": [67, 75],
@@ -90,7 +90,7 @@
       "edgePixels": 0,
       "partialAlpha": 0,
       "colors": 65,
-      "irisVisible": [93, 100],
+      "irisVisible": [98, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -98,8 +98,8 @@
       "name": "허니 단발",
       "edgePixels": 0,
       "partialAlpha": 0,
-      "colors": 79,
-      "irisVisible": [67, 68],
+      "colors": 80,
+      "irisVisible": [60, 68],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -107,8 +107,8 @@
       "name": "베리 바시티",
       "edgePixels": 0,
       "partialAlpha": 0,
-      "colors": 67,
-      "irisVisible": [94, 100],
+      "colors": 68,
+      "irisVisible": [100, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
@@ -116,8 +116,8 @@
       "name": "카라멜 포니",
       "edgePixels": 0,
       "partialAlpha": 0,
-      "colors": 65,
-      "irisVisible": [45, 100],
+      "colors": 66,
+      "irisVisible": [55, 100],
       "irisOutsideFace": 0,
       "eyeBaselineDifference": 0
     },
