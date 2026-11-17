@@ -6,6 +6,7 @@ export type SpriteMaterial =
   | 'hair'
   | 'eyes'
   | 'brow'
+  | 'mouth'
   | 'outfit'
   | 'accent'
   | 'hat';

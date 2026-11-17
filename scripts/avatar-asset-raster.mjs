@@ -49,7 +49,8 @@ export async function atlas(url, columns, rows, threshold = 180) {
     if (points.length < 64) continue;
     const col = Math.min(columns - 1, Math.floor((sumX / points.length / image.width) * columns));
     const row = Math.min(rows - 1, Math.floor((sumY / points.length / image.height) * rows));
-    cells[row * columns + col].push(...points);
+    // Source atlas components can exceed the engine's variadic argument limit.
+    for (const point of points) cells[row * columns + col].push(point);
   }
   return cells.map((points) => {
     let l = image.width,
@@ -119,16 +120,40 @@ export function indexed(canvas, kind, id = 0) {
       [h, s, v] = hsv(...rgb),
       u = ((i / 4) % canvas.width) / canvas.width,
       y = Math.floor(i / 4 / canvas.width) / canvas.height;
-    let material = 'fixed';
+    let material = 'fixed',
+      forcedTone;
     if (kind === 'hair') material = h > 145 && h < 200 && s > 0.25 ? 'accent' : 'hair';
     if (kind === 'face') {
-      // A warm complexion is not a cheek: restrict rosy material to actual cheek zones.
-      const cheek = y > 0.62 && y < 0.84 && ((u > 0.18 && u < 0.42) || (u > 0.76 && u < 0.96));
-      material = cheek && h < 14 && s > 0.15 && v > 0.45 ? 'blush' : 'skin';
+      // These new blank face bases contain no blush. Treat every shade as skin,
+      // including warm outline pixels, so pigmentation cannot become red speckles.
+      material = 'skin';
     }
     if (kind === 'eyes')
       material =
-        h > 165 && h < 270 && s > 0.2 ? 'eyes' : h < 65 && s > 0.12 && v > 0.3 ? 'skin' : 'fixed';
+        h > 165 && h < 270 && s > 0.2 && v > 0.3
+          ? 'eyes'
+          : (h < 65 || h > 330) && s > 0.1 && v > 0.45
+            ? 'skin'
+            : 'fixed';
+    if (kind === 'mouth') {
+      // Preserve the authored pixel contour, with a restrained lip ramp rather
+      // than red/skin-colored flecks from downsampled source highlights.
+      rgb.splice(
+        0,
+        3,
+        ...(id === 0 || id === 3
+          ? [139, 76, 80]
+          : v > 0.9 && s < 0.25
+            ? [255, 243, 226]
+            : v < 0.48
+              ? [119, 61, 70]
+              : [193, 110, 114]),
+      );
+      if (!(id === 1 && v > 0.9 && s < 0.25)) {
+        material = 'mouth';
+        forcedTone = id === 0 || id === 3 ? 3 : v < 0.48 ? 1 : 4;
+      }
+    }
     if (kind === 'brows') material = 'brow';
     if (kind === 'body') {
       const shorts = [2, 3, 6, 7].includes(id);
@@ -151,7 +176,7 @@ export function indexed(canvas, kind, id = 0) {
     if (kind === 'hat') material = 'hat';
     if (!groups.has(material)) groups.set(material, []);
     groups.get(material).push({ rgb, v: 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] });
-    typed.push({ material, rgb });
+    typed.push({ material, rgb, forcedTone });
   }
   const entries = new Map(),
     palette = [{ hex: '#000000', material: 'transparent', tone: 0 }];
@@ -210,11 +235,12 @@ export function indexed(canvas, kind, id = 0) {
     const thresholds = ramps.get(item.material);
     const median = thresholds[2] || 1;
     const tone =
-      item.material === 'skin'
+      item.forcedTone ??
+      (item.material === 'skin'
         ? [0.35, 0.62, 0.84, 1.025, 1.12].filter((ratio) => lum > median * ratio).length
         : item.material === 'blush'
           ? 3
-          : thresholds.filter((n) => lum > n).length;
+          : thresholds.filter((n) => lum > n).length);
     const value =
       item.material === 'fixed'
         ? { hex: hex(nearestFixed(item.rgb)), material: 'fixed', tone: 0 }

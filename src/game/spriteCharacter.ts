@@ -24,6 +24,29 @@ function indexes(asset: SpriteAsset) {
   return result;
 }
 const paletteCache = new WeakMap<SpriteAsset, Map<string, number[]>>();
+const lipPigments = new Map<string, string>();
+function mouthPigment(skin: string) {
+  const cached = lipPigments.get(skin);
+  if (cached) return cached;
+  const luminance = (hex: string) =>
+    [1, 3, 5]
+      .map((i) => {
+        const n = parseInt(hex.slice(i, i + 2), 16) / 255;
+        return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+      })
+      .reduce((sum, n, i) => sum + n * [0.2126, 0.7152, 0.0722][i], 0);
+  const skinLight = luminance(skin);
+  const contrast = (hex: string) => {
+    const lipLight = luminance(hex);
+    return (Math.max(skinLight, lipLight) + 0.05) / (Math.min(skinLight, lipLight) + 0.05);
+  };
+  const dark = '#79444a',
+    light = '#efb2aa';
+  const pigment = contrast(dark) >= contrast(light) ? dark : light;
+  if (lipPigments.size >= 16) lipPigments.delete(lipPigments.keys().next().value!);
+  lipPigments.set(skin, pigment);
+  return pigment;
+}
 function paletteFor(asset: SpriteAsset, a: Appearance) {
   let cache = paletteCache.get(asset);
   if (!cache) {
@@ -53,7 +76,7 @@ function inkColor(ink: SpriteInk, a: Appearance) {
     blush: shade(a.skin, '#ef7897', 0.12 + (parseInt(a.skin.slice(1, 3), 16) / 255) * 0.24),
   };
   if (ink.material !== 'fixed') {
-    const base = bases[ink.material],
+    const base = ink.material === 'mouth' ? mouthPigment(a.skin) : bases[ink.material],
       n = ink.tone;
     const rgb = [1, 3, 5].map((i) => parseInt(base.slice(i, i + 2), 16));
     const warm = rgb[0] > rgb[2] * 1.12;
@@ -191,7 +214,7 @@ export function spriteCharacterCanvas(
     const eyeY = rig.faces[s.faceShape].eyeY + bob + (a.expression === 2 ? -1 : 0);
     const eyeW = Math.round(eyes.width * scale),
       eyeX = rig.eyeX + (side ? 1 : 0) - Math.round((eyeW - rig.eyePairWidth) / 2),
-      gap = (s.eyeSpacing - 1) * 2;
+      gap = (s.eyeSpacing - 1) * rig.eyeGapStep;
     stamp('eyes-' + eyeStyle, eyeX - gap, eyeY + (eyeStyle === 7 ? 4 : 0), { scale, only: 'left' });
     const rightEye = a.expression === 5 ? 7 : eyeStyle;
     stamp('eyes-' + rightEye, eyeX + gap, eyeY + (rightEye === 7 ? 4 : 0), {
@@ -204,7 +227,9 @@ export function spriteCharacterCanvas(
     const mouth =
         a.expression === 1 ? 1 : a.expression === 2 ? 2 : a.expression === 3 ? 0 : s.mouthStyle,
       m = SPRITE_ASSETS['mouth-' + mouth];
-    stamp('mouth-' + mouth, 67 - Math.round(m.width / 2), 76 + bob, { flipY: a.expression === 3 });
+    stamp('mouth-' + mouth, rig.mouth[0] - Math.round(m.width / 2), rig.mouth[1] + bob, {
+      flipY: a.expression === 3,
+    });
     stamp((hat ? 'hair-fringe-worn-' : 'hair-fringe-') + s.hairStyle, hx, hy + bob);
     stamp((hat ? 'hair-side-worn-' : 'hair-side-') + s.hairStyle, hx, hy + bob);
     const acc = s.accessoryStyle;
@@ -247,7 +272,7 @@ export function spriteLayerImages(input: Appearance) {
       '얼굴',
       'face-' + s.faceShape,
       rig.faces[s.faceShape].x,
-      86 - SPRITE_ASSETS['face-' + s.faceShape].height,
+      rig.chinY - SPRITE_ASSETS['face-' + s.faceShape].height,
     ],
     ['눈매', 'eyes-' + s.eyeStyle, rig.eyeX, rig.faces[s.faceShape].eyeY],
     ['옆머리', 'hair-side-' + s.hairStyle, rig.hair[s.hairStyle].x, rig.hair[s.hairStyle].y],
@@ -306,7 +331,7 @@ export function spriteDiagnostics(input: Appearance) {
   const face = SPRITE_ASSETS['face-' + s.faceShape],
     facePixels = indexes(face),
     fx = rig.faces[s.faceShape].x,
-    fy = 86 - face.height;
+    fy = rig.chinY - face.height;
   for (let y = 0; y < eye.height; y++)
     for (let x = 0; x < eye.width; x++) {
       const index = data[y * eye.width + x],
@@ -314,7 +339,8 @@ export function spriteDiagnostics(input: Appearance) {
       if (!index) continue;
       bottom[side] = Math.max(bottom[side], y);
       if (eye.palette[index].material !== 'eyes') continue;
-      const dx = eyeX + Math.round(x * scale) + (side ? 1 : -1) * (s.eyeSpacing - 1) * 2,
+      const dx =
+          eyeX + Math.round(x * scale) + (side ? 1 : -1) * (s.eyeSpacing - 1) * rig.eyeGapStep,
         dy = eyeY + Math.round(y * scale);
       total[side]++;
       if (out[dy * W + dx] === inkColor(eye.palette[index], a)) visible[side]++;

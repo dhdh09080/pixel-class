@@ -1,14 +1,14 @@
 {
-  "version": "sprite-assets-v2",
+  "version": "sprite-assets-v2-balanced-face",
   "canvas": [120, 160],
   "foot": [70, 156],
   "collar": [70, 82],
-  "chinY": 86,
+  "chinY": 83,
   "faces": [
-    { "x": 29, "eyeY": 56 },
-    { "x": 29, "eyeY": 57 },
-    { "x": 29, "eyeY": 56 },
-    { "x": 28, "eyeY": 57 }
+    { "x": 31, "eyeY": 61 },
+    { "x": 31, "eyeY": 61 },
+    { "x": 31, "eyeY": 61 },
+    { "x": 31, "eyeY": 62 }
   ],
   "hair": [
     { "x": 11, "y": 9, "width": 96 },
@@ -21,11 +21,12 @@
     { "x": 10, "y": 8, "width": 96 }
   ],
   "eyeX": 50,
-  "eyePairWidth": 36,
-  "mouth": [67, 76],
+  "eyePairWidth": 34,
+  "eyeGapStep": 1,
+  "mouth": [67, 75],
   "hairFrontCutY": 87,
   "hatFront": [10, 3, 100, 43],
   "hatBack": [10, 3, 100, 47],
-  "glasses": [48, 53, 43, 18],
+  "glasses": [47, 55, 43, 18],
   "headset": [17, 20, 88, 68]
 }

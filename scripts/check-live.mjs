@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import https from 'node:https';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { verifyPublicRelease } from './public-release-check.mjs';
 
 // Non-destructive checks: no accounts, invitations or school content are written.
@@ -44,6 +45,7 @@ const entrance = await fetch(base + '/', {
 let stagedSignupAssetsVerified = false;
 let roundedCharacterAssetsVerified = false;
 let layeredSpriteAssetsVerified = false;
+let balancedFaceAssetsVerified = false;
 if (enrollment) {
   assert.equal(entrance.status, 303);
   assert.equal(entrance.headers.get('location'), '/join');
@@ -82,6 +84,23 @@ if (enrollment) {
     'The actual authored sprite asset bank must be in the deployed entry.',
   );
   layeredSpriteAssetsVerified = true;
+  assert.match(
+    signupCode,
+    /sprite-assets-v2-balanced-face/,
+    'The balanced face renderer must be live.',
+  );
+  for (const name of ['face-0', 'eyes-0']) {
+    const hash = createHash('sha256')
+      .update(
+        readFileSync(new URL('../src/game/sprite-assets/png/' + name + '.png', import.meta.url)),
+      )
+      .digest('hex');
+    assert.ok(
+      signupCode.includes(hash),
+      'The live entry must contain the exact current ' + name + ' PNG data.',
+    );
+  }
+  balancedFaceAssetsVerified = true;
   const invalid = await fetch(base + '/api/enrollment/register', {
     method: 'POST',
     headers: { Origin: base, 'x-pixel-class': '1', 'Content-Type': 'application/json' },
@@ -209,6 +228,7 @@ console.log(
     stagedSignupAssetsVerified,
     roundedCharacterAssetsVerified,
     layeredSpriteAssetsVerified,
+    balancedFaceAssetsVerified,
     authenticatedLoginVerified: false,
     authenticatedWssVerified: false,
   }),
